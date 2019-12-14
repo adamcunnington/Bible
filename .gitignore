@@ -1,0 +1,6 @@
+# PYTHON
+.venv
+
+# EDITOR
+.vscode
+*.egg*
