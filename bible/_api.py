@@ -1,6 +1,9 @@
 import re
 
 
+# TODO: Should we make certain attributes not settable by public callers? E.g. name, reference to parents etc.
+
+
 def _extract_pattern(cls, group_suffix="_start"):
     name_pattern = getattr(cls, "_NAME_REGEX").pattern
     if group_suffix is not None:
