@@ -8,7 +8,7 @@ flake8 = "*"
 mypy = "*"
 
 [packages]
-bible = {editable = true,path = "."}
+requests = "*"
 
 [requires]
 python_version = "3.8"
