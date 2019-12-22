@@ -1,6 +1,13 @@
 import collections
 import re
 
+from bible import utils
+
+
+# TODO: Implement __contains__ and all other magic methods that would be useful.
+# TODO: Decide how people will "discover" books, chapters, verses etc. Currently we provide methods to get objects but user needs to know to search.
+# TODO: Decide what iter should return; number, names, instances? There are use cases for each. How should __getitem__ interact?
+
 
 def _extract_pattern(cls, group_suffix="_start"):
     name_pattern = getattr(cls, "_NAME_REGEX").pattern
@@ -11,6 +18,10 @@ def _extract_pattern(cls, group_suffix="_start"):
 
 def _int_reference(book_number, chapter_number=1, verse_number=1):
     return f"{book_number:01d}{chapter_number:03d}{verse_number:03d}"
+
+
+def _name_to_id(name):
+    return name.replace(" ", "").upper()
 
 
 def _reference(book_name, chapter_number=None, verse_number=None):
@@ -154,7 +165,7 @@ class Chapter(object):
         return self.book.chapter(self.number + 1)
 
     def passage(self, reference="-"):
-        match = self._PASSAGE_REGEX.match(reference.replace(" ", ""))
+        match = self._PASSAGE_REGEX.match(_name_to_id(reference))
         if match is None:
             raise BibleReferenceError(f"the reference, {reference} does not match the expected regex pattern, {self._PASSAGE_REGEX}")
         groups = match.groupdict()
@@ -183,13 +194,14 @@ class Book(object):
     _PASSAGE_REGEX = re.compile(f"^{_extract_pattern(Chapter)}?(?::{_extract_pattern(Verse)})?"
                                 f"-{_extract_pattern(Chapter, '_end')}?(?::{_extract_pattern(Verse, '_end')})?$", flags=re.ASCII | re.IGNORECASE)
 
-    def __init__(self, name, number, translation, alt_names=(), categories=()):
+    def __init__(self, name, number, translation, alt_ids=(), categories=()):
         if not self._NAME_REGEX.match(name):
             raise BibleSetupError(f"the name, {name} does not match the expected regex pattern, {self._NAME_REGEX}")
-        self._name = name.upper()
+        self._name = name
+        self._id = _name_to_id(self._name)
         self._number = number
-        self._alt_names = sorted(alt_name.upper() for alt_name in alt_names)
-        self._categories = sorted(category.upper() for category in categories)
+        self._alt_ids = sorted(_name_to_id(alt_id) for alt_id in alt_ids)
+        self._categories = sorted(categories)
         translation._register_book(self)
         self._translation = translation
         self._chapters = {}
@@ -215,12 +227,16 @@ class Book(object):
         self._chapters[chapter.number] = chapter
 
     @property
-    def alt_names(self):
-        return self._alt_names
+    def alt_ids(self):
+        return self._alt_ids
 
     @property
     def categories(self):
         return self._categories
+
+    @property
+    def id(self):
+        return self._id
 
     @property
     def is_first(self):
@@ -252,7 +268,7 @@ class Book(object):
         return self.translation.book(number=self.number + 1)
 
     def passage(self, reference="-"):
-        match = self._PASSAGE_REGEX.match(reference.replace(" ", ""))
+        match = self._PASSAGE_REGEX.match(_name_to_id(reference))
         if match is None:
             raise BibleReferenceError(f"the reference, {reference} does not match the expected regex pattern, {self._PASSAGE_REGEX}")
         groups = match.groupdict()
@@ -279,9 +295,9 @@ class Translation(object):
 
     def __init__(self, name):
         self.name = name
-        self._books_by_name = {}
-        self._books_by_number = {}
-        self._books_by_category = collections.defaultdict(list)
+        self._books_by_name = utils.FuzzyDict()
+        self._books_by_number = utils.FuzzyDict()
+        self._books_by_category = collections.defaultdict(list)  # TODO: Make this fuzzy?
 
     def __iter__(self):
         return iter(self._books_by_number)
@@ -293,14 +309,14 @@ class Translation(object):
         return f"{self.__class__.__module__}.{self.__class__.__name__}(name={self.name!r})"
 
     def _register_book(self, book):
-        if book.name in self._books_by_name:
-            raise BibleSetupError(f"there is already a book registered in this translation ({self}) with the name, {book.name}")
-        elif book.number in self._books_by_number:
+        if book.number in self._books_by_number:
             raise BibleSetupError(f"there is already a book registered in this translation ({self}) with the number, {book.number}")
-        self._books_by_name[book.name] = book
-        for alt_name in book.alt_names:
-            self._books_by_name[alt_name] = book
+        book_ids = (book.id, *book.alt_ids)
+        for book_id in book_ids:
+            if book_id in self._books_by_name:
+                raise BibleSetupError(f"there is already a book registered in this translation ({self}) with the id, {book_id}")
         self._books_by_number[book.number] = book
+        self._books_by_name.update({book_id: True for book_id in book_ids})
         for category in book.categories:
             self._books_by_category[category].append(book)
 
@@ -328,7 +344,7 @@ class Translation(object):
         if reference is not None:
             if int_reference is not None:
                 raise ValueError("reference and int_reference are mutually exclusive arguments; only 1 should be not None")
-            match = self._PASSAGE_REGEX.match(reference.replace(" ", ""))
+            match = self._PASSAGE_REGEX.match(_name_to_id(reference))
             if match is None:
                 raise BibleReferenceError(f"the reference, {reference} does not match the expected regex pattern, {self._PASSAGE_REGEX}")
             groups = match.groupdict()
@@ -339,7 +355,7 @@ class Translation(object):
         else:
             if int_reference is None:
                 raise ValueError("either reference or int_reference must be not None")
-            match = self._INT_PASSAGE_REGEX.match(int_reference.replace(" ", ""))
+            match = self._INT_PASSAGE_REGEX.match(_name_to_id(int_reference))
             if match is None:
                 raise BibleReferenceError(f"the int_reference, {int_reference} does not match the expected regex pattern, {self._INT_PASSAGE_REGEX}")
             groups = match.groupdict()

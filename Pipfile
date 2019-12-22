@@ -9,7 +9,7 @@ mypy = "*"
 
 [packages]
 requests = "*"
-fuzzywuzzy = "*"
+fuzzywuzzy = {extras = ["speedup"],version = "*"}
 
 [requires]
 python_version = "3.8"
