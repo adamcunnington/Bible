@@ -1,1 +1,4 @@
-from bible.esv.esv import ESV
+from bible.esv import api
+
+
+esv = api.ESV()
