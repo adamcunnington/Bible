@@ -285,3 +285,5 @@ class Passage(object):
     def text(self):
         raise NotImplementedError()
         # TODO: FYI, the cacheing of data in _text or similar is the translation subpackage's job, not the standard API.
+        # TODO: FYI, Also, if text() will return some translation-specific text object with various attributes and special __len__ behaviour for
+        # counting words etc. for meta analysis, that is also the translation subpackage's job, not the standard API.
