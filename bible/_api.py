@@ -1,7 +1,5 @@
+import collections
 import re
-
-
-# TODO: Should we make certain attributes not settable by public callers? E.g. name, reference to parents etc.
 
 
 def _extract_pattern(cls, group_suffix="_start"):
@@ -185,13 +183,13 @@ class Book(object):
     _PASSAGE_REGEX = re.compile(f"^{_extract_pattern(Chapter)}?(?::{_extract_pattern(Verse)})?"
                                 f"-{_extract_pattern(Chapter, '_end')}?(?::{_extract_pattern(Verse, '_end')})?$", flags=re.ASCII | re.IGNORECASE)
 
-    def __init__(self, name, number, translation, alt_names=None, categories=None):
-        # TODO: Need to implement other_names; the book should be findable from any of the names.
-        # TODO: Need to implement categories; these should become methods on the translation object. Enum? How to access on book object? Testaments?
+    def __init__(self, name, number, translation, alt_names=(), categories=()):
         if not self._NAME_REGEX.match(name):
             raise BibleSetupError(f"the name, {name} does not match the expected regex pattern, {self._NAME_REGEX}")
         self._name = name.upper()
         self._number = number
+        self._alt_names = sorted(alt_name.upper() for alt_name in alt_names)
+        self._categories = sorted(category.upper() for category in categories)
         translation._register_book(self)
         self._translation = translation
         self._chapters = {}
@@ -215,6 +213,14 @@ class Book(object):
         if chapter.number in self._chapters:
             raise BibleSetupError(f"there is already a chapter registered in this book ({self}) with the number, {chapter.number}")
         self._chapters[chapter.number] = chapter
+
+    @property
+    def alt_names(self):
+        return self._alt_names
+
+    @property
+    def categories(self):
+        return self._categories
 
     @property
     def is_first(self):
@@ -275,6 +281,7 @@ class Translation(object):
         self.name = name
         self._books_by_name = {}
         self._books_by_number = {}
+        self._books_by_category = collections.defaultdict(list)
 
     def __iter__(self):
         return iter(self._books_by_number)
@@ -291,7 +298,11 @@ class Translation(object):
         elif book.number in self._books_by_number:
             raise BibleSetupError(f"there is already a book registered in this translation ({self}) with the number, {book.number}")
         self._books_by_name[book.name] = book
+        for alt_name in book.alt_names:
+            self._books_by_name[alt_name] = book
         self._books_by_number[book.number] = book
+        for category in book.categories:
+            self._books_by_category[category].append(book)
 
     def book(self, name=None, number=None):
         if name is not None:
@@ -299,13 +310,19 @@ class Translation(object):
                 raise ValueError("name and number are mutually exclusive arguments; only 1 should be not None")
             name = name.upper()
             if name not in self._books_by_name:
-                raise BibleReferenceError(f"the name, {name} is out of range of this translation's books")
+                raise BibleReferenceError(f"the name, {name} is not a valid book name in this translation")
             return self._books_by_name[name]
         if number is None:
             raise ValueError("either name or number must be not None")
         if number not in self._books_by_number:
             raise BibleReferenceError(f"the number, {number} is out of range of this translation's books")
         return self._books_by_number[number]
+
+    def category(self, category):
+        category = category.upper()
+        if category not in self._books_by_category:
+            raise BibleReferenceError(f"the category, {category} is not a valid category name in this translation")
+        return tuple(self._books_by_category[category])
 
     def passage(self, reference=None, int_reference=None):
         if reference is not None:
@@ -345,13 +362,30 @@ class Passage(object):
         self.book_end = book_end
         self.chapter_end = chapter_end
         self.verse_end = verse_end
-        # TODO: Implement some sort of list of objects on demand, e.g. list of all books, chapters and verses encapsulated by the range?
 
     def audio(self):
         raise NotImplementedError()
+
+    def books(self):
+        next_book = self.book_start
+        while next_book is not None and next_book.number <= self.book_end.number:
+            yield next_book
+            next_book = next_book.next()
+
+    def chapters(self):
+        next_chapter = self.chapter_start
+        while next_chapter is not None and next_chapter.number <= self.chapter_end.number:
+            yield next_chapter
+            next_chapter = next_chapter.next()
 
     def text(self):
         raise NotImplementedError()
         # TODO: FYI, the cacheing of data in _text or similar is the translation subpackage's job, not the standard API.
         # TODO: FYI, Also, if text() will return some translation-specific text object with various attributes and special __len__ behaviour for
         # counting words etc. for meta analysis, that is also the translation subpackage's job, not the standard API.
+
+    def verses(self):
+        next_verse = self.verse_start
+        while next_verse is not None and next_verse.number <= self.verse_end.number:
+            yield next_verse
+            next_verse = next_verse.next()
