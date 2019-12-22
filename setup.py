@@ -6,6 +6,6 @@ with open("requirements.txt") as f:
 
 
 setuptools.setup(
-    name="ESV",
+    name="Bible",
     install_requires=dependencies
 )
