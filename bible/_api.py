@@ -1,4 +1,3 @@
-import collections
 import re
 
 from bible import utils
@@ -7,6 +6,7 @@ from bible import utils
 # TODO: Implement __contains__ and all other magic methods that would be useful.
 # TODO: Decide how people will "discover" books, chapters, verses etc. Currently we provide methods to get objects but user needs to know to search.
 # TODO: Decide what iter should return; number, names, instances? There are use cases for each. How should __getitem__ interact?
+# TODO: Add a base.json which includes translation-agnostic historic details (author, chronology, characters etc.)
 
 
 def _extract_pattern(cls, group_suffix="_start"):
@@ -113,16 +113,22 @@ class Chapter(object):
         book._register_chapter(self)
         self._book = book
         self._translation = self.book.translation
-        self._verses = {}
+        self.verses = {}
+
+    def __contains__(self, item):
+        return item in self.verses.values()
+
+    def __getitem__(self, key):
+        return self.verses[key]
 
     def __int__(self):
         return _int_reference(self.book.number, self.number)
 
     def __iter__(self):
-        return iter(self._verses)
+        return iter(self.verses)
 
     def __len__(self):
-        return len(self._verses)
+        return len(self.verses)
 
     def __repr__(self):
         return f"{self.__class__.__module__}.{self.__class__.__name__}(number={self.number!r}, book={self.book!r})"
@@ -131,9 +137,9 @@ class Chapter(object):
         return _reference(self.book.name, self.number)
 
     def _register_verse(self, verse):
-        if verse.number in self._verses:
+        if verse.number in self.verses:
             raise BibleSetupError(f"there is already a verse registered in this chapter ({self}) with the number, {verse.number}")
-        self._verses[verse.number] = verse
+        self.verses[verse.number] = verse
 
     @property
     def book(self):
@@ -184,10 +190,6 @@ class Chapter(object):
             return None
         return self.book.chapter(self.number - 1)
 
-    def verse(self, number):
-        if number not in self._verses:
-            raise BibleReferenceError(f"the number, {number} is out of range of this chapter's verses")
-
 
 class Book(object):
     _NAME_REGEX = re.compile(r"^(?P<book_name>(?:\d{1})?[A-Z]+)$", flags=re.ASCII | re.IGNORECASE)
@@ -204,16 +206,22 @@ class Book(object):
         self._categories = sorted(categories)
         translation._register_book(self)
         self._translation = translation
-        self._chapters = {}
+        self.chapters = {}
+
+    def __contains__(self, item):
+        return item in self.chapters.values()
+
+    def __getitem__(self, key):
+        return self.chapters[key]
 
     def __int__(self):
         return _int_reference(self.book.number)
 
     def __iter__(self):
-        return iter(self._chapters)
+        return iter(self.chapters)
 
     def __len__(self):
-        return len(self._chapters)
+        return len(self.chapters)
 
     def __repr__(self):
         return f"{self.__class__.__module__}.{self.__class__.__name__}(name={self.name!r}, number={self.number!r}, translation={self.translation!r})"
@@ -222,9 +230,9 @@ class Book(object):
         return _reference(self.name)
 
     def _register_chapter(self, chapter):
-        if chapter.number in self._chapters:
+        if chapter.number in self.chapters:
             raise BibleSetupError(f"there is already a chapter registered in this book ({self}) with the number, {chapter.number}")
-        self._chapters[chapter.number] = chapter
+        self.chapters[chapter.number] = chapter
 
     @property
     def alt_ids(self):
@@ -258,10 +266,6 @@ class Book(object):
     def translation(self):
         return self._translation
 
-    def chapter(self, number):
-        if number not in self._chapters:
-            raise BibleReferenceError(f"the number, {number} is out of range of this book's chapters")
-
     def next(self):
         if self.is_last:
             return None
@@ -273,7 +277,7 @@ class Book(object):
             raise BibleReferenceError(f"the reference, {reference} does not match the expected regex pattern, {self._PASSAGE_REGEX}")
         groups = match.groupdict()
         chapter_start = self.chapter(match.group["chapter_number_start"] or 1)
-        verse_start = chapter.verse(match.group["verse_number_start"] or 1)
+        verse_start = chapter_start.verse(match.group["verse_number_start"] or 1)
         chapter_end = self.chapter(match.group["chapter_number_end"] or max(self))
         verse_end = chapter_end.verse(match.group["verse_number_end"] or max(chapter_end))
         if (chapter_end.number < chapter_start.number) or (verse_end.number <= verse_start.number):
@@ -297,7 +301,7 @@ class Translation(object):
         self.name = name
         self._books_by_name = utils.FuzzyDict()
         self._books_by_number = utils.FuzzyDict()
-        self._books_by_category = collections.defaultdict(list)  # TODO: Make this fuzzy?
+        self._books_by_category = utils.FuzzyDict()
 
     def __iter__(self):
         return iter(self._books_by_number)
@@ -318,7 +322,10 @@ class Translation(object):
         self._books_by_number[book.number] = book
         self._books_by_name.update({book_id: True for book_id in book_ids})
         for category in book.categories:
-            self._books_by_category[category].append(book)
+            category = self._books_by_category.get(category)
+            if category is None:
+                category = self._books_by_category[category] = []
+            category.append(book)
 
     def book(self, name=None, number=None):
         if name is not None:
