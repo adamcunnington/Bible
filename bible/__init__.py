@@ -1,1 +1,1 @@
-from bible.esv import esv
+from bible.translations.esv import esv

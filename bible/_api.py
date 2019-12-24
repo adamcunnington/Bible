@@ -3,8 +3,7 @@ import regex as re  # we need variable-width lookbehind assertions
 from bible import utils
 
 
-# TODO: Fix logic error whereby missing chapter assumed as max rather than start (in certain conditions)
-# TODO: Add a base.json which includes translation-agnostic historic details (author, chronology, characters etc.)
+# TODO: Add a base.json which includes translation-agnostic historic details (author, chronology, original language - what about characters etc.)
 
 
 def _extract_pattern(cls, group_suffix="_start"):
@@ -380,12 +379,43 @@ class Translation(object):
 
 class Passage(object):
     def __init__(self, book_start, chapter_start, verse_start, book_end, chapter_end, verse_end):
-        self.book_start = book_start
-        self.chapter_start = chapter_start
-        self.verse_start = verse_start
-        self.book_end = book_end
-        self.chapter_end = chapter_end
-        self.verse_end = verse_end
+        self._book_start = book_start
+        self._chapter_start = chapter_start
+        self._verse_start = verse_start
+        self._book_end = book_end
+        self._chapter_end = chapter_end
+        self._verse_end = verse_end
+
+    def __repr__(self):
+        return (f"{self.__class__.__module__}.{self.__class__.__name__}(book_start={self.book_start!r}, chapter_start={self.chapter_start!r}, "
+                f"verse_start={self.verse_start!r}, book_end={self.book_end!r}, chapter_end={self.chapter_end!r}, verse_end={self.verse_end!r})")
+
+    def __str__(self):
+        return _reference(self.book_start.name, self.chapter_start.number, self.verse_start.number)
+
+    @property
+    def book_start(self):
+        return self._book_start
+
+    @property
+    def chapter_start(self):
+        return self._chapter_start
+
+    @property
+    def verse_start(self):
+        return self._verse_start
+
+    @property
+    def book_end(self):
+        return self._book_end
+
+    @property
+    def chapter_end(self):
+        return self._chapter_end
+
+    @property
+    def verse_end(self):
+        return self._verse_end
 
     def audio(self):
         raise NotImplementedError()
