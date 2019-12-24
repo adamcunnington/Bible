@@ -3,9 +3,6 @@ import regex as re  # we need variable-width lookbehind assertions
 from bible import utils
 
 
-# TODO: Add a base.json which includes translation-agnostic historic details (author, chronology, original language - what about characters etc.)
-
-
 def _extract_pattern(cls, group_suffix="_start"):
     name_pattern = getattr(cls, "_NAME_REGEX").pattern
     if group_suffix is not None:
