@@ -39,6 +39,10 @@ class FuzzyDict(dict):
         return (closest_ratio >= ratio_threshold, closest_key, self.get(closest_key), closest_ratio)
 
 
+def module_of_instance(self):
+    return sys.modules[self.__class__.__module__]
+
+
 def load_translation(module_name):
     module = sys.modules[module_name]
     module_package_name = module_name.rsplit(".", 1)[1]
