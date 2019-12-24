@@ -23,9 +23,12 @@ class Translation(ESVAPI, _api.Translation):
     def search(self, query, page_size=100):
         page = 1
         while page is not None:
-            response = self._get(self._GET_SEARCH_URI_TEMPLATE.format(query=query))
+            response = self._get(self._GET_SEARCH_URI_TEMPLATE.format(query=query, page_size=page_size, page=page))
             for result in response["results"]:
-                yield result
+                book, chapter_verse = result["reference"].rsplit(" ", 1)
+                chapter, verse = chapter_verse.split(":")
+                # temporary; content should be pre-populated in verse's cache and just verse returned
+                yield (self[book][int(chapter)][int(verse)], result["content"])
             page = page + 1 if page != response["total_pages"] else None
 
 
