@@ -1,4 +1,4 @@
-from bible.translations.esv import api
+from bible import utils
 
 
-esv = api.ESV("ESV")
+esv = utils.load_translation(__name__)

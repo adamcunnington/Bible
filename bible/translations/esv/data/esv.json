@@ -1,6 +1,6 @@
 {
     "translation_meta": {
-        "name": null
+        "name": "ESV"
     },
     "books": [
         {
@@ -326,10 +326,94 @@
             "chapter_verses": [29, 23, 25, 18]
         },
         {
-            "name": "Colossians",
-            "alt_ids": ["Epistle to the Colossians"],
+            "name": "1 Thessalonians",
+            "alt_ids": ["First Epistle to the Thessalonians"],
             "categories": ["New Testament", "Pauline Epistles"],
-            "chapter_verses": [29, 23, 25, 18]
+            "chapter_verses": [10, 20, 13, 18, 28]
         },
+        {
+            "name": "2 Thessalonians",
+            "alt_ids": ["Second Epistle to the Thessalonians"],
+            "categories": ["New Testament", "Pauline Epistles"],
+            "chapter_verses": [12, 17, 18]
+        },
+        {
+            "name": "1 Timothy",
+            "alt_ids": ["First Epistle to Timothy"],
+            "categories": ["New Testament", "Pauline Epistles"],
+            "chapter_verses": [12, 17, 18]
+        },
+        {
+            "name": "2 Timothy",
+            "alt_ids": ["Second Epistle to Timothy"],
+            "categories": ["New Testament", "Pauline Epistles"],
+            "chapter_verses": [18, 26, 17, 22]
+        },
+        {
+            "name": "Titus",
+            "alt_ids": ["Epistle to Titus"],
+            "categories": ["New Testament", "Pauline Epistles"],
+            "chapter_verses": [16, 15, 15]
+        },
+        {
+            "name": "Philemon",
+            "alt_ids": ["Epistle to Philemon"],
+            "categories": ["New Testament", "Pauline Epistles"],
+            "chapter_verses": [25]
+        },
+        {
+            "name": "Hebrews",
+            "alt_ids": ["Epistle to the Hebrews"],
+            "categories": ["New Testament", "General Epistles"],
+            "chapter_verses": [14, 18, 19, 16, 14, 20, 28, 13, 28, 39, 40, 29, 25]
+        },
+        {
+            "name": "James",
+            "alt_ids": ["Epistle to James"],
+            "categories": ["New Testament", "General Epistles"],
+            "chapter_verses": [27, 26, 18, 17, 20]
+        },
+        {
+            "name": "1 Peter",
+            "alt_ids": ["First Epistle of Peter"],
+            "categories": ["New Testament", "General Epistles"],
+            "chapter_verses": [25, 25, 22, 19, 14]
+        },
+        {
+            "name": "2 Peter",
+            "alt_ids": ["Second Epistle of Peter"],
+            "categories": ["New Testament", "General Epistles"],
+            "chapter_verses": [21, 22, 18]
+        },
+        {
+            "name": "1 John",
+            "alt_ids": ["First Epistle of John"],
+            "categories": ["New Testament", "General Epistles"],
+            "chapter_verses": [10, 29, 24, 21, 21]
+        },
+        {
+            "name": "2 John",
+            "alt_ids": ["Second Epistle of John"],
+            "categories": ["New Testament", "General Epistles"],
+            "chapter_verses": [13]
+        },
+        {
+            "name": "3 John",
+            "alt_ids": ["Third Epistle of John"],
+            "categories": ["New Testament", "General Epistles"],
+            "chapter_verses": [15]
+        },
+        {
+            "name": "Jude",
+            "alt_ids": ["Epistle of Jude"],
+            "categories": ["New Testament", "General Epistles"],
+            "chapter_verses": [25]
+        },
+        {
+            "name": "Revelation",
+            "alt_ids": ["Book of Revelation"],
+            "categories": ["New Testament", "Apocalypse"],
+            "chapter_verses": [20, 29, 22, 11, 14, 17, 17, 13, 21, 11, 19, 17, 18, 20, 8, 21, 18, 24, 21, 15, 27, 21]
+        }
     ]
 }

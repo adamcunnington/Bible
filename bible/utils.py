@@ -1,31 +1,26 @@
+import importlib
+import json
+import os
+import sys
+
 from fuzzywuzzy import fuzz
 
 
-class FuzzyDefaultDict(dict):
+class FuzzyDict(dict):
     def __init__(self, *args, **kwargs):
         self.ratio_threshold = kwargs.pop("ratio_threshold", 60)
-        self.default_factory = kwargs.pop("default_factory", None)
         super().__init__(*args, **kwargs)
-
-    def __contains__(self, key):
-        return self.search(key, return_first=True)[0]
 
     def __getitem__(self, key):
         matched, closest_key, closest_value, ratio = self.search(key)
         if not matched:
-            return self.__missing__(key, closest_key, ratio)
-        return closest_value
-
-    def __missing__(self, key, closest_key, ratio):
-        if self.default_factory is None:
             if closest_key is None:
                 raise KeyError(key)
             raise KeyError(f"'{key}'. The closest match was {closest_key} but with a ratio ({ratio}) < the threshold ({self.ratio_threshold})")
-        value = self[key] = self.default_factory()
-        return value
+        return closest_value
 
     def search(self, key, return_first=False, ratio_threshold_override=None):
-        if super().__contains__(key):
+        if key in self:
             return (True, key, super().__getitem__(key), 1)
         if not isinstance(key, str):
             return (False, key, None, 0)
@@ -42,3 +37,20 @@ class FuzzyDefaultDict(dict):
                 if return_first and closest_ratio >= ratio_threshold:
                     break
         return (closest_ratio >= ratio_threshold, closest_key, self.get(closest_key), closest_ratio)
+
+
+def load_translation(module_name):
+    module = sys.modules[module_name]
+    module_package_name = module_name.rsplit(".", 1)[1]
+    file_path = os.path.join(os.path.dirname(module.__file__), "data", f"{module_package_name}.json")
+    api_module = importlib.import_module(f"{module_name}.api")
+    with open(file_path) as f:
+        data = json.load(f)
+        translation = api_module.Translation(data["translation_meta"]["name"])
+        for book_index, book_data in enumerate(data["books"]):
+            book = api_module.Book(book_data["name"], book_index + 1, translation, alt_ids=book_data["alt_ids"], categories=book_data["categories"])
+            for chapter_index, verse_count in enumerate(book_data["chapter_verses"]):
+                chapter = api_module.Chapter(chapter_index + 1, book)
+                for verse_index in range(verse_count):
+                    _ = api_module.Verse(verse_index + 1, chapter)
+    return translation
