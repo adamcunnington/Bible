@@ -1,3 +1,5 @@
 fuzzywuzzy[speedup]
+playsound
+PyGObject
 regex
 requests

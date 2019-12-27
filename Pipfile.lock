@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "c8da83a3f4dff403db8c1d76df6ff682b85ab2f765eee638ef96bd39589be5b3"
+            "sha256": "2f60ccd1ace58d84ea2e1f6419cfb522b3a22ce9e1289f924646b7a817ad7aa8"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -47,6 +47,27 @@
                 "sha256:ea8b7f6188e6fa117537c3df7da9fc686d485087abf6ac197f9c46432f7e4a3c"
             ],
             "version": "==2.8"
+        },
+        "playsound": {
+            "hashes": [
+                "sha256:1e83750a5325cbccee03d6e751ba3e78c037ac95b95a3ba1f38d0c5aca9e1a34"
+            ],
+            "index": "pypi",
+            "version": "==1.2.2"
+        },
+        "pycairo": {
+            "hashes": [
+                "sha256:dcb853fd020729516e8828ad364084e752327d4cff8505d20b13504b32b16531"
+            ],
+            "index": "pypi",
+            "version": "==1.18.2"
+        },
+        "pygobject": {
+            "hashes": [
+                "sha256:2acb0daf2b3a23a90f52066cc23d1053339fee2f5f7f4275f8baa3704ae0c543"
+            ],
+            "index": "pypi",
+            "version": "==3.34.0"
         },
         "python-levenshtein": {
             "hashes": [

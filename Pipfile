@@ -4,9 +4,11 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [packages]
+fuzzywuzzy = {extras = ["speedup"],version = "*"}
+playsound = "*"
 regex = "*"
 requests = "*"
-fuzzywuzzy = {extras = ["speedup"],version = "*"}
+PyGObject = "*"
 
 [requires]
 python_version = "3.8"
