@@ -326,7 +326,7 @@ class Translation(object):
         return iter(self.books)
 
     def __len__(self):
-        return len(self.books)
+        return len(set(self.books.values()))
 
     def __repr__(self):
         return f"{self.__class__.__module__}.{self.__class__.__name__}(name={self.name})"
@@ -392,6 +392,9 @@ class Passage(object):
         self._chapter_end = chapter_end
         self._verse_end = verse_end
 
+    def __len__(self):
+        return sum(1 for _ in self.verses())
+
     def __repr__(self):
         return (f"{self.__class__.__module__}.{self.__class__.__name__}(book_start={self.book_start.name}, "
                 f"chapter_start={self.chapter_start.number}, verse_start={self.verse_start.number}, book_end={self.book_end.name}, "
@@ -430,13 +433,13 @@ class Passage(object):
 
     def books(self):
         next_book = self.book_start
-        while next_book is not None and next_book.number <= self.book_end.number:
+        while next_book is not None and int(next_book) <= int(self.book_end):
             yield next_book
             next_book = next_book.next()
 
     def chapters(self):
         next_chapter = self.chapter_start
-        while next_chapter is not None and next_chapter.number <= self.chapter_end.number:
+        while next_chapter is not None and int(next_chapter) <= int(self.chapter_end):
             yield next_chapter
             next_chapter = next_chapter.next()
 
@@ -445,6 +448,6 @@ class Passage(object):
 
     def verses(self):
         next_verse = self.verse_start
-        while next_verse is not None and next_verse.number <= self.verse_end.number:
+        while next_verse is not None and int(next_verse) <= int(self.verse_end):
             yield next_verse
             next_verse = next_verse.next()
