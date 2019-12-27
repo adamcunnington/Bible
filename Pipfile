@@ -5,10 +5,9 @@ verify_ssl = true
 
 [packages]
 fuzzywuzzy = {extras = ["speedup"],version = "*"}
-playsound = "*"
+python-vlc = "*"
 regex = "*"
 requests = "*"
-PyGObject = "*"
 
 [requires]
 python_version = "3.8"

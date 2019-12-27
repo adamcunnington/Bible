@@ -1,5 +1,4 @@
 fuzzywuzzy[speedup]
-playsound
-PyGObject
+python-vlc
 regex
 requests

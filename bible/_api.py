@@ -401,8 +401,7 @@ class Passage(object):
                 f"chapter_end={self.chapter_end.number}, verse_end={self.verse_end.number})")
 
     def __str__(self):
-        return (f"{_reference(self.book_start.name, self.chapter_start.number, self.verse_start.number)}-"
-                f"{_reference(self.book_end.name, self.chapter_end.number, self.verse_end.number)}")
+        return (f"{str(int(self.verse_start))}-{str(int(self.verse_end))}")
 
     @property
     def book_start(self):

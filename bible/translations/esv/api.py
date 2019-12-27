@@ -1,8 +1,8 @@
 import itertools
 import re
 
-import playsound
 import requests
+import vlc
 
 from bible import _api
 
@@ -14,7 +14,7 @@ class ESVError(Exception):
 class ESVAPIMixin(object):
     _AUTH_HEADER = {"Authorization": "Token 8334f7ff2c3ca64e05da7afa4e47eaf9efba59cb"}
     _BASE_URL = "https://api.esv.org/v3/passage/"
-    _GET_AUDIO_URL_TEMPLATE = "https://esv.org/audio-player/{reference}"
+    _GET_AUDIO_URL_TEMPLATE = "https://audio.esv.org/hw/{reference}.mp3"
     _GET_SEARCH_ENDPOINT_TEMPLATE = "search/?q={query}&page-size={page_size}&page={page}"
     _GET_TEXT_ENDPOINT_TEMPLATE = ("text/?q={reference}&include-passage-references=false&include-verse-numbers=false&"
                                    "include-first-verse-numbers=false&include-footnotes=true&included-footnote-body=true&include-headings=true&"
@@ -34,7 +34,7 @@ class ESVAPIMixin(object):
 
 class Verse(ESVAPIMixin, _api.Verse):
     def audio(self):
-        playsound.playsound(self._GET_AUDIO_URL_TEMPLATE.format(reference=str(self)))
+        vlc.MediaPlayer(self._GET_AUDIO_URL_TEMPLATE.format(reference=int(self))).play()
 
     def text(self):
         if self._text is None:
@@ -72,7 +72,7 @@ class Passage(ESVAPIMixin, _api.Passage):
             yield itertools.chain([first], itertools.islice(iterator, size - 1))
 
     def audio(self):
-        playsound.playsound(self._GET_AUDIO_URL_TEMPLATE.format(reference=str(self)))
+        vlc.MediaPlayer(self._GET_AUDIO_URL_TEMPLATE.format(reference=str(self))).play()
 
     def text(self):
         verses = list(self.verses())

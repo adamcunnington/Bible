@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2f60ccd1ace58d84ea2e1f6419cfb522b3a22ce9e1289f924646b7a817ad7aa8"
+            "sha256": "434cc5ba7b6bc6199e08f365988729cf3a03b4d05b5f113ceeeb167e0e8495c2"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -48,32 +48,19 @@
             ],
             "version": "==2.8"
         },
-        "playsound": {
-            "hashes": [
-                "sha256:1e83750a5325cbccee03d6e751ba3e78c037ac95b95a3ba1f38d0c5aca9e1a34"
-            ],
-            "index": "pypi",
-            "version": "==1.2.2"
-        },
-        "pycairo": {
-            "hashes": [
-                "sha256:dcb853fd020729516e8828ad364084e752327d4cff8505d20b13504b32b16531"
-            ],
-            "index": "pypi",
-            "version": "==1.18.2"
-        },
-        "pygobject": {
-            "hashes": [
-                "sha256:2acb0daf2b3a23a90f52066cc23d1053339fee2f5f7f4275f8baa3704ae0c543"
-            ],
-            "index": "pypi",
-            "version": "==3.34.0"
-        },
         "python-levenshtein": {
             "hashes": [
                 "sha256:033a11de5e3d19ea25c9302d11224e1a1898fe5abd23c61c7c360c25195e3eb1"
             ],
             "version": "==0.12.0"
+        },
+        "python-vlc": {
+            "hashes": [
+                "sha256:821bca0dbe08fbff97a65e56ff2318ad7d499330876579c39f01f3fb38c7b679",
+                "sha256:f62987571cf3d58adfc5b2c0adab679f96dcce76e8096d14cc56abd4c3d3527b"
+            ],
+            "index": "pypi",
+            "version": "==3.0.7110"
         },
         "regex": {
             "hashes": [
