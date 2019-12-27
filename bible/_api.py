@@ -204,13 +204,14 @@ class Book(object):
     _PASSAGE_REGEX = re.compile(fr"^{_extract_pattern(Chapter)}?:?{_extract_pattern(Verse)}?-(?P<chapter_number_end>(?<!:.*-)\d+|(?=\d*:)\d+)?"
                                 f":?{_extract_pattern(Verse, '_end')}?$", flags=re.ASCII | re.IGNORECASE)
 
-    def __init__(self, name, number, translation, alt_ids=(), categories=()):
+    def __init__(self, name, number, translation, language=None, alt_ids=(), categories=()):
         _id = _name_to_id(name)
         if not self._NAME_REGEX.match(_id):
             raise BibleSetupError(f"the derived id, '{_id}' does not match the expected regex pattern, {self._NAME_REGEX}")
         self._name = name
         self._id = _id
         self._number = number
+        self._language = language
         self._alt_ids = sorted(_name_to_id(alt_id) for alt_id in alt_ids)
         self._categories = sorted(categories)
         translation._register_book(self)
@@ -266,6 +267,10 @@ class Book(object):
     @property
     def is_last(self):
         return self.number == max(self.translation, key=lambda key: self.translation.books[key].number)
+
+    @property
+    def language(self):
+        return self._language
 
     @property
     def name(self):
@@ -401,7 +406,8 @@ class Passage(object):
                 f"chapter_end={self.chapter_end.number}, verse_end={self.verse_end.number})")
 
     def __str__(self):
-        return (f"{str(int(self.verse_start))}-{str(int(self.verse_end))}")
+        return (f"{_reference(self.book_start.name, self.chapter_start.number, self.verse_start.number)}-"
+                f"{_reference(self.book_end.name, self.chapter_end.number, self.verse_end.number)}")
 
     @property
     def book_start(self):
@@ -422,6 +428,10 @@ class Passage(object):
     @property
     def chapter_end(self):
         return self._chapter_end
+
+    @property
+    def int_reference(self):
+        return (f"{str(int(self.verse_start))}-{str(int(self.verse_end))}")
 
     @property
     def verse_end(self):
