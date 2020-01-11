@@ -78,9 +78,9 @@ class Translation(ESVAPIMixin, _api.Translation):
                 chapter_verse_split = chapter_verse.split(":")
                 if len(chapter_verse_split) == 1:
                     chapter_number = 1
-                    verse_number = chapter_verse_split
+                    verse_number = chapter_verse_split[0]
                 else:
-                    chapter_number, verse_number = chapter_verse.split(":")
+                    chapter_number, verse_number = chapter_verse_split
                 verse = self[book][int(chapter_number)][int(verse_number)]
                 verse._text = Text(result["content"])
                 yield verse
