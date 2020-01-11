@@ -104,7 +104,7 @@ class Passage(ESVAPIMixin, _api.Passage):
 
 
 class Text(object):
-    _TEXT_REGEX = re.compile(r"^(?:(?P<title>.+?\w)\n\n)?(?:(?P<body>.+?)\n\n)(?:Footnotes\n\n(?P<footnotes>.+?)\n)?$", flags=re.DOTALL)
+    _TEXT_REGEX = re.compile(r"^(?:(?P<title>.+?\w)\n\n)?(?:(?P<body>.+?))(?:\n\n)?(?:Footnotes\n\n(?P<footnotes>.+?)\n)?$", flags=re.DOTALL)
 
     def __init__(self, raw_text):
         self._raw_text = raw_text
