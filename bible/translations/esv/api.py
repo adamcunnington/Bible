@@ -75,7 +75,12 @@ class Translation(ESVAPIMixin, _api.Translation):
             response = self._get_json(self._GET_SEARCH_ENDPOINT_TEMPLATE.format(query=query, page_size=page_size, page=page))
             for result in response["results"]:
                 book, chapter_verse = result["reference"].rsplit(" ", 1)
-                chapter_number, verse_number = chapter_verse.split(":")
+                chapter_verse_split = chapter_verse.split(":")
+                if len(chapter_verse_split) == 1:
+                    chapter_number = 1
+                    verse_number = chapter_verse_split
+                else:
+                    chapter_number, verse_number = chapter_verse.split(":")
                 verse = self[book][int(chapter_number)][int(verse_number)]
                 verse._text = Text(result["content"])
                 yield verse
