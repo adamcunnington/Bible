@@ -115,7 +115,6 @@ class Text(object):
         self._raw_text = raw_text
         match = self._TEXT_REGEX.match(raw_text)
         if match is None:
-            print(self._TEXT_REGEX.pattern, repr(raw_text))
             raise ESVError("the raw_text did not match the expected pattern")
         groups = match.groupdict()
         self._title = groups["title"]
