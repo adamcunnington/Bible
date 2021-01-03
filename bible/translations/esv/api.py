@@ -8,6 +8,10 @@ import vlc
 from bible import _api
 
 
+# ENVIRONMENT VARIABLES
+_ESV_API_TOKEN_ENV_VAR = "ESV_API_TOKEN"
+
+# INTERNALS
 _AUDIO_CACHE_FILE_PATH_TEMPLATE = "/tmp/bible/{file_name}.mp3"
 
 
@@ -16,7 +20,7 @@ class ESVError(Exception):
 
 
 class ESVAPIMixin(object):
-    _AUTH_HEADER = {"Authorization": "Token 8334f7ff2c3ca64e05da7afa4e47eaf9efba59cb"}
+    _AUTH_HEADER = {"Authorization": f"Token {os.environ[_ESV_API_TOKEN_ENV_VAR]}"}
     _BASE_URL = "https://api.esv.org/v3/passage/"
     _GET_AUDIO_ENDPOINT_TEMPLATE = "audio/?q={query}"
     _GET_SEARCH_ENDPOINT_TEMPLATE = "search/?q={query}&page-size={page_size}&page={page}"
@@ -41,7 +45,10 @@ class ESVAPIMixin(object):
         vlc.MediaPlayer(audio_file_path).play()
 
     def _get(self, endpoint_uri):
-        return requests.get(self._BASE_URL + endpoint_uri, headers=self._AUTH_HEADER)
+        response = requests.get(self._BASE_URL + endpoint_uri, headers=self._AUTH_HEADER)
+        if not response.ok:
+            response.raise_for_status()
+        return response
 
     def _get_bytes(self, endpoint_uri):
         return self._get(endpoint_uri).content

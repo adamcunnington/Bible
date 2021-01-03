@@ -204,15 +204,17 @@ class Book(object):
     _PASSAGE_REGEX = re.compile(fr"^{_extract_pattern(Chapter)}?:?{_extract_pattern(Verse)}?-(?P<chapter_number_end>(?<!:.*-)\d+|(?=\d*:)\d+)?"
                                 f":?{_extract_pattern(Verse, '_end')}?$", flags=re.ASCII | re.IGNORECASE)
 
-    def __init__(self, name, number, translation, language=None, alt_ids=(), categories=()):
+    def __init__(self, name, number, translation, author, language, alt_names=(), categories=()):
         _id = _name_to_id(name)
         if not self._NAME_REGEX.match(_id):
             raise BibleSetupError(f"the derived id, '{_id}' does not match the expected regex pattern, {self._NAME_REGEX}")
         self._name = name
         self._id = _id
         self._number = number
+        self._author = author
         self._language = language
-        self._alt_ids = sorted(_name_to_id(alt_id) for alt_id in alt_ids)
+        self._alt_names = sorted(alt_names)
+        self._alt_ids = sorted(_name_to_id(alt_name) for alt_name in alt_names)
         self._categories = sorted(categories)
         translation._register_book(self)
         self._translation = translation
@@ -247,6 +249,14 @@ class Book(object):
     @property
     def alt_ids(self):
         return self._alt_ids
+
+    @property
+    def alt_names(self):
+        return self._alt_names
+
+    @property
+    def author(self):
+        return self._author
 
     @property
     def categories(self):

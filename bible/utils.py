@@ -4,6 +4,17 @@ import os
 import sys
 
 from fuzzywuzzy import fuzz
+import jsonmerge
+
+
+# INTERNALS
+_json_merge_schema = {
+    "properties": {
+        "books": {
+            "mergeStrategy": "arrayMergeByIndex"
+        }
+    }
+}
 
 
 class FuzzyDict(dict):
@@ -44,17 +55,21 @@ def module_of_instance(self):
 
 
 def load_translation(module_name):
+    with open(os.path.join(os.path.dirname(__file__), "data", "base.json")) as f:
+        base_data = json.load(f)
     module = sys.modules[module_name]
     module_package_name = module_name.rsplit(".", 1)[1]
     file_path = os.path.join(os.path.dirname(module.__file__), "data", f"{module_package_name}.json")
     api_module = importlib.import_module(f"{module_name}.api")
     with open(file_path) as f:
-        data = json.load(f)
-        translation = api_module.Translation(data["translation_meta"]["name"])
-        for book_index, book_data in enumerate(data["books"]):
-            book = api_module.Book(book_data["name"], book_index + 1, translation, alt_ids=book_data["alt_ids"], categories=book_data["categories"])
-            for chapter_index, verse_count in enumerate(book_data["chapter_verses"]):
-                chapter = api_module.Chapter(chapter_index + 1, book)
-                for verse_index in range(verse_count):
-                    _ = api_module.Verse(verse_index + 1, chapter)
+        translation_data = json.load(f)
+    data = jsonmerge.Merger(_json_merge_schema).merge(base_data, translation_data)
+    translation = api_module.Translation(data["translation_meta"]["name"])
+    for book_index, book_data in enumerate(data["books"]):
+        book = api_module.Book(book_data["name"], book_index + 1, translation, book_data["author"], book_data["language"],
+                               alt_names=book_data.get("alt_names", ()), categories=book_data.get("categories", ()))
+        for chapter_index, verse_count in enumerate(book_data["chapter_verses"]):
+            chapter = api_module.Chapter(chapter_index + 1, book)
+            for verse_index in range(verse_count):
+                _ = api_module.Verse(verse_index + 1, chapter)
     return translation

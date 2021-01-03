@@ -1,4 +1,6 @@
 fuzzywuzzy[speedup]
+jsonmerge
+python-dotenv
 python-vlc
 regex
 requests

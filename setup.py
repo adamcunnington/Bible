@@ -10,7 +10,8 @@ setuptools.setup(
     install_requires=dependencies,
     extras_require={
         "dev": [
-            "flake8"
+            "flake8",
+            "pyclean"
         ]
     }
 )
