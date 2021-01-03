@@ -1,0 +1,22 @@
+{
+    "name": "Example",
+    "alt_names": [],
+    "mother": "",
+    "father": "",
+    "born": "",
+    "place_of_birth": "",
+    "age": "",
+    "died": "",
+    "cause_of_death": "",
+    "place_of_death": "",
+    "primary_occupation": "",
+    "passages": ["Genesis 3-?"]
+}
+
+
+/// Comments
+How do we uniquely identify a record beyond explicitly referencing an index? This applies to mother and father too.
+Should we capture any other details?
+What rules should we have for determining when a given passage should be a range or list of occurences?
+How do we explicitly identify when a character is first talked about and last talked about.
+At the end of each book, we should identify all characters who have one or more passages that reference/cross the book, and ensure all details are finished. That way, if we come across them again, we know to append a passage.
