@@ -7,5 +7,10 @@ with open("requirements.txt") as f:
 
 setuptools.setup(
     name="Bible",
-    install_requires=dependencies
+    install_requires=dependencies,
+    extras_require={
+        "dev": [
+            "flake8"
+        ]
+    }
 )
