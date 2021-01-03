@@ -460,3 +460,5 @@ class Passage(object):
         while next_verse is not None and int(next_verse) <= int(self.verse_end):
             yield next_verse
             next_verse = next_verse.next()
+
+# TODO: Use dataclasses?
