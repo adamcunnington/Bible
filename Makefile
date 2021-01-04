@@ -35,7 +35,7 @@ lint: venv ## run flake8
 
 .PHONY: run
 run: ## run the application inside an interactive docker container
-	docker run -it --rm -e ESV_API_TOKEN=$$ESV_API_TOKEN bible:latest
+	docker run -it --rm -e ESV_API_TOKEN=$$ESV_API_TOKEN --env-file .env bible:latest
 
 .PHONY: run-local
 run-local: install ## run the application locally
