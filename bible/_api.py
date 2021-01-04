@@ -125,7 +125,10 @@ class Chapter(object):
         return item in self.verses.values()
 
     def __getitem__(self, key):
-        return self.verses[key]
+        try:
+            return self.verses[key]
+        except KeyError:
+            raise BibleReferenceError(f"{key} is not between 1 and {len(self)}")
 
     def __int__(self):
         return _int_reference(self.book.number, self.number)
@@ -230,7 +233,10 @@ class Book(object):
         return item in self.chapters.values()
 
     def __getitem__(self, key):
-        return self.chapters[key]
+        try:
+            return self.chapters[key]
+        except KeyError:
+            raise BibleReferenceError(f"{key} is not between 1 and {len(self)}")
 
     def __int__(self):
         return _int_reference(self.book.number)
@@ -345,7 +351,10 @@ class Translation(object):
         return item in set(self.books.values())
 
     def __getitem__(self, key):
-        return self.books[_name_to_id(key)]
+        try:
+            return self.books[_name_to_id(key)]
+        except KeyError:
+            raise BibleReferenceError(f"{key} is not between 1 and {len(self)}")
 
     def __iter__(self):
         return iter(self.books)
