@@ -1,8 +1,8 @@
 {
     "name": "Cain",
     "alt_names": [],
-    "mother": "Eve",
-    "father": "Adam",
+    "mother": 2,
+    "father": 1,
     "from": "",
     "age": "",
     "died": "",
