@@ -1,13 +1,13 @@
 {
-    "name": "Adam",
+    "name": "Eve",
     "alt_names": [],
     "mother": null,
     "father": null,
-    "place_of_birth": "Earth",
+    "from": "Eden",
     "age": "",
     "died": "",
     "cause_of_death": "",
     "place_of_death": "",
     "primary_occupation": "Gardener",
-    "passages": ["Genesis 2:7-?"]
+    "passages": ["Genesis 2:22-?"]
 }
