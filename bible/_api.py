@@ -75,7 +75,7 @@ class Verse(object):
 
     @property
     def is_last(self):
-        return self.number == max(self.chapter)
+        return self.number == len(self.chapter)
 
     @property
     def number(self):
@@ -102,7 +102,7 @@ class Verse(object):
             if overspill:
                 previous_chapter = self.chapter.previous()
                 if previous_chapter is not None:
-                    return previous_chapter[max(previous_chapter)]
+                    return previous_chapter[len(previous_chapter)]
             return None
         return self.chapter[self.number - 1]
 
@@ -158,7 +158,7 @@ class Chapter(object):
 
     @property
     def is_last(self):
-        return self.number == max(self.book)
+        return self.number == len(self.book)
 
     @property
     def number(self):
@@ -190,7 +190,7 @@ class Chapter(object):
         if groups["range"] is None:
             verse_end = verse_start
         else:
-            verse_end = self[_int(groups["verse_number_end"]) or max(self)]
+            verse_end = self[_int(groups["verse_number_end"]) or len(self)]
         if int(verse_end) < int(verse_start):
             raise BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
         return utils.module_of_instance(self).Passage(self.book, self, verse_start, self.book, self, verse_end)
@@ -200,7 +200,7 @@ class Chapter(object):
             if overspill:
                 previous_book = self.book.previous()
                 if previous_book is not None:
-                    return previous_book[max(previous_book)]
+                    return previous_book[len(previous_book)]
             return None
         return self.book[self.number - 1]
 
@@ -282,7 +282,7 @@ class Book(object):
 
     @property
     def is_last(self):
-        return self.number == max(self.translation, key=lambda key: self.translation.books[key].number)
+        return self.number == len(self.translation)
 
     @property
     def language(self):
@@ -317,8 +317,8 @@ class Book(object):
             chapter_end = chapter_start
             verse_end = verse_start
         else:
-            chapter_end = self[_int(groups["chapter_number_end"]) or (chapter_start.number if verse_number_start else max(self))]
-        verse_end = chapter_end[_int(groups["verse_number_end"]) or max(chapter_end)]
+            chapter_end = self[_int(groups["chapter_number_end"]) or (chapter_start.number if verse_number_start else len(self))]
+            verse_end = chapter_end[_int(groups["verse_number_end"]) or len(chapter_end)]
         if int(verse_end) < int(verse_start):
             raise BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
         return utils.module_of_instance(self).Passage(self, chapter_start, verse_start, self, chapter_end, verse_end)
@@ -405,10 +405,9 @@ class Translation(object):
             verse_end = verse_start
         else:
             chapter_or_verse = chapter_number_start or verse_number_start
-            book_end = self.books[groups[book_end_group] or (book_start.number if chapter_or_verse
-                                                             else max(self, key=lambda k: self.books[k].number))]
-            chapter_end = book_end[_int(groups["chapter_number_end"]) or (chapter_start.number if verse_number_start else max(book_end))]
-            verse_end = chapter_end[_int(groups["verse_number_end"]) or max(chapter_end)]
+            book_end = self.books[groups[book_end_group] or (book_start.number if chapter_or_verse else len(self.books))]
+            chapter_end = book_end[_int(groups["chapter_number_end"]) or (chapter_start.number if verse_number_start else len(book_end))]
+            verse_end = chapter_end[_int(groups["verse_number_end"]) or len(chapter_end)]
         if int(verse_end) < int(verse_start):
             raise BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
         return utils.module_of_instance(self).Passage(book_start, chapter_start, verse_start, book_end, chapter_end, verse_end)
@@ -432,7 +431,7 @@ class Passage(object):
                 f"chapter_end={self.chapter_end.number}, verse_end={self.verse_end.number})")
 
     def __str__(self):
-        return (f"{_reference(self.book_start.name, self.chapter_start.number, self.verse_start.number)}-"
+        return (f"{_reference(self.book_start.name, self.chapter_start.number, self.verse_start.number)} - "
                 f"{_reference(self.book_end.name, self.chapter_end.number, self.verse_end.number)}")
 
     @property

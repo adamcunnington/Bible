@@ -146,6 +146,3 @@ class Text(object):
     @property
     def title(self):
         return self._title
-
-
-# TODO: Add a base.json which includes translation-agnostic historic details (author, chronology, original language - what about characters etc.)
