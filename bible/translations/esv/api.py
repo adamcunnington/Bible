@@ -24,8 +24,8 @@ class ESVAPIMixin(object):
     _BASE_URL = "https://api.esv.org/v3/passage/"
     _GET_AUDIO_ENDPOINT_TEMPLATE = "audio/?q={query}"
     _GET_SEARCH_ENDPOINT_TEMPLATE = "search/?q={query}&page-size={page_size}&page={page}"
-    _GET_TEXT_ENDPOINT_TEMPLATE = ("text/?q={reference}&include-passage-references=false&include-verse-numbers=false&"
-                                   "include-first-verse-numbers=false&include-footnotes=true&included-footnote-body=true&include-headings=true&"
+    _GET_TEXT_ENDPOINT_TEMPLATE = ("text/?q={reference}&include-passage-references=false&include-verse-numbers=true&"
+                                   "include-first-verse-numbers=true&include-footnotes=true&included-footnote-body=true&include-headings=true&"
                                    "include-short-copyright=false&include-passage-horizontal-lines=false&include-heading-horizontal-lines=false&"
                                    "include-selahs=true&indent-paragraphs=0&indent-poetry=false&indent-declares=0&indent-psalm-doxology=0&"
                                    "line-length=0")
@@ -35,6 +35,12 @@ class ESVAPIMixin(object):
     def __init__(self, *args, **kwargs):
         self._text = None
         super().__init__(*args, **kwargs)
+
+    @staticmethod
+    def _chunk(iterable, size):
+        iterator = iter(iterable)
+        for first in iterator:
+            yield itertools.chain([first], itertools.islice(iterator, size - 1))
 
     def _audio(self, reference):
         audio_file_path = _AUDIO_CACHE_FILE_PATH_TEMPLATE.format(file_name=reference)
@@ -56,26 +62,39 @@ class ESVAPIMixin(object):
     def _get_json(self, endpoint_uri):
         return self._get(endpoint_uri).json()
 
-
-class Verse(ESVAPIMixin, _api.Verse):
     def audio(self):
         self._audio(str(int(self)))
 
+    def text(self):
+        verses = list(self.verses)
+        textless_verses = [verse for verse in verses if verse._text is None]
+        for chunk_index, verse_chunk in enumerate(self._chunk(textless_verses, self._MAX_VERSES_PER_TEXT_QUERY)):
+            query = ",".join(str(int(verse)) for verse in verse_chunk)
+            passages = self._get_json(self._GET_TEXT_ENDPOINT_TEMPLATE.format(reference=query))["passages"]
+            for verse_index, passage in enumerate(passages):
+                textless_verses[(chunk_index * self._MAX_VERSES_PER_TEXT_QUERY) + verse_index]._text = Text(passage)
+        return " ".join(verse.text().body for verse in verses)
+
+
+class Verse(ESVAPIMixin, _api.Verse):
     def text(self):
         if self._text is None:
             self._text = Text(self._get_json(self._GET_TEXT_ENDPOINT_TEMPLATE.format(reference=str(self)))["passages"][0])
         return self._text
 
 
-class Chapter(_api.Chapter):
+class Chapter(ESVAPIMixin, _api.Chapter):
     pass
 
 
-class Book(_api.Book):
+class Book(ESVAPIMixin, _api.Book):
     pass
 
 
 class Translation(ESVAPIMixin, _api.Translation):
+    def audio(self):
+        raise NotImplementedError()
+
     def search(self, query, page_size=100):
         page = 1
         while page is not None:
@@ -93,26 +112,13 @@ class Translation(ESVAPIMixin, _api.Translation):
                 yield verse
             page = page + 1 if page != response["total_pages"] else None
 
+    def text(self):
+        raise NotImplementedError()
+
 
 class Passage(ESVAPIMixin, _api.Passage):
-    @staticmethod
-    def _chunk(iterable, size):
-        iterator = iter(iterable)
-        for first in iterator:
-            yield itertools.chain([first], itertools.islice(iterator, size - 1))
-
     def audio(self):
         self._audio(self.int_reference)
-
-    def text(self):
-        verses = list(self.verses())
-        textless_verses = [verse for verse in verses if verse._text is None]
-        for chunk_index, verse_chunk in enumerate(self._chunk(textless_verses, self._MAX_VERSES_PER_TEXT_QUERY)):
-            query = ",".join(str(int(verse)) for verse in verse_chunk)
-            passages = self._get_json(self._GET_TEXT_ENDPOINT_TEMPLATE.format(reference=query))["passages"]
-            for verse_index, passage in enumerate(passages):
-                textless_verses[(chunk_index * self._MAX_VERSES_PER_TEXT_QUERY) + verse_index]._text = Text(passage)
-        return " ".join(verse.text().body for verse in verses)
 
 
 class Text(object):

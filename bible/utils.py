@@ -73,3 +73,7 @@ def load_translation(module_name):
             for verse_index in range(verse_count):
                 _ = api_module.Verse(verse_index + 1, chapter)
     return translation
+
+
+def unique_value_iterating_dict(d):
+    iter({}.fromkeys(d.values()))  # ordered set from dict values

@@ -1,11 +1,7 @@
 TO FIX
-    catch keyerrors and provide more readable error messages in a custom exception
-
-    allow fetching of text for a chapter - how about a book?
-
     dataclasses
 
-    fix regex pattern for text (title not working properly - see genesis 1:17)
+    fix regex pattern for text (title not working properly - see genesis 1:17). Also, we are now included verse numbers so regex pattern may need completely reviewing
 
     there is a keyerror with search api; list(bible.esv.search("breasts"))
 
