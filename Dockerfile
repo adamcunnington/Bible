@@ -8,9 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 RUN apt-get update && \
-    # i think gcc is included
-    # i have no idea if build-essential, python3.9-dev or python3.9-venv are included
-    apt-get install -y vlc && \
+    apt-get install -y build-essential make vlc && \
     apt-get autoremove
 
 COPY . .
@@ -18,3 +16,5 @@ COPY . .
 RUN make install
 
 USER bible
+
+CMD [".venv/bin/python", "-ic", "import bible"]

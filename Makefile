@@ -5,7 +5,6 @@ PYTHON3 ?= python3.9
 VENV_NAME ?= .venv
 
 # INTERNAL
-_PRELOAD_INTERPRETER = python -ic "import bible"
 _VENV_ACTIVATE = $(VENV_NAME)/bin/activate
 
 .PHONY: help
@@ -36,12 +35,12 @@ lint: venv ## run flake8
 
 .PHONY: run
 run: ## run the application inside an interactive docker container
-	docker run -it --rm bible:latest $(_VENV_ACTIVATE) && $(_PRELOAD_INTERPRETER)
+	docker run -it --rm -e ESV_API_TOKEN=$$ESV_API_TOKEN bible:latest
 
 .PHONY: run-local
 run-local: install ## run the application locally
 	. $(_VENV_ACTIVATE) && \
-		$(_PRELOAD_INTERPRETER)
+		python -ic "import bible"
 
 .PHONY: venv
 venv: $(_VENV_ACTIVATE) ## create a virtual env if it doesn't exist
