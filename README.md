@@ -61,7 +61,7 @@ You can run the application inside of a docker container. No dependencies are re
 | *d[k]*                     | Magic Method | Fetches a child object of the parent (e.g. verse number of chapter).   | `Translation` supports fuzzy lookup using number, id, alt_ids. |
 | *k in d*                   | Magic Method | Checks whether an object belongs to a parent (e.g. verse in chapter).  | `Translation` supports fuzzy lookup using number, id, alt_ids. |
 | *iter()*                   | Magic Method | Iterates over parent to yield child objects (e.g. verses of chapter).  |                                                                |
-| *len()*                    | Magic Method | Finds out how many children the parent has (e.g. verses in a chapter). | `Text` object length is the number of words in the text body.  |
+| *len()*                    | Magic Method | Finds out how many children the parent has (e.g. verses in a chapter). | `Passage` object length is the number of verses in the range.  |
 | *repr()*                   | Magic Method | Prints a scripture-oriented representation of the object.              |                                                                |
 | *str()*                    | Magic Method | Prints a human-readable scripture reference for the object.            |                                                                |
 | *.alt_ids*                 | Property     | The alternative ids (sluggified names) that the object is known by.    |                                                                |
