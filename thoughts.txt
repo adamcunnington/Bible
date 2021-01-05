@@ -1,4 +1,6 @@
 TO FIX
+    audio! And update installation documentation.
+
     the .books, .chapters, .verses properties should have a consistent interface. e.g. always return a generator. Therefore, they should always be methods then, not properties.
 
     dataclasses
@@ -11,4 +13,7 @@ IDEAS for base.json
 
 ADDITIONS to README.md
     Should introduce the 5 main objects; translation, book, chapter, verse, passage.
+    
     Provide a table which shows every method/attribute, description and then checkbox for which object supports it.
+
+    Consider removing make install step and going straight to make run
