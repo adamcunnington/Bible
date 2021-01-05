@@ -55,7 +55,7 @@ You can run the application inside of a docker container. No dependencies are re
 
 ### Core API
 | Attribute                | Category     | Description | Translation        | Book               | Chapter            | Verse              | Passage            |
-| ------------------------ | ------------ | ----------- | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ |
+| ------------------------ | ------------ | ----------- | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: |
 | repr()                   | Magic Method |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | str()                    | Magic Method |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | k in d                   | Magic Method |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
