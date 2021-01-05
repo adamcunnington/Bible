@@ -76,4 +76,4 @@ def load_translation(module_name):
 
 
 def unique_value_iterating_dict(d):
-    iter({}.fromkeys(d.values()))  # ordered set from dict values
+    iter(dict.fromkeys(d.values()))  # ordered set from dict values
