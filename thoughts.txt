@@ -1,8 +1,6 @@
 TO FIX
     audio! And update installation documentation.
 
-    the .books, .chapters, .verses properties should have a consistent interface. e.g. always return a generator. Therefore, they should always be methods then, not properties. Update all references (contains etc). Review self.verses(). Check api.py too
-
     dataclasses
 
     fix regex pattern for text (title not working properly - see genesis 1:17). Also, we are now included verse numbers so regex pattern may need completely reviewing
