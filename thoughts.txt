@@ -1,7 +1,7 @@
 TO FIX
     audio! And update installation documentation.
 
-    the .books, .chapters, .verses properties should have a consistent interface. e.g. always return a generator. Therefore, they should always be methods then, not properties.
+    the .books, .chapters, .verses properties should have a consistent interface. e.g. always return a generator. Therefore, they should always be methods then, not properties. Update all references (contains etc)
 
     dataclasses
 
