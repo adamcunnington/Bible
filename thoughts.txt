@@ -1,4 +1,6 @@
 TO FIX
+    the .books, .chapters, .verses properties should have a consistent interface. e.g. always return a generator. Therefore, they should always be methods then, not properties.
+
     dataclasses
 
     fix regex pattern for text (title not working properly - see genesis 1:17). Also, we are now included verse numbers so regex pattern may need completely reviewing
@@ -6,3 +8,7 @@ TO FIX
 
 IDEAS for base.json
     when the book was written
+
+ADDITIONS to README.md
+    Should introduce the 5 main objects; translation, book, chapter, verse, passage.
+    Provide a table which shows every method/attribute, description and then checkbox for which object supports it.
