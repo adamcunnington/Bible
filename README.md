@@ -54,44 +54,44 @@ You can run the application inside of a docker container. No dependencies are re
 ## Usage
 
 ### Core API
-| Attribute                | Category     | Description | Translation        | Book               | Chapter            | Verse              | Passage            |
-| ------------------------ | ------------ | ----------- | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: |
-| repr()                   | Magic Method |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| str()                    | Magic Method |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| k in d                   | Magic Method |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
-| d[k]                     | Magic Method |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
-| iter()                   | Magic Method |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
-| len()                    | Magic Method |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    | :heavy_check_mark: |
-| .alt_ids                 | Property     |             |                    | :heavy_check_mark: |                    |                    |                    |
-| .alt_names               | Property     |             |                    | :heavy_check_mark: |                    |                    |                    |
-| .author                  | Property     |             |                    | :heavy_check_mark: |                    |                    |                    |
-| .book                    | Property     |             |                    |                    | :heavy_check_mark: | :heavy_check_mark: |                    |
-| .book_end                | Property     |             |                    |                    |                    |                    | :heavy_check_mark: |
-| .book_start              | Property     |             |                    |                    |                    |                    | :heavy_check_mark: |
-| .categories              | Property     |             | :heavy_check_mark: | :heavy_check_mark: |                    |                    |                    |
-| .chapter                 | Property     |             |                    |                    |                    | :heavy_check_mark: |                    |
-| .chapter_end             | Property     |             |                    |                    |                    |                    | :heavy_check_mark: |
-| .chapter_start           | Property     |             |                    |                    |                    |                    | :heavy_check_mark: |
-| .id                      | Property     |             |                    | :heavy_check_mark: |                    |                    |                    |
-| .int_reference           | Property     |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| .is_first                | Property     |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
-| .is_last                 | Property     |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
-| .language                | Property     |             |                    | :heavy_check_mark: |                    |                    |                    |
-| .name                    | Property     |             |                    | :heavy_check_mark: |                    |                    |                    |
-| .number                  | Property     |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
-| .translation             | Property     |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
-| .verse_end               | Property     |             |                    |                    |                    |                    | :heavy_check_mark: |
-| .verse_start             | Property     |             |                    |                    |                    |                    | :heavy_check_mark: |
-| audio()                  | Method       |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| books()                  | Method       |             |                    | :heavy_check_mark: |                    |                    | :heavy_check_mark: |
-| chapters()               | Method       |             |                    | :heavy_check_mark: |                    |                    | :heavy_check_mark: |
-| first()                  | Method       |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
-| last()                   | Method       |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
-| next(overspill=True)     | Method       |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
-| passage(reference="-")   | Method       |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
-| previous(overspill=True) | Method       |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
-| text()                   | Method       |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| verses()                 | Method       |             |                    |                    |                    |                    | :heavy_check_mark: |
+| Attribute                  | Category     | Description |    Translation     |        Book        |      Chapter       |       Verse        |      Passage       |
+| -------------------------- | ------------ | ----------- | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: |
+| *repr()*                   | Magic Method |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| *str()*                    | Magic Method |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| *k in d*                   | Magic Method |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
+| *d[k]*                     | Magic Method |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
+| *iter()*                   | Magic Method |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
+| *len()*                    | Magic Method |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    | :heavy_check_mark: |
+| *.alt_ids*                 | Property     |             |                    | :heavy_check_mark: |                    |                    |                    |
+| *.alt_names*               | Property     |             |                    | :heavy_check_mark: |                    |                    |                    |
+| *.author*                  | Property     |             |                    | :heavy_check_mark: |                    |                    |                    |
+| *.book*                    | Property     |             |                    |                    | :heavy_check_mark: | :heavy_check_mark: |                    |
+| *.book_end*                | Property     |             |                    |                    |                    |                    | :heavy_check_mark: |
+| *.book_start*              | Property     |             |                    |                    |                    |                    | :heavy_check_mark: |
+| *.categories*              | Property     |             | :heavy_check_mark: | :heavy_check_mark: |                    |                    |                    |
+| *.chapter*                 | Property     |             |                    |                    |                    | :heavy_check_mark: |                    |
+| *.chapter_end*             | Property     |             |                    |                    |                    |                    | :heavy_check_mark: |
+| *.chapter_start*           | Property     |             |                    |                    |                    |                    | :heavy_check_mark: |
+| *.id*                      | Property     |             |                    | :heavy_check_mark: |                    |                    |                    |
+| *.int_reference*           | Property     |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| *.is_first*                | Property     |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
+| *.is_last*                 | Property     |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
+| *.language*                | Property     |             |                    | :heavy_check_mark: |                    |                    |                    |
+| *.name*                    | Property     |             |                    | :heavy_check_mark: |                    |                    |                    |
+| *.number*                  | Property     |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
+| *.translation*             | Property     |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
+| *.verse_end*               | Property     |             |                    |                    |                    |                    | :heavy_check_mark: |
+| *.verse_start*             | Property     |             |                    |                    |                    |                    | :heavy_check_mark: |
+| *audio()*                  | Method       |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| *books()*                  | Method       |             |                    | :heavy_check_mark: |                    |                    | :heavy_check_mark: |
+| *chapters()*               | Method       |             |                    | :heavy_check_mark: |                    |                    | :heavy_check_mark: |
+| *first()*                  | Method       |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
+| *last()*                   | Method       |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
+| *next(overspill=True)*     | Method       |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
+| *passage(reference="-")*   | Method       |             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
+| *previous(overspill=True)* | Method       |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
+| *text()*                   | Method       |             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| *verses()*                 | Method       |             |                    |                    |                    |                    | :heavy_check_mark: |
 
 ### ESV API Extensions
 ```
