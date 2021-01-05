@@ -1,15 +1,12 @@
 TO FIX
     audio! And update installation documentation.
 
-    dataclasses
-
     fix regex pattern for text (title not working properly - see genesis 1:17). Also, we are now included verse numbers so regex pattern may need completely reviewing
-
-    am I implementing __iter__ incorrectly?
 
 
 IDEAS for base.json
     when the book was written
+
 
 ADDITIONS to README.md
     Should introduce the 5 main objects; translation, book, chapter, verse, passage.
