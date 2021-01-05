@@ -1,8 +1,6 @@
 # Bible
 
-## Contents
 - [Bible](#bible)
-  - [Contents](#contents)
   - [Setup](#setup)
     - [1. Local Instructions](#1-local-instructions)
       - [Pre Requisites](#pre-requisites)
