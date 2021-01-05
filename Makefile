@@ -31,7 +31,7 @@ install: venv ## install the application (including development dependencies) lo
 .PHONY: lint
 lint: venv ## run flake8
 	. $(_VENV_ACTIVATE) && \
-		flake8
+		flake8 bible
 
 .PHONY: run
 run: ## run the application inside an interactive docker container
