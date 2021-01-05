@@ -273,7 +273,7 @@ The base metadata is defined in `bible/data/`. Translation-specific metadata mus
 | aliases            | array of strings  | Alternative names the character is known by.                                          | ["Son of Man", "Cornerstone"] |
 | mother             | integer           | The identifier (`<n>`) of the mother character.                                       | 5                             |
 | father             | integer           | The identifier (`<n>`) of the mother character.                                       | 4                             |
-| spouses            | array of integers | The identifiers of the character's husbands/wives.                                    | []                            |
+| spouses            | array of integers | The identifiers (`<n>`)s of the character's husbands/wives.                           | []                            |
 | from               | string            | The place/nation where the character is considerd to be from. Often not birthplace.   | Nazareth                      |
 | born               | integer           | The year the character was born. Negative number for BC, positive for AD.             | 0                             |
 | age                | integer           | The age the character died/left earth at.                                             | 35                            |
