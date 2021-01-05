@@ -9,3 +9,4 @@ IDEAS for base.json
 
 
 ADDITIONS to README.md
+    Fill in the developing translations section. Need to describe how the data/ and translation/<x>/data/ structure works and how registering translations works.
