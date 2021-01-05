@@ -10,7 +10,3 @@ IDEAS for base.json
 
 ADDITIONS to README.md
     Should introduce the 5 main objects; translation, book, chapter, verse, passage.
-
-    Provide a table which shows every method/attribute, description and then checkbox for which object supports it.
-
-    Consider removing make install step and going straight to make run

@@ -11,8 +11,11 @@
     - [Execution](#execution-1)
 - [Usage](#usage)
   - [Core API](#core-api)
-  - [ESV API Extensions](#esv-api-extensions)
-
+    - [Attribute Support](#attribute-support)
+    - [All Attributes](#all-attributes)
+  - [ESV API Specifics](#esv-api-specifics)
+    - [Translation Object Extensions](#translation-object-extensions)
+    - [Text Object Addition](#text-object-addition)
 
 
 ## Setup
@@ -21,7 +24,7 @@ The application can be executed in two ways:
 2. Via Docker
 
 ### 1. Local Instructions
-You can run the application locally (in editable mode) which is especially useful if you are making changes to the code. The `make` commands in this section assume you have an executable called `python3.9`. If you do not, you may pass `PYTHON3=x` where `x` is the name of your python 3 executable, e.g. `PYTHON3=python3.7`. Run `make` to see full details.
+The application can be ran locally (in editable mode) which is especially useful if changes are being made to the code. The `make` commands in this section assume an executable called `python3.9`. Alternatively, `PYTHON3=x` can be passed with the make target where `x` is the name of the python 3 executable to use, e.g. `PYTHON3=python3.7`. Run `make` to see full details.
 
 #### Pre Requisites
 1. Clone the repo.
@@ -29,14 +32,14 @@ You can run the application locally (in editable mode) which is especially usefu
 3. Set the `ESV_API_TOKEN` environment variable (either explicitly or implicitly via a ./.env file).
 
 #### Installation
-1. Install the application locally (a virtual environment will be created for you) with `make install`.
+1. Install the application locally (a virtual environment will be created) with `make install`.
 
 #### Execution
 1. Run the application locally with `make run-local`.
 
 
 ### 2. Docker Instructions
-You can run the application inside of a docker container. No dependencies are required other than docker.
+The application can also be ran inside of a docker container. No dependencies are required other than docker.
 
 #### Pre Requisites
 1. Clone the repo.
@@ -52,48 +55,21 @@ You can run the application inside of a docker container. No dependencies are re
 
 
 ## Usage
+The execution of the application, whether locally or via Docker, starts a python interpreter with the bible package already imported. Translations should be accessed directly through the bible namespace, e.g. `bible.esv`. All attributes are accessed through the `Translation` object directly, or indirectly via descendent objects.
 
 ### Core API
+There are 5 main objects in the core API:
+* `Translation` (e.g. ESV)
+* `Book` (e.g. Genesis)
+* `Chapter` (e.g. Chapter 1 of Genesis)
+* `Verse` (e.g. Verse 1 of Genesis 1)
+* `Passage` (e.g. range of verses from 1 or more chapters/books)
 
-#### All Attributes
-| ATTRIBUTE                  | CATEGORY     | DESCRIPTION                                                            | SPECIAL NOTES                                                  |
-| -------------------------- | ------------ | ---------------------------------------------------------------------- | -------------------------------------------------------------- |
-| *d[k]*                     | Magic Method | Fetches a child object of the parent (e.g. verse number of chapter).   | `Translation` supports fuzzy lookup using number, id, alt_ids. |
-| *k in d*                   | Magic Method | Checks whether an object belongs to a parent (e.g. verse in chapter).  | `Translation` supports fuzzy lookup using number, id, alt_ids. |
-| *iter()*                   | Magic Method | Iterates over parent to yield child objects (e.g. verses of chapter).  |                                                                |
-| *len()*                    | Magic Method | Finds out how many children the parent has (e.g. verses in a chapter). | `Passage` object length is the number of verses in the range.  |
-| *repr()*                   | Magic Method | Prints a scripture-oriented representation of the object.              |                                                                |
-| *str()*                    | Magic Method | Prints a human-readable scripture reference for the object.            |                                                                |
-| *.alt_ids*                 | Property     | The alternative ids (sluggified names) that the object is known by.    |                                                                |
-| *.alt_names*               | Property     | The alternative names that the object is known by.                     |                                                                |
-| *.author*                  | Property     | The author/writer of the text.                                         |                                                                |
-| *.book*                    | Property     | The book object that the object belongs to.                            |                                                                |
-| *.book_end*                | Property     | The book object where the ranged object finishes (e.g. -**Exo**).      |                                                                |
-| *.book_start*              | Property     | The book object where the ranged object starts. (e.g. **Gen**-).       |                                                                |
-| *.categories*              | Property     | The categories that the object belongs to (e.g. Old Testament).        |                                                                |
-| *.chapter*                 | Property     | The chapter object that the object belongs to.                         |                                                                |
-| *.chapter_end*             | Property     | The chapter object where the ranged object finishes (e.g. -Exo **4**). |                                                                |
-| *.chapter_start*           | Property     | The chapter object where the ranged object starts (e.g. Gen **4**-).   |                                                                |
-| *.id*                      | Property     | The id (sluggified name) that the object is primarily known by.        |                                                                |
-| *.int_reference*           | Property     | The object's numeric reference form, XXYYYZZZ (book, chapter, verse).  |                                                                |
-| *.is_first*                | Property     | Whether the object is the first in parent (e.g. chapter 1).            |                                                                |
-| *.is_last*                 | Property     | Whether the object is the last in parent (e.g. last chapter of book).  |                                                                |
-| *.language*                | Property     | The language the text was written in.                                  |                                                                |
-| *.name*                    | Property     | The name that the object is primarily known by.                        |                                                                |
-| *.number*                  | Property     | The number that the object is identified by (based on order).          |                                                                |
-| *.translation*             | Property     | The translation object that the object belongs to.                     |                                                                |
-| *.verse_end*               | Property     | The verse object where the ranged object finishes (e.g. -Exo :**10**). |                                                                |
-| *.verse_start*             | Property     | The verse object where the ranged object starts (e.g. Gen :**9**-).    |                                                                |
-| *audio()*                  | Method       | Fetches and plays the audio that relates to the object's text.         |                                                                |
-| *books()*                  | Method       | Returns a generator of book objects that relate to the object.         |                                                                |
-| *chapters()*               | Method       | Returns a generator of chapter objects that relate to the object.      |                                                                |
-| *first()*                  | Method       | Returns the first child object of parent (e.g. first chapter).         |                                                                |
-| *last()*                   | Method       | Returns the last child object of parent (e.g. last chapter of book).   |                                                                |
-| *next(overspill=True)*     | Method       | Returns the next object. Spill into next parent object/None.           |                                                                |
-| *passage(reference="-")*   | Method       | Returns an object ranging across many children (e.g. many verses).     |                                                                |
-| *previous(overspill=True)* | Method       | Return sthe previous object. Spill into previous parent object/None.   |                                                                |
-| *text()*                   | Method       | Fetches and prints the text that relates to the object.                | ESV translation returns a `Text` object with extra properties. |
-| *verses()*                 | Method       | Returns a generator of verse objects that relate to the object.        |                                                                |
+The first four objects should be seen as a hierarcy, e.g. start with a `Translation` and dive into a `Book`, then `Chapter`, then `Verse` - much like a physical Bible. The `Passage` object can be generated by using the `passage()` method on any object that has children (e.g. all but `Verse`).
+
+Each translation is responsible for inheriting and optionally, extending the core API in addition to providing both the metadata and content for the translation.
+
+There are two tables below. The first provides an overview of all attributes and which objects they are supported by. The second provides extra information for each attribute.
 
 #### Attribute Support
 | ATTRIBUTE                  |    TRANSLATION     |        BOOK        |      CHAPTER       |       VERSE        |      PASSAGE       |
@@ -135,15 +111,55 @@ You can run the application inside of a docker container. No dependencies are re
 | *text()*                   |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | *verses()*                 |                    |                    |                    |                    | :heavy_check_mark: |
 
-### ESV API Extensions
+#### All Attributes
+| ATTRIBUTE                  | CATEGORY     | DESCRIPTION                                                            | SPECIAL NOTES                                                  |
+| -------------------------- | ------------ | ---------------------------------------------------------------------- | -------------------------------------------------------------- |
+| *d[k]*                     | Magic Method | Fetches a child object of the parent (e.g. verse number of chapter).   | `Translation` supports fuzzy lookup using number, id, alt_ids. |
+| *k in d*                   | Magic Method | Checks whether an object belongs to a parent (e.g. verse in chapter).  | `Translation` supports fuzzy lookup using number, id, alt_ids. |
+| *iter()*                   | Magic Method | Iterates over parent to yield child objects (e.g. verses of chapter).  |                                                                |
+| *len()*                    | Magic Method | Finds out how many children the parent has (e.g. verses in a chapter). | `Passage` object length is the number of verses in the range.  |
+| *repr()*                   | Magic Method | Prints a scripture-oriented representation of the object.              |                                                                |
+| *str()*                    | Magic Method | Prints a human-readable scripture reference for the object.            |                                                                |
+| *.alt_ids*                 | Property     | The alternative ids (sluggified names) that the object is known by.    |                                                                |
+| *.alt_names*               | Property     | The alternative names that the object is known by.                     |                                                                |
+| *.author*                  | Property     | The author/writer of the text.                                         |                                                                |
+| *.book*                    | Property     | The book object that the object belongs to.                            |                                                                |
+| *.book_end*                | Property     | The book object where the ranged object finishes (e.g. -**Exo**).      |                                                                |
+| *.book_start*              | Property     | The book object where the ranged object starts. (e.g. **Gen**-).       |                                                                |
+| *.categories*              | Property     | The categories that the object belongs to (e.g. Old Testament).        |                                                                |
+| *.chapter*                 | Property     | The chapter object that the object belongs to.                         |                                                                |
+| *.chapter_end*             | Property     | The chapter object where the ranged object finishes (e.g. -Exo **4**). |                                                                |
+| *.chapter_start*           | Property     | The chapter object where the ranged object starts (e.g. Gen **4**-).   |                                                                |
+| *.id*                      | Property     | The id (sluggified name) that the object is primarily known by.        |                                                                |
+| *.int_reference*           | Property     | The object's numeric reference form, XXYYYZZZ (book, chapter, verse).  |                                                                |
+| *.is_first*                | Property     | Whether the object is the first in parent (e.g. chapter 1).            |                                                                |
+| *.is_last*                 | Property     | Whether the object is the last in parent (e.g. last chapter of book).  |                                                                |
+| *.language*                | Property     | The language the text was written in.                                  |                                                                |
+| *.name*                    | Property     | The name that the object is primarily known by.                        |                                                                |
+| *.number*                  | Property     | The number that the object is identified by (based on order).          |                                                                |
+| *.translation*             | Property     | The translation object that the object belongs to.                     |                                                                |
+| *.verse_end*               | Property     | The verse object where the ranged object finishes (e.g. -Exo :**10**). |                                                                |
+| *.verse_start*             | Property     | The verse object where the ranged object starts (e.g. Gen :**9**-).    |                                                                |
+| *audio()*                  | Method       | Fetches and plays the audio that relates to the object's text.         |                                                                |
+| *books()*                  | Method       | Returns a generator of book objects that relate to the object.         |                                                                |
+| *chapters()*               | Method       | Returns a generator of chapter objects that relate to the object.      |                                                                |
+| *first()*                  | Method       | Returns the first child object of parent (e.g. first chapter).         |                                                                |
+| *last()*                   | Method       | Returns the last child object of parent (e.g. last chapter of book).   |                                                                |
+| *next(overspill=True)*     | Method       | Returns the next object. Spill into next parent object/None.           |                                                                |
+| *passage(reference="-")*   | Method       | Returns an object ranging across many children (e.g. many verses).     |                                                                |
+| *previous(overspill=True)* | Method       | Return sthe previous object. Spill into previous parent object/None.   |                                                                |
+| *text()*                   | Method       | Fetches and prints the text that relates to the object.                | ESV translation returns a `Text` object with extra properties. |
+| *verses()*                 | Method       | Returns a generator of verse objects that relate to the object.        |                                                                |
 
-#### Translation
+### ESV API Specifics
+
+#### Translation Object Extensions
 ```
 Translation.search(query, page_size=100)
 ```
 
 
-#### Text
+#### Text Object Addition
 ```
 len(Text) -> len(Text.body.split())
 ```
