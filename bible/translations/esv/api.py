@@ -63,12 +63,12 @@ class ESVAPIMixin(object):
         return self._get(endpoint_uri).json()
 
     def audio(self):
-        self._audio(str(int(self)))
+        self._audio(self.int_reference)
 
     def text(self):
         textless_verses = [verse for verse in self.verses() if verse._text is None]
         for chunk_index, verse_chunk in enumerate(self._chunk(textless_verses, self._MAX_VERSES_PER_TEXT_QUERY)):
-            query = ",".join(str(int(verse)) for verse in verse_chunk)
+            query = ",".join(verse.int_reference for verse in verse_chunk)
             passages = self._get_json(self._GET_TEXT_ENDPOINT_TEMPLATE.format(reference=query))["passages"]
             for verse_index, passage in enumerate(passages):
                 textless_verses[(chunk_index * self._MAX_VERSES_PER_TEXT_QUERY) + verse_index]._text = Text(passage)
@@ -135,7 +135,7 @@ class Text(object):
         self._footnotes = (footnotes.split("\n\n") if footnotes is not None else None)
 
     def __len__(self):
-        return self._body.split()
+        return len(self._body.split())
 
     def __repr__(self):
         return self._body

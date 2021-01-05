@@ -19,7 +19,7 @@ def _int(value):
 
 
 def _int_reference(book_number, chapter_number=1, verse_number=1):
-    return int(f"{book_number:01d}{chapter_number:03d}{verse_number:03d}")
+    return f"{book_number:01d}{chapter_number:03d}{verse_number:03d}"
 
 
 def _name_to_id(value):
@@ -51,9 +51,6 @@ class Verse(object):
         self._book = self.chapter.book
         self._translation = self.book.translation
 
-    def __int__(self):
-        return _int_reference(self.book.number, self.chapter.number, self.number)
-
     def __repr__(self):
         return (f"{self.__class__.__module__}.{self.__class__.__name__}(number={self.number}, chapter={self.chapter.number}, "
                 f"book={self.book.name}, translation={self.translation.name})")
@@ -80,6 +77,10 @@ class Verse(object):
     @property
     def number(self):
         return self._number
+
+    @property
+    def int_reference(self):
+        return _int_reference(self.book.number, self.chapter.number, self.number)
 
     @property
     def translation(self):
@@ -130,9 +131,6 @@ class Chapter(object):
         except KeyError:
             raise BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
 
-    def __int__(self):
-        return _int_reference(self.book.number, self.number)
-
     def __iter__(self):
         return utils.unique_value_iterating_dict(self._verses)
 
@@ -154,6 +152,10 @@ class Chapter(object):
     @property
     def book(self):
         return self._book
+
+    @property
+    def int_reference(self):
+        return _int_reference(self.book.number, self.number)
 
     @property
     def is_first(self):
@@ -249,9 +251,6 @@ class Book(object):
         except KeyError:
             raise BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
 
-    def __int__(self):
-        return _int_reference(self.book.number)
-
     def __iter__(self):
         return utils.unique_value_iterating_dict(self._chapters)
 
@@ -288,6 +287,10 @@ class Book(object):
     @property
     def id(self):
         return self._id
+
+    @property
+    def int_reference(self):
+        return _int_reference(self.book.number)
 
     @property
     def is_first(self):
@@ -358,8 +361,8 @@ class Book(object):
 
     def verses(self):
         next_verse = self.first().first()
-        verse_end_int_reference = int(self.last().last())
-        while next_verse is not None and int(next_verse) <= verse_end_int_reference:
+        verse_end_int_reference = int(self.last().last().int_reference)
+        while next_verse is not None and int(next_verse.int_reference) <= verse_end_int_reference:
             yield next_verse
             next_verse = next_verse.next()
 
@@ -495,7 +498,7 @@ class Passage(object):
 
     @property
     def int_reference(self):
-        return (f"{str(int(self.verse_start))}-{str(int(self.verse_end))}")
+        return (f"{self.verse_start.int_reference}-{self.verse_end.int_reference}")
 
     @property
     def verse_end(self):
@@ -510,15 +513,15 @@ class Passage(object):
 
     def books(self):
         next_book = self.book_start
-        book_end_int_reference = int(self.book_end)
-        while next_book is not None and int(next_book) <= book_end_int_reference:
+        book_end_int_reference = int(self.book_end.int_reference)
+        while next_book is not None and int(next_book.int_reference) <= book_end_int_reference:
             yield next_book
             next_book = next_book.next()
 
     def chapters(self):
         next_chapter = self.chapter_start
-        chapter_end_int_reference = int(self.chapter_end)
-        while next_chapter is not None and int(next_chapter) <= chapter_end_int_reference:
+        chapter_end_int_reference = int(self.chapter_end.int_reference)
+        while next_chapter is not None and int(next_chapter.int_reference) <= chapter_end_int_reference:
             yield next_chapter
             next_chapter = next_chapter.next()
 
@@ -527,10 +530,7 @@ class Passage(object):
 
     def verses(self):
         next_verse = self.verse_start
-        verse_end_int_reference = int(self.verse_end)
-        while next_verse is not None and int(next_verse) <= verse_end_int_reference:
+        verse_end_int_reference = int(self.verse_end.int_reference)
+        while next_verse is not None and int(next_verse.int_reference) <= verse_end_int_reference:
             yield next_verse
             next_verse = next_verse.next()
-
-
-# TODO: Use dataclasses?
