@@ -39,6 +39,8 @@ The application can be ran locally (in editable mode) which is especially useful
 #### Execution
 1. Run the application locally with `make run-local`.
 
+---
+
 ### 2. Docker Instructions
 The application can also be ran inside of a docker container. No dependencies are required other than docker.
 
@@ -53,6 +55,7 @@ The application can also be ran inside of a docker container. No dependencies ar
 #### Execution
 1. Run an ephemeral container using the docker image with `make run`.
 
+---
 
 ## Usage
 The execution of the application, whether locally or via Docker, starts a python interpreter with the bible package already imported. Translations should be accessed directly through the bible namespace, e.g. `bible.esv`. All attributes are accessed through the `Translation` object directly, or indirectly via descendent objects.
@@ -90,24 +93,24 @@ Chapter.passage(reference="-")
 ```
 * *reference* - behaves exactly as *reference* above except it takes the simplified form, `<verse> - <verse>` as the chapter and book come implicitly from the parent object.
 
-Examples:
-| Passage Reference                                        | Book Start   | Chapter Start | Verse Start | Book End        | Chapter End | Verse End |
-| -------------------------------------------------------- | ------------ | ------------- | ----------- | --------------- | ----------- | --------- |
-| `Translation`.passage("-")                               | 1 (Genesis)  | 1             | 1           | 66 (Revelation) | 22          | 21        |
-| `Translation`.passage("Matth-")                          | 40 (Matthew) | 1             | 1           | 66 (Relevation) | 22          | 21        |
-| `Translation`.passage("John 2:3-John")                   | 43 (John)    | 2             | 3           | 43 (John)       | 21          | 25        |
-| `Translation`.passage("John 2:3 - John 2")               | 43 (John)    | 2             | 3           | 43 (John)       | 2           | 25        |
-| `Translation`.passage("- Exo")                           | 1 (Genesis)  | 1             | 1           | 2 (Exodus)      | 40          | 38        |
+**Examples:**
+| PASSAGE REFERENCE                                | BOOK START   | CHAPTER START | VERSE START | BOOK END        | CHAPTER END | VERSE END |
+| ------------------------------------------------ | ------------ | ------------- | ----------- | --------------- | ----------- | --------- |
+| `Translation`.passage("-")                       | 1 (Genesis)  | 1             | 1           | 66 (Revelation) | 22          | 21        |
+| `Translation`.passage("Matth-")                  | 40 (Matthew) | 1             | 1           | 66 (Relevation) | 22          | 21        |
+| `Translation`.passage("John 2:3-John")           | 43 (John)    | 2             | 3           | 43 (John)       | 21          | 25        |
+| `Translation`.passage("John 2:3 - John 2")       | 43 (John)    | 2             | 3           | 43 (John)       | 2           | 25        |
+| `Translation`.passage("- Exo")                   | 1 (Genesis)  | 1             | 1           | 2 (Exodus)      | 40          | 38        |
 | `Translation`.passage(None, "01001001-02003006") | 1 (Genesis)  | 1             | 1           | 2 (Exodus)      | 3           | 6         |
 | `Translation`.passage(None, "37002003-")         | 37 (Haggai)  | 2             | 3           | 66 (Revelation) | 22          | 21        |
 | `Translation`.passage(None, "4002009")           | 4 (Numbers)  | 2             | 9           | 4 (Numbers)     | 2           | 9         |
 | `Translation`.passage(None, " -2003019")         | 1 (Genesis)  | 1             | 1           | 2 (Exodus)      | 3           | 19        |
-| `<Genesis>`.passage("7:13-9:21")                           | 1 (Genesis)  | 7             | 13          | 1 (Genesis)     | 9           | 21        |
-| `<Genesis>`.passage("-3:")                                 | 1 (Genesis)  | 1             | 1           | 1 (Genesis)     | 3           | 24        |
-| `<Genesis>`.passage()                                      | 1 (Genesis)  | 1             | 1           | 1 (Genesis)     | 50          | 26        |
-| `<John 3>`.passage("9-16")                                 | 43 (John)    | 3             | 9           | 43 (John)       | 3           | 16        |
-| `<John 3>`.passage("13")                                   | 43 (John)    | 3             | 13          | 43 (John)       | 3           | 13        |
-| `<John 3>`.passage()                                       | 43 (John)    | 3             | 1           | 43 (John)       | 3           | 36        |
+| `<Genesis>`.passage("7:13-9:21")                 | 1 (Genesis)  | 7             | 13          | 1 (Genesis)     | 9           | 21        |
+| `<Genesis>`.passage("-3:")                       | 1 (Genesis)  | 1             | 1           | 1 (Genesis)     | 3           | 24        |
+| `<Genesis>`.passage()                            | 1 (Genesis)  | 1             | 1           | 1 (Genesis)     | 50          | 26        |
+| `<John 3>`.passage("9-16")                       | 43 (John)    | 3             | 9           | 43 (John)       | 3           | 16        |
+| `<John 3>`.passage("13")                         | 43 (John)    | 3             | 13          | 43 (John)       | 3           | 13        |
+| `<John 3>`.passage()                             | 43 (John)    | 3             | 1           | 43 (John)       | 3           | 36        |
 
 #### Attribute Support
 | ATTRIBUTE                  |    TRANSLATION     |        BOOK        |      CHAPTER       |       VERSE        |      PASSAGE       |
@@ -189,6 +192,8 @@ Examples:
 | *text()*                   | Method       | Fetches and prints the text that relates to the object.                |                                                                |
 | *verses()*                 | Method       | Returns a generator of verse objects that relate to the object.        |                                                                |
 
+---
+
 ### ESV API Specifics
 For the most part, the ESV translation sticks to the core API. The following additions apply.
 
@@ -218,6 +223,7 @@ Text.footnotes -> String footnotes
 Text.title -> String title (where relevant, and typically only first verses)
 ```
 
+---
 
 ## Developing Translations
 TBC
