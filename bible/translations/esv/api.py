@@ -14,6 +14,8 @@ _ESV_API_TOKEN_ENV_VAR = "ESV_API_TOKEN"
 # INTERNALS
 _AUDIO_CACHE_FILE_PATH_TEMPLATE = "/tmp/bible/{file_name}.mp3"
 
+_default_page_size = 100
+
 
 class ESVError(Exception):
     pass
@@ -94,10 +96,10 @@ class Translation(ESVAPIMixin, _api.Translation):
     def audio(self):
         raise NotImplementedError()
 
-    def search(self, query, page_size=100):
+    def search(self, query):
         page = 1
         while page is not None:
-            response = self._get_json(self._GET_SEARCH_ENDPOINT_TEMPLATE.format(query=query, page_size=page_size, page=page))
+            response = self._get_json(self._GET_SEARCH_ENDPOINT_TEMPLATE.format(query=query, page_size=_default_page_size, page=page))
             for result in response["results"]:
                 book, chapter_verse = result["reference"].rsplit(" ", 1)
                 chapter_verse_split = chapter_verse.split(":")

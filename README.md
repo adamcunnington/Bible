@@ -11,11 +11,13 @@
     - [Execution](#execution-1)
 - [Usage](#usage)
   - [Core API](#core-api)
+    - [Passage References](#passage-references)
     - [Attribute Support](#attribute-support)
     - [All Attributes](#all-attributes)
   - [ESV API Specifics](#esv-api-specifics)
     - [Translation Object Extensions](#translation-object-extensions)
     - [Text Object Addition](#text-object-addition)
+- [Developing Translations](#developing-translations)
 
 
 ## Setup
@@ -24,12 +26,12 @@ The application can be executed in two ways:
 2. Via Docker
 
 ### 1. Local Instructions
-The application can be ran locally (in editable mode) which is especially useful if changes are being made to the code. The `make` commands in this section assume an executable called `python3.9`. Alternatively, `PYTHON3=x` can be passed with the make target where `x` is the name of the python 3 executable to use, e.g. `PYTHON3=python3.7`. Run `make` to see full details.
+The application can be ran locally (in editable mode) which is especially useful if changes are being made to the code. The `make` commands in this section assume an executable called `python3.9`. Alternatively, `PYTHON3=x` can be passed with the make target where `x` is the name of the python3 executable to use, e.g. `PYTHON3=python3.7`. Run `make` to see full details.
 
 #### Pre Requisites
 1. Clone the repo.
 2. Install makefile dependencies, python3.x and python3.x-dev and build-essential packages (required by python-levenshtein).
-3. Set the `ESV_API_TOKEN` environment variable (either explicitly or implicitly via a ./.env file).
+3. Set the `ESV_API_TOKEN` environment variable (either explicitly or implicitly via a ./.env file). To obtain an API token, visit [ESV API documentation](https://api.esv.org/docs/).
 
 #### Installation
 1. Install the application locally (a virtual environment will be created) with `make install`.
@@ -43,7 +45,7 @@ The application can also be ran inside of a docker container. No dependencies ar
 #### Pre Requisites
 1. Clone the repo.
 2. Install docker.
-3. Set the `ESV_API_TOKEN` environment variable (either explicitly or implicitly via a ./.env file).
+3. Set the `ESV_API_TOKEN` environment variable, locally (either explicitly or implicitly via a ./.env file). To obtain an API token, visit [ESV API documentation](https://api.esv.org/docs/).
 
 #### Installation
 1. Build the docker image with `make build`.
@@ -73,20 +75,20 @@ For now, it suffices to say that the first four objects should be seen as a hier
 The convention that passage references must follow is consistent across `Translations`, `Books` and `Chapters` but the form minimises as the parent object is scoped down. It is easier to describe the form per parent:
 
 ```
-Translation`.passage(reference=None, int_reference=None)
+Translation.passage(reference=None, int_reference=None)
 ```
-* *reference* - takes the form `<book> <chapter>:<verse> - <book> <chapter>:<verse>` where spaces are optional, each component is optional, book can be a number, fuzzy matched sluggified name or even fuzzy matched alternative name, and chapter/verse should be numbers. If a component is omitted from the left hand side, it will be assumed to be 1 whereas if a component is omitted from the right hand side, it will be assumed to be final entity of whatever was omitted. This assumption cascades such that the extreme case of *reference=*`-` will actually return a `Passage` object that spans the entire Bible - from Genesis 1:1 to the final verse of the final chapter of the final book. It is also possible to return a single book/chapter/verse by omitting the right hand side entirely as well as the `-` character. If provided, the right hand side must be greater than the left.
-* *int_reference* - takes a simplified form of `XXYYYZZZ - XXYYYZZZ` where spaces are optional, XX is an optionally 0-padded book number (i.e. both 6 and 06 are acceptable), YYY is a 00-padded chapter number and ZZZ is a 00-padded verse number. For example, `Genesis 1:1 - Exodus 3:6` would be represented as `01001001 - 02003006`. Each side is optional but the component parts that make up the side are not. If provided, the right hand side must be greater than the left.
+* *reference* - takes the form, `<book> <chapter>:<verse> - <book> <chapter>:<verse>` where spaces are optional, each component is optional, book can be a number, fuzzy matched sluggified name or even fuzzy matched alternative name, and chapter/verse should be numbers. If a component is omitted from the left hand side, it will be assumed to be 1 whereas if a component is omitted from the right hand side, it will be assumed to be the final entity of whatever was omitted. This assumption cascades such that the extreme case of *reference=*`-` will actually return a `Passage` object that spans the entire Bible - from Genesis 1:1 to the final verse of the final chapter of the final book. It is also possible to return a single book/chapter/verse by omitting the right hand side entirely as well as the `-` character. If provided, the right hand side must be greater than the left.
+* *int_reference* - takes a simplified form, `XXYYYZZZ - XXYYYZZZ` where spaces are optional, XX is an optionally 0-padded book number (i.e. both 6 and 06 are acceptable), YYY is a 00-padded chapter number and ZZZ is a 00-padded verse number. For example, `Genesis 1:1 - Exodus 3:6` would be represented as `01001001 - 02003006`. Each side is optional but the component parts that make up the side are not. If provided, the right hand side must be canonically after the left hand side.
 
 ```
-`Book`.passage(*reference="-"*)
+Book.passage(reference="-")
 ```
-* *reference* - behaves exactly as *reference* above except takes the form `<chapter>:<verse> - <chapter>:<verse>` as the book comes implicitly from the parent object.
+* *reference* - behaves exactly as *reference* above except it takes the simplified form, `<chapter>:<verse> - <chapter>:<verse>` as the book comes implicitly from the parent object.
 
 ```
-`Chapter`.passage(*reference="-"*)
+Chapter.passage(reference="-")
 ```
-* *reference* - behaves exactly as *reference* above except takes the form `<verse> - <verse>` as the chapter and book come implicitly from the parent object.
+* *reference* - behaves exactly as *reference* above except it takes the simplified form, `<verse> - <verse>` as the chapter and book come implicitly from the parent object.
 
 Examples:
 | Passage Reference                                        | Book Start   | Chapter Start | Verse Start | Book End        | Chapter End | Verse End |
@@ -96,16 +98,16 @@ Examples:
 | `Translation`.passage("John 2:3-John")                   | 43 (John)    | 2             | 3           | 43 (John)       | 21          | 25        |
 | `Translation`.passage("John 2:3 - John 2")               | 43 (John)    | 2             | 3           | 43 (John)       | 2           | 25        |
 | `Translation`.passage("- Exo")                           | 1 (Genesis)  | 1             | 1           | 2 (Exodus)      | 40          | 38        |
-| `Translation`.passage(int_reference="01001001-02003006") | 1 (Genesis)  | 1             | 1           | 2 (Exodus)      | 3           | 6         |
-| `Translation`.passage(int_reference="37002003-")         | 37 (Haggai)  | 2             | 3           | 66 (Revelation) | 22          | 21        |
-| `Translation`.passage(int_reference="4002009")           | 4 (Numbers)  | 2             | 9           | 4 (Numbers)     | 2           | 9         |
-| `Translation`.passage(int_reference=" -2003019")         | 1 (Genesis)  | 1             | 1           | 2 (Exodus)      | 3           | 19        |
-| <Genesis>.passage("7:13-9:21")                           | 1 (Genesis)  | 7             | 13          | 1 (Genesis)     | 9           | 21        |
-| <Genesis>.passage("-3:")                                 | 1 (Genesis)  | 1             | 1           | 1 (Genesis)     | 3           | 24        |
-| <Genesis>.passage()                                      | 1 (Genesis)  | 1             | 1           | 1 (Genesis)     | 50          | 26        |
-| <John 3>.passage("9-16")                                 | 43 (John)    | 3             | 9           | 43 (John)       | 3           | 16        |
-| <John 3>.passage("13")                                   | 43 (John)    | 3             | 13          | 43 (John)       | 3           | 13        |
-| <John 3>.passage()                                       | 43 (John)    | 3             | 1           | 43 (John)       | 3           | 36        |
+| `Translation`.passage(None, "01001001-02003006") | 1 (Genesis)  | 1             | 1           | 2 (Exodus)      | 3           | 6         |
+| `Translation`.passage(None, "37002003-")         | 37 (Haggai)  | 2             | 3           | 66 (Revelation) | 22          | 21        |
+| `Translation`.passage(None, "4002009")           | 4 (Numbers)  | 2             | 9           | 4 (Numbers)     | 2           | 9         |
+| `Translation`.passage(None, " -2003019")         | 1 (Genesis)  | 1             | 1           | 2 (Exodus)      | 3           | 19        |
+| `<Genesis>`.passage("7:13-9:21")                           | 1 (Genesis)  | 7             | 13          | 1 (Genesis)     | 9           | 21        |
+| `<Genesis>`.passage("-3:")                                 | 1 (Genesis)  | 1             | 1           | 1 (Genesis)     | 3           | 24        |
+| `<Genesis>`.passage()                                      | 1 (Genesis)  | 1             | 1           | 1 (Genesis)     | 50          | 26        |
+| `<John 3>`.passage("9-16")                                 | 43 (John)    | 3             | 9           | 43 (John)       | 3           | 16        |
+| `<John 3>`.passage("13")                                   | 43 (John)    | 3             | 13          | 43 (John)       | 3           | 13        |
+| `<John 3>`.passage()                                       | 43 (John)    | 3             | 1           | 43 (John)       | 3           | 36        |
 
 #### Attribute Support
 | ATTRIBUTE                  |    TRANSLATION     |        BOOK        |      CHAPTER       |       VERSE        |      PASSAGE       |
@@ -188,14 +190,17 @@ Examples:
 | *verses()*                 | Method       | Returns a generator of verse objects that relate to the object.        |                                                                |
 
 ### ESV API Specifics
+For the most part, the ESV translation sticks to the core API. The following additions apply.
 
 #### Translation Object Extensions
 ```
 Translation.search(query, page_size=100)
 ```
+Search the bible for verses that are related to the query and return a generator.
+* *query* - a word or phrase to search for.
 
 #### Text Object Addition
-Calling the *text()* method will return a `Text` object with the following attributes:
+Calling the *text()* method on any object that supports it will return a `Text` object with the following attributes:
 
 ```
 len(Text) -> len(Text.body.split())
@@ -204,13 +209,13 @@ len(Text) -> len(Text.body.split())
 repr(Text) -> Text.body
 ```
 ```
-Text.body
+Text.body -> String text body
 ```
 ```
-Text.footnotes
+Text.footnotes -> String footnotes
 ```
 ```
-Text.title
+Text.title -> String title (where relevant, and typically only first verses)
 ```
 
 

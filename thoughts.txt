@@ -9,4 +9,3 @@ IDEAS for base.json
 
 
 ADDITIONS to README.md
-    Should introduce the 5 main objects; translation, book, chapter, verse, passage.
