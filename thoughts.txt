@@ -3,8 +3,6 @@ TO FIX
 
     fix regex pattern for text (title not working properly - see genesis 1:17). Also, we are now included verse numbers so regex pattern may need completely reviewing
 
-    there is a keyerror with search api; list(bible.esv.search("breasts"))
-
 
 IDEAS for base.json
     when the book was written
