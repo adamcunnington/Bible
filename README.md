@@ -18,6 +18,11 @@
     - [Translation Object Extensions](#translation-object-extensions)
     - [Text Object Addition](#text-object-addition)
 - [Developing Translations](#developing-translations)
+  - [1. New Python Package](#1-new-python-package)
+  - [2. Translation-Specific Metadata](#2-translation-specific-metadata)
+    - [2.1. Bible Structure Metadata](#21-bible-structure-metadata)
+    - [2.2. Bible Characters Metadata](#22-bible-characters-metadata)
+  - [3. Loading of Translation](#3-loading-of-translation)
 
 
 ## Setup
@@ -228,4 +233,61 @@ Text.title -> String title (where relevant, and typically only first verses)
 ---
 
 ## Developing Translations
-TBC
+Adding a translation to the codebase entails 3 tasks:
+1. Create a python package under `bible/translations/`
+2. Create the translation-specific metadata under `bible/translations/<translation>/data/`
+3. Add the loading of the translation to `bible/__init__.py`
+
+Each of these tasks will be explored in greater detail. It is useful to refer to bible/translations/esv/ as an existing example.
+
+### 1. New Python Package
+At minimum, the new translation should consist of:
+```
+bible/translations/<translation>/__init__.py - empty file
+bible/translations/<translation>/api.py - this file name is mandatory and this is where the logic will sit
+```
+
+In `api.py`, the `Translation`, `Book`, `Chapter`, `Verse` and `Passage` classes from `bible.api` should be inherited and implementations should be provided for the `text()` and `audio()` methods. Typically, content for these will come from 3rd party API services. Optionally, extensions to the API can also be made.
+
+It is likely that additional environment variables will be required to accommodate API secrets and possibly additional python dependencies too. Therefore, it is expected that the following files in the root of the project may also need changing accordingly:
+- `Dockerfile`
+- `README.md`
+- `requirements.txt`
+- `Makefile`
+
+### 2. Translation-Specific Metadata
+The python package alone is not enough. Each translation must provide metadata for the bible structure (as there are subtle variations between translations) and characters.
+
+The base metadata is defined in `bible/data/`. Translation-specific metadata must be provided at `bible/translations/<translation>/data/` and is merged with precedence into the base metadata.
+
+#### 2.1. Bible Structure Metadata
+`bible/data/structure.json` describes all of the properties that can be set and are self-explanatory. Overriding details should be provided in `bible/translations/<translation>/data/structure.json`. Refer to `bible/translations/esv/data/structure.json` for a more concrete example.
+
+
+#### 2.2. Bible Characters Metadata
+`bible/data/characters/` should contain 1 JSON file per character. The files should be named `<n> (<description>).json` where `<n>` is a unique integer and `<description>` is a human-readable identifier - typically a name and some additional detail when needed to resolve ambiguity. Each JSON character file can contain any of the following properties. All are optional except for *passages*:
+
+| Field Name         | Type              | Description                                                                           | Example                       |
+| ------------------ | ----------------- | ------------------------------------------------------------------------------------- | ----------------------------- |
+| name               | string            | The primary name the character is known by.                                           | Jesus                         |
+| aliases            | array of strings  | Alternative names the character is known by.                                          | ["Son of Man", "Cornerstone"] |
+| mother             | integer           | The identifier (`<n>`) of the mother character.                                       | 5                             |
+| father             | integer           | The identifier (`<n>`) of the mother character.                                       | 4                             |
+| spouses            | array of integers | The identifiers of the character's husbands/wives.                                    | []                            |
+| from               | string            | The place/nation where the character is considerd to be from. Often not birthplace.   | Nazareth                      |
+| born               | integer           | The year the character was born. Negative number for BC, positive for AD.             | 0                             |
+| age                | integer           | The age the character died/left earth at.                                             | 35                            |
+| died               | integer           | The year the character died. Negative number for BC, positive for AD.                 | 35                            |
+| cause_of_death     | enum              | A string (from a consistent list) that describes how the character died.              | Crucified                     |
+| place_of_death     | enum              | A string (from a consistent list) that describes where the character died.            | Golgotha                      |
+| primary_occupation | enum              | A string (from a consistent list) that describes the character's main job / passtime. | Carpenter/Savior!             |
+| passages           | array of strings  | Each item should be a [valid Translation.passage reference](#passage-references).     | ["Matthew"]                   |
+
+For *passages*, it can be difficult to know how to accurately represent the range of passages that refer to a particular character. The following rule serves as useful guidance:
+* If the character is seldom mentioned (e.g. Melchizedek), then a list of very specific verses is most appropriate.
+* If the character is described in the context of a story, limit the specifity to entire chapters or even entire books if appropriate (e.g. Jesus).
+
+### 3. Loading of Translation
+This is the simplest step. `bible/__init__.py` should be altered in two ways:
+- An additional import will be needed; `import bible.translations.<translation>`
+- An additional global object will be added; `<translation> = utils.load_translation(bible.translations.<translation>.__name__)`

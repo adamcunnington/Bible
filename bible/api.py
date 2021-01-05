@@ -6,33 +6,6 @@ from bible import utils
 _range = "(?P<range>-)?"
 
 
-def _extract_pattern(cls, group_suffix="_start"):
-    name_pattern = getattr(cls, "_NAME_REGEX").pattern
-    if group_suffix is not None:
-        name_pattern = name_pattern.replace(">", f"{group_suffix}>")
-    return name_pattern[1:-1]
-
-
-def _int(value):
-    str_value = str(value)
-    return int(str_value) if str_value.isdigit() else value
-
-
-def _int_reference(book_number, chapter_number=1, verse_number=1):
-    return f"{book_number:01d}{chapter_number:03d}{verse_number:03d}"
-
-
-def _name_to_id(value):
-    try:
-        return value.replace(" ", "").upper()
-    except AttributeError:
-        return value
-
-
-def _reference(book_name, chapter_number=None, verse_number=None):
-    return f"{book_name}{(f' {chapter_number}') if chapter_number else ''}{(f':{verse_number}') if verse_number else ''}"
-
-
 class BibleReferenceError(Exception):
     pass
 
@@ -56,7 +29,7 @@ class Verse(object):
                 f"book={self.book.name}, translation={self.translation.name})")
 
     def __str__(self):
-        return _reference(self.book.name, self.chapter.number, self.number)
+        return utils.reference(self.book.name, self.chapter.number, self.number)
 
     @property
     def book(self):
@@ -80,7 +53,7 @@ class Verse(object):
 
     @property
     def int_reference(self):
-        return _int_reference(self.book.number, self.chapter.number, self.number)
+        return utils.int_reference(self.book.number, self.chapter.number, self.number)
 
     @property
     def translation(self):
@@ -113,7 +86,7 @@ class Verse(object):
 
 class Chapter(object):
     _NAME_REGEX = re.compile(r"^(?P<chapter_number>\d+)$")
-    _PASSAGE_REGEX = re.compile(f"^{_extract_pattern(Verse)}?{_range}{_extract_pattern(Verse, '_end')}?$", flags=re.ASCII | re.IGNORECASE)
+    _PASSAGE_REGEX = re.compile(f"^{utils.fetch_pattern(Verse)}?{_range}{utils.fetch_pattern(Verse, '_end')}?$", flags=re.ASCII | re.IGNORECASE)
 
     def __init__(self, number, book):
         self._number = number
@@ -142,7 +115,7 @@ class Chapter(object):
                 f"translation={self.translation.name})")
 
     def __str__(self):
-        return _reference(self.book.name, self.number)
+        return utils.reference(self.book.name, self.number)
 
     def _register_verse(self, verse):
         if verse.number in self._verses:
@@ -155,7 +128,7 @@ class Chapter(object):
 
     @property
     def int_reference(self):
-        return _int_reference(self.book.number, self.number)
+        return utils.int_reference(self.book.number, self.number)
 
     @property
     def is_first(self):
@@ -196,11 +169,11 @@ class Chapter(object):
         if match is None:
             raise BibleReferenceError(f"the reference, '{reference}'' does not match the expected regex pattern, {self._PASSAGE_REGEX}")
         groups = match.groupdict()
-        verse_start = self[_int(groups["verse_number_start"]) or 1]
+        verse_start = self[utils.safe_int(groups["verse_number_start"]) or 1]
         if groups["range"] is None:
             verse_end = verse_start
         else:
-            verse_end = self[_int(groups["verse_number_end"]) or len(self)]
+            verse_end = self[utils.safe_int(groups["verse_number_end"]) or len(self)]
         if int(verse_end.int_reference) < int(verse_start.int_reference):
             raise BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
         return utils.module_of_instance(self).Passage(self.book, self, verse_start, self.book, self, verse_end)
@@ -223,11 +196,12 @@ class Chapter(object):
 
 class Book(object):
     _NAME_REGEX = re.compile(r"^(?P<book_name>(?:\d{1})?[A-Z]+)$", flags=re.ASCII | re.IGNORECASE)
-    _PASSAGE_REGEX = re.compile(fr"^{_extract_pattern(Chapter)}?:?{_extract_pattern(Verse)}?{_range}(?P<chapter_number_end>(?<!:.*-)\d+|(?=\d*:)\d+)?"
-                                f":?{_extract_pattern(Verse, '_end')}?$", flags=re.ASCII | re.IGNORECASE)
+    _PASSAGE_REGEX = re.compile(fr"^{utils.fetch_pattern(Chapter)}?:?{utils.fetch_pattern(Verse)}?{_range}"
+                                fr"(?P<chapter_number_end>(?<!:.*-)\d+|(?=\d*:)\d+)?:?{utils.fetch_pattern(Verse, '_end')}?$",
+                                flags=re.ASCII | re.IGNORECASE)
 
     def __init__(self, name, number, translation, author, language, alt_names=(), categories=()):
-        _id = _name_to_id(name)
+        _id = utils.slugify(name)
         if not self._NAME_REGEX.match(_id):
             raise BibleSetupError(f"the derived id, '{_id}' does not match the expected regex pattern, {self._NAME_REGEX}")
         self._name = name
@@ -236,7 +210,7 @@ class Book(object):
         self._author = author
         self._language = language
         self._alt_names = sorted(alt_names)
-        self._alt_ids = sorted(_name_to_id(alt_name) for alt_name in alt_names)
+        self._alt_ids = sorted(utils.slugify(alt_name) for alt_name in alt_names)
         self._categories = sorted(categories)
         translation._register_book(self)
         self._translation = translation
@@ -261,7 +235,7 @@ class Book(object):
         return f"{self.__class__.__module__}.{self.__class__.__name__}(name={self.name}, number={self.number}, translation={self.translation.name})"
 
     def __str__(self):
-        return _reference(self.name)
+        return utils.reference(self.name)
 
     def _register_chapter(self, chapter):
         if chapter.number in self._chapters:
@@ -290,7 +264,7 @@ class Book(object):
 
     @property
     def int_reference(self):
-        return _int_reference(self.book.number)
+        return utils.int_reference(self.book.number)
 
     @property
     def is_first(self):
@@ -338,15 +312,15 @@ class Book(object):
         if match is None:
             raise BibleReferenceError(f"the reference, '{reference}' does not match the expected regex pattern, {self._PASSAGE_REGEX}")
         groups = match.groupdict()
-        chapter_start = self[_int(groups["chapter_number_start"]) or 1]
-        verse_number_start = _int(groups["verse_number_start"])
+        chapter_start = self[utils.safe_int(groups["chapter_number_start"]) or 1]
+        verse_number_start = utils.safe_int(groups["verse_number_start"])
         verse_start = chapter_start[verse_number_start or 1]
         if groups["range"] is None:
             chapter_end = chapter_start
             verse_end = verse_start
         else:
-            chapter_end = self[_int(groups["chapter_number_end"]) or len(self)]
-            verse_end = chapter_end[_int(groups["verse_number_end"]) or len(chapter_end)]
+            chapter_end = self[utils.safe_int(groups["chapter_number_end"]) or len(self)]
+            verse_end = chapter_end[utils.safe_int(groups["verse_number_end"]) or len(chapter_end)]
         if int(verse_end.int_reference) < int(verse_start.int_reference):
             raise BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
         return utils.module_of_instance(self).Passage(self, chapter_start, verse_start, self, chapter_end, verse_end)
@@ -370,9 +344,9 @@ class Book(object):
 class Translation(object):
     _INT_PASSAGE_REGEX = re.compile(fr"^(?:(?P<book_number_start>\d{{1,2}})(?P<chapter_number_start>\d{{3}})(?P<verse_number_start>\d{{3}}))?{_range}"
                                     r"(?:(?P<book_number_end>\d{1,2})(?P<chapter_number_end>\d{3})(?P<verse_number_end>\d{3}))?$")
-    _PASSAGE_REGEX = re.compile(fr"^{_extract_pattern(Book)}?{_extract_pattern(Chapter)}?:?{_extract_pattern(Verse)}?{_range}"
-                                fr"{_extract_pattern(Book, '_end')}?(?P<chapter_number_end>(?<!:.*-)\d+|(?=\d*:)\d+)?:?"
-                                fr"{_extract_pattern(Verse, '_end')}?$", flags=re.ASCII | re.IGNORECASE)
+    _PASSAGE_REGEX = re.compile(fr"^{utils.fetch_pattern(Book)}?{utils.fetch_pattern(Chapter)}?:?{utils.fetch_pattern(Verse)}?{_range}"
+                                fr"{utils.fetch_pattern(Book, '_end')}?(?P<chapter_number_end>(?<!:.*-)\d+|(?=\d*:)\d+)?:?"
+                                fr"{utils.fetch_pattern(Verse, '_end')}?$", flags=re.ASCII | re.IGNORECASE)
 
     def __init__(self, name):
         self.name = name
@@ -384,7 +358,7 @@ class Translation(object):
 
     def __getitem__(self, key):
         try:
-            return self._books[_name_to_id(key)]
+            return self._books[utils.slugify(key)]
         except KeyError:
             raise BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
 
@@ -426,7 +400,7 @@ class Translation(object):
         if reference is not None:
             if int_reference is not None:
                 raise ValueError("reference and int_reference are mutually exclusive arguments; only 1 should be not None")
-            match = self._PASSAGE_REGEX.match(_name_to_id(reference))
+            match = self._PASSAGE_REGEX.match(utils.slugify(reference))
             if match is None:
                 raise BibleReferenceError(f"the reference, '{reference}' does not match the expected regex pattern, {self._PASSAGE_REGEX}")
             book_start_group = "book_name_start"
@@ -434,25 +408,25 @@ class Translation(object):
         else:
             if int_reference is None:
                 raise ValueError("either reference or int_reference must be not None")
-            match = self._INT_PASSAGE_REGEX.match(_name_to_id(int_reference))
+            match = self._INT_PASSAGE_REGEX.match(utils.slugify(int_reference))
             if match is None:
                 raise BibleReferenceError(f"the int_reference, {int_reference} does not match the expected regex pattern, {self._INT_PASSAGE_REGEX}")
             book_start_group = "book_number_start"
             book_end_group = "book_number_end"
         groups = match.groupdict()
-        book_start = self._books[_int(groups[book_start_group]) or 1]
-        chapter_number_start = _int(groups["chapter_number_start"])
+        book_start = self._books[utils.safe_int(groups[book_start_group]) or 1]
+        chapter_number_start = utils.safe_int(groups["chapter_number_start"])
         chapter_start = book_start[chapter_number_start or 1]
-        verse_number_start = _int(groups["verse_number_start"])
+        verse_number_start = utils.safe_int(groups["verse_number_start"])
         verse_start = chapter_start[verse_number_start or 1]
         if groups["range"] is None:
             book_end = book_start
             chapter_end = chapter_start
             verse_end = verse_start
         else:
-            book_end = self._books[_int(groups[book_end_group]) or len(self)]
-            chapter_end = book_end[_int(groups["chapter_number_end"]) or len(book_end)]
-            verse_end = chapter_end[_int(groups["verse_number_end"]) or len(chapter_end)]
+            book_end = self._books[utils.safe_int(groups[book_end_group]) or len(self)]
+            chapter_end = book_end[utils.safe_int(groups["chapter_number_end"]) or len(book_end)]
+            verse_end = chapter_end[utils.safe_int(groups["verse_number_end"]) or len(chapter_end)]
         if int(verse_end.int_reference) < int(verse_start.int_reference):
             raise BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
         return utils.module_of_instance(self).Passage(book_start, chapter_start, verse_start, book_end, chapter_end, verse_end)
@@ -476,8 +450,8 @@ class Passage(object):
                 f"chapter_end={self.chapter_end.number}, verse_end={self.verse_end.number})")
 
     def __str__(self):
-        return (f"{_reference(self.book_start.name, self.chapter_start.number, self.verse_start.number)} - "
-                f"{_reference(self.book_end.name, self.chapter_end.number, self.verse_end.number)}")
+        return (f"{utils.reference(self.book_start.name, self.chapter_start.number, self.verse_start.number)} - "
+                f"{utils.reference(self.book_end.name, self.chapter_end.number, self.verse_end.number)}")
 
     @property
     def book_end(self):

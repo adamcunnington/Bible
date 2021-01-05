@@ -1,9 +1,9 @@
 import dotenv
 
 from bible import utils
-from bible.translations import esv as _esv
+import bible.translations.esv
 
 
 dotenv.load_dotenv()
 
-esv = utils.load_translation(_esv.__name__)
+esv = utils.load_translation(bible.translations.esv.__name__)

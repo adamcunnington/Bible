@@ -5,11 +5,12 @@ import re
 import requests
 import vlc
 
-from bible import _api
+from bible import api
 
 
 # ENVIRONMENT VARIABLES
 _ESV_API_TOKEN_ENV_VAR = "ESV_API_TOKEN"
+
 
 # INTERNALS
 _AUDIO_CACHE_FILE_PATH_TEMPLATE = "/tmp/bible/{file_name}.mp3"
@@ -77,22 +78,22 @@ class ESVAPIMixin(object):
         return " ".join(verse.text().body for verse in self.verses())
 
 
-class Verse(ESVAPIMixin, _api.Verse):
+class Verse(ESVAPIMixin, api.Verse):
     def text(self):
         if self._text is None:
             self._text = Text(self._get_json(self._GET_TEXT_ENDPOINT_TEMPLATE.format(reference=str(self)))["passages"][0])
         return self._text
 
 
-class Chapter(ESVAPIMixin, _api.Chapter):
+class Chapter(ESVAPIMixin, api.Chapter):
     pass
 
 
-class Book(ESVAPIMixin, _api.Book):
+class Book(ESVAPIMixin, api.Book):
     pass
 
 
-class Translation(ESVAPIMixin, _api.Translation):
+class Translation(ESVAPIMixin, api.Translation):
     def audio(self):
         raise NotImplementedError()
 
@@ -117,7 +118,7 @@ class Translation(ESVAPIMixin, _api.Translation):
         raise NotImplementedError()
 
 
-class Passage(ESVAPIMixin, _api.Passage):
+class Passage(ESVAPIMixin, api.Passage):
     def audio(self):
         self._audio(self.int_reference)
 

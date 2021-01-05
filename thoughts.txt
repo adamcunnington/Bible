@@ -3,10 +3,16 @@ TO FIX
 
     fix regex pattern for text (title not working properly - see genesis 1:17). Also, we are now included verse numbers so regex pattern may need completely reviewing
 
+    It sucks that the metadata must be repeated across translations because of the subtle variations in passages. It would be better to centralise as much of this as possible even if it adds some complexity. Look into this.
 
-IDEAS for base.json
+CHARACTERS
+    We need to ignore character.json when merging characters.
+
+ARCHITECTURE
+    Can we make the translations more self-contained and modular? E.g. can we avoid altering bible/__init__.py to register a new translation? Can we pip install translations separately?
+
+IDEAS for structure.json
     when the book was written
 
 
 ADDITIONS to README.md
-    Fill in the developing translations section. Need to describe how the data/ and translation/<x>/data/ structure works and how registering translations works.

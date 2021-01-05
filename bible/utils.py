@@ -50,16 +50,22 @@ class FuzzyDict(dict):
         return (closest_ratio >= ratio_threshold, closest_key, self.get(closest_key), closest_ratio)
 
 
-def module_of_instance(self):
-    return sys.modules[self.__class__.__module__]
+def fetch_pattern(cls, group_suffix="_start"):
+    name_pattern = getattr(cls, "_NAME_REGEX").pattern
+    if group_suffix is not None:
+        name_pattern = name_pattern.replace(">", f"{group_suffix}>")
+    return name_pattern[1:-1]
+
+
+def int_reference(book_number, chapter_number=1, verse_number=1):
+    return f"{book_number:01d}{chapter_number:03d}{verse_number:03d}"
 
 
 def load_translation(module_name):
-    with open(os.path.join(os.path.dirname(__file__), "data", "base.json")) as f:
+    with open(os.path.join(os.path.dirname(__file__), "data", "structure.json")) as f:
         base_data = json.load(f)
     module = sys.modules[module_name]
-    module_package_name = module_name.rsplit(".", 1)[1]
-    file_path = os.path.join(os.path.dirname(module.__file__), "data", f"{module_package_name}.json")
+    file_path = os.path.join(os.path.dirname(module.__file__), "data", "structure.json")
     api_module = importlib.import_module(f"{module_name}.api")
     with open(file_path) as f:
         translation_data = json.load(f)
@@ -73,6 +79,26 @@ def load_translation(module_name):
             for verse_index in range(verse_count):
                 _ = api_module.Verse(verse_index + 1, chapter)
     return translation
+
+
+def module_of_instance(self):
+    return sys.modules[self.__class__.__module__]
+
+
+def reference(book_name, chapter_number=None, verse_number=None):
+    return f"{book_name}{(f' {chapter_number}') if chapter_number else ''}{(f':{verse_number}') if verse_number else ''}"
+
+
+def safe_int(value):
+    str_value = str(value)
+    return int(str_value) if str_value.isdigit() else value
+
+
+def slugify(value):
+    try:
+        return value.replace(" ", "").upper()  # we don't expect any strange characters in book names
+    except AttributeError:
+        return value
 
 
 def unique_value_iterating_dict(d):
