@@ -201,7 +201,7 @@ class Chapter(object):
             verse_end = verse_start
         else:
             verse_end = self[_int(groups["verse_number_end"]) or len(self)]
-        if int(verse_end) < int(verse_start):
+        if int(verse_end.int_reference) < int(verse_start.int_reference):
             raise BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
         return utils.module_of_instance(self).Passage(self.book, self, verse_start, self.book, self, verse_end)
 
@@ -345,9 +345,9 @@ class Book(object):
             chapter_end = chapter_start
             verse_end = verse_start
         else:
-            chapter_end = self[_int(groups["chapter_number_end"]) or (chapter_start.number if verse_number_start else len(self))]
+            chapter_end = self[_int(groups["chapter_number_end"]) or len(self)]
             verse_end = chapter_end[_int(groups["verse_number_end"]) or len(chapter_end)]
-        if int(verse_end) < int(verse_start):
+        if int(verse_end.int_reference) < int(verse_start.int_reference):
             raise BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
         return utils.module_of_instance(self).Passage(self, chapter_start, verse_start, self, chapter_end, verse_end)
 
@@ -368,8 +368,8 @@ class Book(object):
 
 
 class Translation(object):
-    _INT_PASSAGE_REGEX = re.compile(r"(?P<book_number_start>\d{1,2})(?P<chapter_number_start>\d{3})(?P<verse_number_start>\d{3}){_range}"
-                                    r"(?P<book_number_end>\d{1,2})(?P<chapter_number_end>\d{3})(?P<verse_number_end>\d{3})")
+    _INT_PASSAGE_REGEX = re.compile(fr"^(?:(?P<book_number_start>\d{{1,2}})(?P<chapter_number_start>\d{{3}})(?P<verse_number_start>\d{{3}}))?{_range}"
+                                    r"(?:(?P<book_number_end>\d{1,2})(?P<chapter_number_end>\d{3})(?P<verse_number_end>\d{3}))?$")
     _PASSAGE_REGEX = re.compile(fr"^{_extract_pattern(Book)}?{_extract_pattern(Chapter)}?:?{_extract_pattern(Verse)}?{_range}"
                                 fr"{_extract_pattern(Book, '_end')}?(?P<chapter_number_end>(?<!:.*-)\d+|(?=\d*:)\d+)?:?"
                                 fr"{_extract_pattern(Verse, '_end')}?$", flags=re.ASCII | re.IGNORECASE)
@@ -440,7 +440,7 @@ class Translation(object):
             book_start_group = "book_number_start"
             book_end_group = "book_number_end"
         groups = match.groupdict()
-        book_start = self._books[groups[book_start_group] or 1]
+        book_start = self._books[_int(groups[book_start_group]) or 1]
         chapter_number_start = _int(groups["chapter_number_start"])
         chapter_start = book_start[chapter_number_start or 1]
         verse_number_start = _int(groups["verse_number_start"])
@@ -450,11 +450,10 @@ class Translation(object):
             chapter_end = chapter_start
             verse_end = verse_start
         else:
-            chapter_or_verse = chapter_number_start or verse_number_start
-            book_end = self._books[groups[book_end_group] or (book_start.number if chapter_or_verse else len(self.books))]
-            chapter_end = book_end[_int(groups["chapter_number_end"]) or (chapter_start.number if verse_number_start else len(book_end))]
+            book_end = self._books[_int(groups[book_end_group]) or len(self)]
+            chapter_end = book_end[_int(groups["chapter_number_end"]) or len(book_end)]
             verse_end = chapter_end[_int(groups["verse_number_end"]) or len(chapter_end)]
-        if int(verse_end) < int(verse_start):
+        if int(verse_end.int_reference) < int(verse_start.int_reference):
             raise BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
         return utils.module_of_instance(self).Passage(book_start, chapter_start, verse_start, book_end, chapter_end, verse_end)
 
