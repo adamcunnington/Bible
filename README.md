@@ -68,7 +68,7 @@ There are 5 main objects in the core API:
 * `Verse` (e.g. Verse 1 of Genesis 1)
 * `Passage` (e.g. range of verses from 1 or more chapters/books)
 
-Two tables at the end of this section provide an overview of what is available through the core API. The first lists all attributes and which objects they are supported by whilst the second provides information for each attribute as well as details of any object-specific behaviour.
+[Two tables at the end of this section](#attribute-support) provide an overview of what is available through the core API. The first lists all attributes and which objects they are supported by whilst the second provides information for each attribute as well as details of any object-specific behaviour.
 
 Each translation is responsible for providing both the metadata and content for the translation. Additionally, each translation may extend the core API (or even override, sparingly) to surface extra content or functionality (such as using an online concordance service).
 
