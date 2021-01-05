@@ -93,7 +93,7 @@ class Verse(object):
             if overspill:
                 next_chapter = self.chapter.next()
                 if next_chapter is not None:
-                    return next_chapter[1]
+                    return next_chapter.first()
             return None
         return self.chapter[self.number + 1]
 
@@ -102,7 +102,7 @@ class Verse(object):
             if overspill:
                 previous_chapter = self.chapter.previous()
                 if previous_chapter is not None:
-                    return previous_chapter[len(previous_chapter)]
+                    return previous_chapter.last()
             return None
         return self.chapter[self.number - 1]
 
@@ -128,7 +128,7 @@ class Chapter(object):
         try:
             return self.verses[key]
         except KeyError:
-            raise BibleReferenceError(f"{key} is not between 1 and {len(self)}")
+            raise BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
 
     def __int__(self):
         return _int_reference(self.book.number, self.number)
@@ -178,12 +178,18 @@ class Chapter(object):
     def audio(self):
         raise NotImplementedError()
 
+    def first(self):
+        return self[1]
+
+    def last(self):
+        return self[len(self)]
+
     def next(self, overspill=True):
         if self.is_last:
             if overspill:
                 next_book = self.book.next()
                 if next_book is not None:
-                    return next_book[1]
+                    return next_book.first()
             return None
         return self.book[self.number + 1]
 
@@ -206,7 +212,7 @@ class Chapter(object):
             if overspill:
                 previous_book = self.book.previous()
                 if previous_book is not None:
-                    return previous_book[len(previous_book)]
+                    return previous_book.last()
             return None
         return self.book[self.number - 1]
 
@@ -242,7 +248,7 @@ class Book(object):
         try:
             return self.chapters[key]
         except KeyError:
-            raise BibleReferenceError(f"{key} is not between 1 and {len(self)}")
+            raise BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
 
     def __int__(self):
         return _int_reference(self.book.number)
@@ -314,15 +320,20 @@ class Book(object):
 
     @property
     def verses(self):
-        next_verse = self[1][1]
-        last_chapter = self[len(self)]
-        verse_end_int_reference = int(last_chapter[len(last_chapter)])
+        next_verse = self.first().first()
+        verse_end_int_reference = int(self.last().last())
         while next_verse is not None and int(next_verse) <= verse_end_int_reference:
             yield next_verse
             next_verse = next_verse.next()
 
     def audio(self):
         raise NotImplementedError()
+
+    def first(self):
+        return self[1]
+
+    def last(self):
+        return self[len(self)]
 
     def next(self):
         if self.is_last:
@@ -375,7 +386,7 @@ class Translation(object):
         try:
             return self.books[_name_to_id(key)]
         except KeyError:
-            raise BibleReferenceError(f"{key} is not between 1 and {len(self)}")
+            raise BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
 
     def __iter__(self):
         return utils.unique_value_iterating_dict(self.books)
@@ -405,6 +416,12 @@ class Translation(object):
     @property
     def categories(self):
         return self._categories
+
+    def first(self):
+        return self[1]
+
+    def last(self):
+        return self[len(self)]
 
     def passage(self, reference=None, int_reference=None):
         if reference is not None:
