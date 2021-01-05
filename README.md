@@ -1,18 +1,17 @@
 # Bible
 
-- [Bible](#bible)
-  - [Setup](#setup)
-    - [1. Local Instructions](#1-local-instructions)
-      - [Pre Requisites](#pre-requisites)
-      - [Installation](#installation)
-      - [Execution](#execution)
-    - [2. Docker Instructions](#2-docker-instructions)
-      - [Pre Requisites](#pre-requisites-1)
-      - [Installation](#installation-1)
-      - [Execution](#execution-1)
-  - [Usage](#usage)
-    - [Core API](#core-api)
-    - [ESV API Extensions](#esv-api-extensions)
+- [Setup](#setup)
+  - [1. Local Instructions](#1-local-instructions)
+    - [Pre Requisites](#pre-requisites)
+    - [Installation](#installation)
+    - [Execution](#execution)
+  - [2. Docker Instructions](#2-docker-instructions)
+    - [Pre Requisites](#pre-requisites-1)
+    - [Installation](#installation-1)
+    - [Execution](#execution-1)
+- [Usage](#usage)
+  - [Core API](#core-api)
+  - [ESV API Extensions](#esv-api-extensions)
 
 
 
