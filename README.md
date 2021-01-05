@@ -112,6 +112,8 @@ Chapter.passage(reference="-")
 | `<John 3>`.passage("13")                         | 43 (John)    | 3             | 13          | 43 (John)       | 3           | 13        |
 | `<John 3>`.passage()                             | 43 (John)    | 3             | 1           | 43 (John)       | 3           | 36        |
 
+---
+
 #### Attribute Support
 | ATTRIBUTE                  |    TRANSLATION     |        BOOK        |      CHAPTER       |       VERSE        |      PASSAGE       |
 | -------------------------- | :----------------: | :----------------: | :----------------: | :----------------: | :----------------: |
