@@ -22,7 +22,7 @@
   - [2. Translation-Specific Metadata](#2-translation-specific-metadata)
     - [2.1. Bible Structure Metadata](#21-bible-structure-metadata)
     - [2.2. Bible Characters Metadata](#22-bible-characters-metadata)
-  - [3. Loading of Translation](#3-loading-of-translation)
+  - [3. Loading the Translation](#3-loading-the-translation)
 
 
 ## Setup
@@ -287,7 +287,7 @@ For *passages*, it can be difficult to know how to accurately represent the rang
 * If the character is seldom mentioned (e.g. Melchizedek), then a list of very specific verses is most appropriate.
 * If the character is described in the context of a story, limit the specifity to entire chapters or even entire books if appropriate (e.g. Jesus).
 
-### 3. Loading of Translation
+### 3. Loading the Translation
 This is the simplest step. `bible/__init__.py` should be altered in two ways:
 - An additional import will be needed; `import bible.translations.<translation>`
 - An additional global object will be added; `<translation> = utils.load_translation(bible.translations.<translation>.__name__)`
