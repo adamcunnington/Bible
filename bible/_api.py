@@ -122,11 +122,11 @@ class Chapter(object):
         self._verses = {}
 
     def __contains__(self, item):
-        return item in self.verses.values()
+        return item in self._verses.values()
 
     def __getitem__(self, key):
         try:
-            return self.verses[key]
+            return self._verses[key]
         except KeyError:
             raise BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
 
@@ -134,10 +134,10 @@ class Chapter(object):
         return _int_reference(self.book.number, self.number)
 
     def __iter__(self):
-        return utils.unique_value_iterating_dict(self.verses)
+        return utils.unique_value_iterating_dict(self._verses)
 
     def __len__(self):
-        return len(self.verses)
+        return len(self._verses)
 
     def __repr__(self):
         return (f"{self.__class__.__module__}.{self.__class__.__name__}(number={self.number}, book={self.book.name}, "
@@ -147,7 +147,7 @@ class Chapter(object):
         return _reference(self.book.name, self.number)
 
     def _register_verse(self, verse):
-        if verse.number in self.verses:
+        if verse.number in self._verses:
             raise BibleSetupError(f"there is already a verse registered in this chapter ({self}) with the number, {verse.number}")
         self._verses[verse.number] = verse
 
@@ -170,10 +170,6 @@ class Chapter(object):
     @property
     def translation(self):
         return self._translation
-
-    @property
-    def verses(self):
-        return self._verses
 
     def audio(self):
         raise NotImplementedError()
@@ -219,6 +215,9 @@ class Chapter(object):
     def text(self):
         raise NotImplementedError()
 
+    def verses(self):
+        yield from self._verses.values()
+
 
 class Book(object):
     _NAME_REGEX = re.compile(r"^(?P<book_name>(?:\d{1})?[A-Z]+)$", flags=re.ASCII | re.IGNORECASE)
@@ -242,11 +241,11 @@ class Book(object):
         self._chapters = {}
 
     def __contains__(self, item):
-        return item in self.chapters.values()
+        return item in self._chapters.values()
 
     def __getitem__(self, key):
         try:
-            return self.chapters[key]
+            return self._chapters[key]
         except KeyError:
             raise BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
 
@@ -254,10 +253,10 @@ class Book(object):
         return _int_reference(self.book.number)
 
     def __iter__(self):
-        return utils.unique_value_iterating_dict(self.chapters)
+        return utils.unique_value_iterating_dict(self._chapters)
 
     def __len__(self):
-        return len(self.chapters)
+        return len(self._chapters)
 
     def __repr__(self):
         return f"{self.__class__.__module__}.{self.__class__.__name__}(name={self.name}, number={self.number}, translation={self.translation.name})"
@@ -266,7 +265,7 @@ class Book(object):
         return _reference(self.name)
 
     def _register_chapter(self, chapter):
-        if chapter.number in self.chapters:
+        if chapter.number in self._chapters:
             raise BibleSetupError(f"there is already a chapter registered in this book ({self}) with the number, {chapter.number}")
         self._chapters[chapter.number] = chapter
 
@@ -285,10 +284,6 @@ class Book(object):
     @property
     def categories(self):
         return self._categories
-
-    @property
-    def chapters(self):
-        return self._chapters
 
     @property
     def id(self):
@@ -318,16 +313,11 @@ class Book(object):
     def translation(self):
         return self._translation
 
-    @property
-    def verses(self):
-        next_verse = self.first().first()
-        verse_end_int_reference = int(self.last().last())
-        while next_verse is not None and int(next_verse) <= verse_end_int_reference:
-            yield next_verse
-            next_verse = next_verse.next()
-
     def audio(self):
         raise NotImplementedError()
+
+    def chapters(self):
+        yield from self._chapters.values()
 
     def first(self):
         return self[1]
@@ -366,6 +356,13 @@ class Book(object):
     def text(self):
         raise NotImplementedError()
 
+    def verses(self):
+        next_verse = self.first().first()
+        verse_end_int_reference = int(self.last().last())
+        while next_verse is not None and int(next_verse) <= verse_end_int_reference:
+            yield next_verse
+            next_verse = next_verse.next()
+
 
 class Translation(object):
     _INT_PASSAGE_REGEX = re.compile(r"(?P<book_number_start>\d{1,2})(?P<chapter_number_start>\d{3})(?P<verse_number_start>\d{3}){_range}"
@@ -380,26 +377,26 @@ class Translation(object):
         self._categories = utils.FuzzyDict()
 
     def __contains__(self, item):
-        return item in set(self.books.values())
+        return item in set(self._books.values())
 
     def __getitem__(self, key):
         try:
-            return self.books[_name_to_id(key)]
+            return self._books[_name_to_id(key)]
         except KeyError:
             raise BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
 
     def __iter__(self):
-        return utils.unique_value_iterating_dict(self.books)
+        return utils.unique_value_iterating_dict(self._books)
 
     def __len__(self):
-        return len(set(self.books.values()))
+        return len(set(self._books.values()))
 
     def __repr__(self):
         return f"{self.__class__.__module__}.{self.__class__.__name__}(name={self.name})"
 
     def _register_book(self, book):
         book_ids = (book.number, book.id, *book.alt_ids)
-        existing_book_ids = [book_id for book_id in book_ids if book_id in self.books]
+        existing_book_ids = [book_id for book_id in book_ids if book_id in self._books]
         if existing_book_ids:
             raise BibleSetupError(f"there is already a book registered in this translation ({self}) with the key(s), {','.join(existing_book_ids)}")
         self._books.update(dict.fromkeys(book_ids, book))
@@ -410,12 +407,11 @@ class Translation(object):
             existing_category.append(book)
 
     @property
-    def books(self):
-        return self._books
-
-    @property
     def categories(self):
         return self._categories
+
+    def books(self):
+        yield from utils.unique_value_iterating_dict(self._books)
 
     def first(self):
         return self[1]
@@ -441,7 +437,7 @@ class Translation(object):
             book_start_group = "book_number_start"
             book_end_group = "book_number_end"
         groups = match.groupdict()
-        book_start = self.books[groups[book_start_group] or 1]
+        book_start = self._books[groups[book_start_group] or 1]
         chapter_number_start = _int(groups["chapter_number_start"])
         chapter_start = book_start[chapter_number_start or 1]
         verse_number_start = _int(groups["verse_number_start"])
@@ -452,7 +448,7 @@ class Translation(object):
             verse_end = verse_start
         else:
             chapter_or_verse = chapter_number_start or verse_number_start
-            book_end = self.books[groups[book_end_group] or (book_start.number if chapter_or_verse else len(self.books))]
+            book_end = self._books[groups[book_end_group] or (book_start.number if chapter_or_verse else len(self.books))]
             chapter_end = book_end[_int(groups["chapter_number_end"]) or (chapter_start.number if verse_number_start else len(book_end))]
             verse_end = chapter_end[_int(groups["verse_number_end"]) or len(chapter_end)]
         if int(verse_end) < int(verse_start):
@@ -490,28 +486,12 @@ class Passage(object):
         return self._book_start
 
     @property
-    def books(self):
-        next_book = self.book_start
-        book_end_int_reference = int(self.book_end)
-        while next_book is not None and int(next_book) <= book_end_int_reference:
-            yield next_book
-            next_book = next_book.next()
-
-    @property
     def chapter_end(self):
         return self._chapter_end
 
     @property
     def chapter_start(self):
         return self._chapter_start
-
-    @property
-    def chapters(self):
-        next_chapter = self.chapter_start
-        chapter_end_int_reference = int(self.chapter_end)
-        while next_chapter is not None and int(next_chapter) <= chapter_end_int_reference:
-            yield next_chapter
-            next_chapter = next_chapter.next()
 
     @property
     def int_reference(self):
@@ -525,19 +505,32 @@ class Passage(object):
     def verse_start(self):
         return self._verse_start
 
-    @property
+    def audio(self):
+        raise NotImplementedError()
+
+    def books(self):
+        next_book = self.book_start
+        book_end_int_reference = int(self.book_end)
+        while next_book is not None and int(next_book) <= book_end_int_reference:
+            yield next_book
+            next_book = next_book.next()
+
+    def chapters(self):
+        next_chapter = self.chapter_start
+        chapter_end_int_reference = int(self.chapter_end)
+        while next_chapter is not None and int(next_chapter) <= chapter_end_int_reference:
+            yield next_chapter
+            next_chapter = next_chapter.next()
+
+    def text(self):
+        raise NotImplementedError()
+
     def verses(self):
         next_verse = self.verse_start
         verse_end_int_reference = int(self.verse_end)
         while next_verse is not None and int(next_verse) <= verse_end_int_reference:
             yield next_verse
             next_verse = next_verse.next()
-
-    def audio(self):
-        raise NotImplementedError()
-
-    def text(self):
-        raise NotImplementedError()
 
 
 # TODO: Use dataclasses?
