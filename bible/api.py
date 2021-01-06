@@ -14,7 +14,7 @@ class BibleSetupError(Exception):
     pass
 
 
-class Verse(object):
+class Verse:
     _NAME_REGEX = re.compile(r"^(?P<verse_number>\d+)$")
 
     def __init__(self, number, chapter):
@@ -84,7 +84,7 @@ class Verse(object):
         raise NotImplementedError()
 
 
-class Chapter(object):
+class Chapter:
     _NAME_REGEX = re.compile(r"^(?P<chapter_number>\d+)$")
     _PASSAGE_REGEX = re.compile(f"^{utils.fetch_pattern(Verse)}?{_range}{utils.fetch_pattern(Verse, '_end')}?$", flags=re.ASCII | re.IGNORECASE)
 
@@ -194,7 +194,7 @@ class Chapter(object):
         yield from self._verses.values()
 
 
-class Book(object):
+class Book:
     _NAME_REGEX = re.compile(r"^(?P<book_name>(?:\d{1})?[A-Z]+)$", flags=re.ASCII | re.IGNORECASE)
     _PASSAGE_REGEX = re.compile(fr"^{utils.fetch_pattern(Chapter)}?:?{utils.fetch_pattern(Verse)}?{_range}"
                                 fr"(?P<chapter_number_end>(?<!:.*-)\d+|(?=\d*:)\d+)?:?{utils.fetch_pattern(Verse, '_end')}?$",
@@ -341,7 +341,7 @@ class Book(object):
             next_verse = next_verse.next()
 
 
-class Translation(object):
+class Translation:
     _INT_PASSAGE_REGEX = re.compile(fr"^(?:(?P<book_number_start>\d{{1,2}})(?P<chapter_number_start>\d{{3}})(?P<verse_number_start>\d{{3}}))?{_range}"
                                     r"(?:(?P<book_number_end>\d{1,2})(?P<chapter_number_end>\d{3})(?P<verse_number_end>\d{3}))?$")
     _PASSAGE_REGEX = re.compile(fr"^{utils.fetch_pattern(Book)}?{utils.fetch_pattern(Chapter)}?:?{utils.fetch_pattern(Verse)}?{_range}"
@@ -432,7 +432,7 @@ class Translation(object):
         return utils.module_of_instance(self).Passage(book_start, chapter_start, verse_start, book_end, chapter_end, verse_end)
 
 
-class Passage(object):
+class Passage:
     def __init__(self, book_start, chapter_start, verse_start, book_end, chapter_end, verse_end):
         self._book_start = book_start
         self._chapter_start = chapter_start
@@ -509,6 +509,6 @@ class Passage(object):
             next_verse = next_verse.next()
 
 
-class Character(object):
+class Character:
     def __init__(self):
         pass

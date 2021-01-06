@@ -22,7 +22,7 @@ class ESVError(Exception):
     pass
 
 
-class ESVAPIMixin(object):
+class ESVAPIMixin:
     _AUTH_HEADER = {"Authorization": f"Token {os.environ[_ESV_API_TOKEN_ENV_VAR]}"}
     _BASE_URL = "https://api.esv.org/v3/passage/"
     _GET_AUDIO_ENDPOINT_TEMPLATE = "audio/?q={query}"
@@ -123,7 +123,7 @@ class Passage(ESVAPIMixin, api.Passage):
         self._audio(self.int_reference)
 
 
-class Text(object):
+class Text:
     _TEXT_REGEX = re.compile(r"^(?:(?P<title>.+?\w)\n\n)?(?:(?P<body>.+?))(?:\n\n)?(?:Footnotes\n\n(?P<footnotes>.+?)\n)?$", flags=re.DOTALL)
 
     def __init__(self, raw_text):
