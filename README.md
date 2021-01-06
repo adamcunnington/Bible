@@ -20,8 +20,6 @@
 - [Developing Translations](#developing-translations)
   - [1. New Python Package](#1-new-python-package)
   - [2. Translation-Specific Metadata](#2-translation-specific-metadata)
-    - [2.1. Bible Structure Metadata](#21-bible-structure-metadata)
-    - [2.2. Bible Characters Metadata](#22-bible-characters-metadata)
   - [3. Loading the Translation](#3-loading-the-translation)
 
 
@@ -235,7 +233,7 @@ Text.title -> String title (where relevant, and typically only first verses)
 ## Developing Translations
 Adding a translation to the codebase entails 3 tasks:
 1. Create a python package under `bible/translations/`
-2. Create the translation-specific metadata under `bible/translations/<translation>/data/`
+2. Create the translation-specific metadata under `bible/translations/<translation>/data.json`
 3. Add the loading of the translation to `bible/__init__.py`
 
 Each of these tasks will be explored in greater detail. It is useful to refer to bible/translations/esv/ as an existing example.
@@ -258,14 +256,9 @@ It is likely that additional environment variables will be required to accommoda
 ### 2. Translation-Specific Metadata
 The python package alone is not enough. Each translation must provide metadata for the bible structure (as there are subtle variations between translations) and characters.
 
-The base metadata is defined in `bible/data/`. Translation-specific metadata must be provided at `bible/translations/<translation>/data/` and is merged with precedence into the base metadata.
+The base metadata is defined in `bible/data.json`. Translation-specific metadata must be provided at `bible/translations/<translation>/data.json` and is merged with precedence into the base metadata. The properties that relate to the bible book structures are self explanatory - refer to `bible/translations/esv/data/structure.json` for a more concrete example.
 
-#### 2.1. Bible Structure Metadata
-`bible/data/structure.json` describes all of the properties that can be set and are self-explanatory. Overriding details should be provided in `bible/translations/<translation>/data/structure.json`. Refer to `bible/translations/esv/data/structure.json` for a more concrete example.
-
-
-#### 2.2. Bible Characters Metadata
-`bible/data/characters/` should contain 1 JSON file per character. The files should be named `<n> (<description>).json` where `<n>` is a unique integer and `<description>` is a human-readable identifier - typically a name and some additional detail when needed to resolve ambiguity. Each JSON character file can contain any of the following properties. All are optional except for *passages*:
+Regarding character metadata, the below table details the properties available - all of which are optional except for *passages*.
 
 | Field Name         | Type              | Description                                                                           | Example                       |
 | ------------------ | ----------------- | ------------------------------------------------------------------------------------- | ----------------------------- |

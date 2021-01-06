@@ -341,5 +341,73 @@
             "alt_names": ["Book of Revelation"],
             "chapter_verses": [20, 29, 22, 11, 14, 17, 17, 13, 21, 11, 19, 17, 18, 20, 8, 21, 18, 24, 21, 15, 27, 21]
         }
+    ],
+    "characters": [
+        {
+            "id": 1,
+            "name": "Adam",
+            "aliases": [],
+            "mother": null,
+            "father": null,
+            "spouses": [2],
+            "from": "Eden",
+            "age": 0,
+            "died": 0,
+            "cause_of_death": "",
+            "place_of_death": "",
+            "primary_occupation": "",
+            "passages": ["Genesis 2-?"]
+        },
+        {
+            "id": 2,
+            "name": "Eve",
+            "aliases": [],
+            "mother": null,
+            "father": null,
+            "spouses": [1],
+            "from": "Eden",
+            "age": 0,
+            "died": 0,
+            "cause_of_death": "",
+            "place_of_death": "",
+            "primary_occupation": "",
+            "passages": ["Genesis 2-?"]
+        },
+        {
+            "id": 3,
+            "name": "Serpent",
+            "aliases": [],
+            "mother": null,
+            "father": null,
+            "spouses": [],
+            "from": "Earth",
+            "born": 0,
+            "age": 0,
+            "died": 0,
+            "cause_of_death": "",
+            "place_of_death": "",
+            "passages": ["Genesis 3-?"]
+        },
+        {
+            "id": 4,
+            "name": "Cain",
+            "mother": 2,
+            "father": 1,
+            "spouses": [6],
+            "passages": ["Genesis 4-4"]
+        },
+        {
+            "id": 5,
+            "name": "Abel",
+            "mother": 2,
+            "father": 1,
+            "cause_of_death": "Murdered by Cain",
+            "passages": ["Genesis 4-4"]
+        },
+        {
+            "id": 6,
+            "spouses": [4],
+            "passages": ["Genesis 4:17-:"]
+        }
     ]
 }

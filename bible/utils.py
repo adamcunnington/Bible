@@ -62,10 +62,10 @@ def int_reference(book_number, chapter_number=1, verse_number=1):
 
 
 def load_translation(module_name):
-    with open(os.path.join(os.path.dirname(__file__), "data", "structure.json")) as f:
+    with open(os.path.join(os.path.dirname(__file__), "data.json")) as f:
         base_data = json.load(f)
     module = sys.modules[module_name]
-    file_path = os.path.join(os.path.dirname(module.__file__), "data", "structure.json")
+    file_path = os.path.join(os.path.dirname(module.__file__), "data.json")
     api_module = importlib.import_module(f"{module_name}.api")
     with open(file_path) as f:
         translation_data = json.load(f)

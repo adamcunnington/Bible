@@ -507,3 +507,8 @@ class Passage(object):
         while next_verse is not None and int(next_verse.int_reference) <= verse_end_int_reference:
             yield next_verse
             next_verse = next_verse.next()
+
+
+class Character(object):
+    def __init__(self):
+        pass
