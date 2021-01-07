@@ -1,5 +1,6 @@
 import importlib
 import json
+import operator
 import os
 import sys
 
@@ -15,6 +16,58 @@ _json_merge_schema = {
         }
     }
 }
+
+
+class Filterable:
+    def __init__(self, items, attribute=None):
+        self._items = set(items)
+        self._attribute = attribute
+
+    def __contains__(self, item):
+        return Filterable(self._filter(operator.contains, item), self._attribute)
+
+    def __eq__(self, other):
+        return Filterable(self._filter(operator.eq, other), self._attribute)
+
+    def __ge__(self, other):
+        return Filterable(self._filter(operator.ge, other), self._attribute)
+
+    def __getattr__(self, name):
+        return Filterable(self._items, name)
+
+    def __getitem__(self, key):
+        for item in self._items:
+            if item.id == key:
+                return item
+        raise KeyError(key)
+
+    def __gt__(self, other):
+        return Filterable(self._filter(operator.gt, other), self._attribute)
+
+    def __iter__(self):
+        return iter(self._items)
+
+    def __le__(self, other):
+        return Filterable(self._filter(operator.le, other), self._attribute)
+
+    def __lt__(self, other):
+        return Filterable(self._filter(operator.lt, other), self._attribute)
+
+    def __ne__(self, other):
+        return Filterable(self._filter(operator.ne, other), self._attribute)
+
+    def _filter(self, operation, value):
+        for item in self._items:
+            if operation(getattr(item, self._attribute), value):
+                yield item
+
+    def or(self, *filterables):
+        seen = set()
+        for filterable in filterables:
+            for item in filterable.items:
+                if item not in seen:
+                    seen.add(item)
+                    yield item
 
 
 class FuzzyDict(dict):

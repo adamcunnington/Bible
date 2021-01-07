@@ -267,7 +267,7 @@ Regarding character metadata, the below table details the properties available -
 | mother             | integer           | The identifier (`<n>`) of the mother character.                                       | 5                             |
 | father             | integer           | The identifier (`<n>`) of the mother character.                                       | 4                             |
 | spouses            | array of integers | The identifiers (`<n>`)s of the character's husbands/wives.                           | []                            |
-| from               | string            | The place/nation where the character is considerd to be from. Often not birthplace.   | "Nazareth"                    |
+| nationality        | string            | The place/nation where the character is considerd to be from. Often not birthplace.   | "Nazareth"                    |
 | born               | integer           | The year the character was born. Negative number for BC, positive for AD.             | 0                             |
 | age                | integer           | The age the character died/left earth at.                                             | 35                            |
 | died               | integer           | The year the character died. Negative number for BC, positive for AD.                 | 35                            |

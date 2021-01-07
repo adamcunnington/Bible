@@ -1,8 +1,11 @@
+import dataclasses
 import regex as re  # we need variable-width lookbehind assertions
+import typing
 
 from bible import utils
 
 
+_unknown = object()
 _range = "(?P<range>-)?"
 
 
@@ -509,6 +512,19 @@ class Passage:
             next_verse = next_verse.next()
 
 
+@dataclasses.dataclass(frozen=True)
 class Character:
-    def __init__(self):
-        pass
+    id: int
+    passages: list[Passage]
+    name: str = _unknown
+    aliases: list[str] = []
+    mother: typing.Type["Character"] = _unknown()
+    father: typing.Type["Character"] = _unknown()
+    spouses: list[typing.Type["Character"]] = []
+    nationality: str = _unknown  # enum?
+    born: int = _unknown
+    age: int = _unknown
+    died: int = _unknown
+    cause_of_death: str = _unknown  # enum?
+    place_of_death: str = _unknown  # enum?
+    primary_occupation: str = _unknown  # enum?
