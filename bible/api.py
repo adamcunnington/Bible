@@ -15,15 +15,15 @@ class Verse:
         self._number = number
         chapter._register_verse(self)
         self._chapter = chapter
-        self._book = self.chapter.book
-        self._translation = self.book.translation
+        self._book = self._chapter.book
+        self._translation = self._book.translation
 
     def __repr__(self):
-        return (f"{self.__class__.__module__}.{self.__class__.__name__}(number={self.number}, chapter={self.chapter.number}, "
-                f"book={self.book.name}, translation={self.translation.name})")
+        return (f"{self.__class__.__module__}.{self.__class__.__name__}(number={self._number}, chapter={self._chapter.number}, "
+                f"book={self._book.name}, translation={self._translation.name})")
 
     def __str__(self):
-        return utils.reference(self.book.name, self.chapter.number, self.number)
+        return utils.reference(self._book.name, self._chapter.number, self._number)
 
     @property
     def book(self):
@@ -35,11 +35,11 @@ class Verse:
 
     @property
     def is_first(self):
-        return self.number == 1
+        return self._number == 1
 
     @property
     def is_last(self):
-        return self.number == len(self.chapter)
+        return self._number == len(self._chapter)
 
     @property
     def number(self):
@@ -47,7 +47,7 @@ class Verse:
 
     @property
     def int_reference(self):
-        return utils.int_reference(self.book.number, self.chapter.number, self.number)
+        return utils.int_reference(self._book.number, self._chapter.number, self._number)
 
     @property
     def translation(self):
@@ -59,31 +59,31 @@ class Verse:
     def characters(self):
         _characters = []
         int_reference = int(self.int_reference)
-        for character in self.translation.characters().all():
+        for character in self._translation.characters().all():
             for passage in character.passages:
                 passage_int_reference_start, passage_int_reference_end = passage.int_reference.split(" - ")
                 if int(passage_int_reference_start) <= int_reference <= int(passage_int_reference_end):
                     _characters.append(character)
                     break
-        return utils.Filterable(_characters)
+        return utils.Filterable(Character, _characters)
 
     def next(self, overspill=True):
         if self.is_last:
             if overspill:
-                next_chapter = self.chapter.next()
+                next_chapter = self._chapter.next()
                 if next_chapter is not None:
                     return next_chapter.first()
             return None
-        return self.chapter[self.number + 1]
+        return self._chapter[self._number + 1]
 
     def previous(self, overspill=True):
         if self.is_last:
             if overspill:
-                previous_chapter = self.chapter.previous()
+                previous_chapter = self._chapter.previous()
                 if previous_chapter is not None:
                     return previous_chapter.last()
             return None
-        return self.chapter[self.number - 1]
+        return self._chapter[self._number - 1]
 
     def text(self):
         raise NotImplementedError()
@@ -97,7 +97,7 @@ class Chapter:
         self._number = number
         book._register_chapter(self)
         self._book = book
-        self._translation = self.book.translation
+        self._translation = self._book.translation
         self._verses = {}
 
     def __contains__(self, item):
@@ -116,11 +116,11 @@ class Chapter:
         return len(self._verses)
 
     def __repr__(self):
-        return (f"{self.__class__.__module__}.{self.__class__.__name__}(number={self.number}, book={self.book.name}, "
-                f"translation={self.translation.name})")
+        return (f"{self.__class__.__module__}.{self.__class__.__name__}(number={self._number}, book={self._book.name}, "
+                f"translation={self._translation.name})")
 
     def __str__(self):
-        return utils.reference(self.book.name, self.number)
+        return utils.reference(self._book.name, self._number)
 
     def _register_verse(self, verse):
         if verse.number in self._verses:
@@ -133,15 +133,15 @@ class Chapter:
 
     @property
     def int_reference(self):
-        return utils.int_reference(self.book.number, self.number)
+        return utils.int_reference(self._book.number, self._number)
 
     @property
     def is_first(self):
-        return self.number == 1
+        return self._number == 1
 
     @property
     def is_last(self):
-        return self.number == len(self.book)
+        return self._number == len(self._book)
 
     @property
     def number(self):
@@ -156,8 +156,8 @@ class Chapter:
 
     def characters(self):
         _characters = []
-        int_reference_0 = int(utils.int_reference(self.book.number, self.number, 0))
-        for character in self.translation.characters().all():
+        int_reference_0 = int(utils.int_reference(self._book.number, self._number, 0))
+        for character in self._translation.characters().all():
             for passage in character.passages:
                 if (
                     int(utils.int_reference(passage.book_start.number, passage.chapter_start.number, 0)) <=
@@ -166,7 +166,7 @@ class Chapter:
                    ):
                     _characters.append(character)
                     break
-        return utils.Filterable(_characters)
+        return utils.Filterable(Character, _characters)
 
     def first(self):
         return self[1]
@@ -177,11 +177,11 @@ class Chapter:
     def next(self, overspill=True):
         if self.is_last:
             if overspill:
-                next_book = self.book.next()
+                next_book = self._book.next()
                 if next_book is not None:
                     return next_book.first()
             return None
-        return self.book[self.number + 1]
+        return self._book[self._number + 1]
 
     def passage(self, reference="-"):
         match = self._PASSAGE_REGEX.match(reference)
@@ -195,16 +195,16 @@ class Chapter:
             verse_end = self[utils.safe_int(groups["verse_number_end"]) or len(self)]
         if int(verse_end.int_reference) < int(verse_start.int_reference):
             raise utils.BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
-        return utils.module_of_instance(self).Passage(self.book, self, verse_start, self.book, self, verse_end)
+        return utils.module_of_instance(self).Passage(self._book, self, verse_start, self._book, self, verse_end)
 
     def previous(self, overspill=True):
         if self.is_last:
             if overspill:
-                previous_book = self.book.previous()
+                previous_book = self._book.previous()
                 if previous_book is not None:
                     return previous_book.last()
             return None
-        return self.book[self.number - 1]
+        return self._book[self._number - 1]
 
     def text(self):
         raise NotImplementedError()
@@ -251,10 +251,11 @@ class Book:
         return len(self._chapters)
 
     def __repr__(self):
-        return f"{self.__class__.__module__}.{self.__class__.__name__}(name={self.name}, number={self.number}, translation={self.translation.name})"
+        return (f"{self.__class__.__module__}.{self.__class__.__name__}(name={self._name}, number={self._number}, "
+                f"translation={self._translation.name})")
 
     def __str__(self):
-        return utils.reference(self.name)
+        return utils.reference(self._name)
 
     def _register_chapter(self, chapter):
         if chapter.number in self._chapters:
@@ -283,15 +284,15 @@ class Book:
 
     @property
     def int_reference(self):
-        return utils.int_reference(self.book.number)
+        return utils.int_reference(self._book.number)
 
     @property
     def is_first(self):
-        return self.number == 1
+        return self._number == 1
 
     @property
     def is_last(self):
-        return self.number == len(self.translation)
+        return self._number == len(self._translation)
 
     @property
     def language(self):
@@ -317,8 +318,8 @@ class Book:
 
     def characters(self):
         _characters = []
-        int_reference_0 = int(utils.int_reference(self.number, 0, 0))
-        for character in self.translation.characters().all():
+        int_reference_0 = int(utils.int_reference(self._number, 0, 0))
+        for character in self._translation.characters().all():
             for passage in character.passages:
                 if (
                     int(utils.int_reference(passage.book_start.number, 0, 0)) <=
@@ -327,7 +328,7 @@ class Book:
                    ):
                     _characters.append(character)
                     break
-        return utils.Filterable(_characters)
+        return utils.Filterable(Character, _characters)
 
     def first(self):
         return self[1]
@@ -338,7 +339,7 @@ class Book:
     def next(self):
         if self.is_last:
             return None
-        return self.translation[self.number + 1]
+        return self._translation[self._number + 1]
 
     def passage(self, reference="-"):
         match = self._PASSAGE_REGEX.match(reference)
@@ -363,7 +364,7 @@ class Book:
     def previous(self):
         if self.is_first:
             return None
-        return self.translation[self.number - 1]
+        return self._translation[self._number - 1]
 
     def text(self):
         raise NotImplementedError()
@@ -384,7 +385,7 @@ class Translation:
                                 fr"{utils.fetch_pattern(Verse, '_end')}?$", flags=re.ASCII | re.IGNORECASE)
 
     def __init__(self, name):
-        self.name = name
+        self._name = name
         self._books = utils.FuzzyDict()
         self._categories = utils.FuzzyDict()
         self._characters = {}
@@ -405,7 +406,7 @@ class Translation:
         return len(set(self._books.values()))
 
     def __repr__(self):
-        return f"{self.__class__.__module__}.{self.__class__.__name__}(name={self.name})"
+        return f"{self.__class__.__module__}.{self.__class__.__name__}(name={self._name})"
 
     def _register_book(self, book):
         book_ids = (book.number, book.id, *book.alt_ids)
@@ -432,7 +433,7 @@ class Translation:
         yield from utils.unique_value_iterating_dict(self._books)
 
     def characters(self):
-        return utils.Filterable(self._characters.values())
+        return utils.Filterable(Character, self._characters.values())
 
     def first(self):
         return self[1]
@@ -493,13 +494,13 @@ class Passage:
         return sum(1 for _ in self.verses())
 
     def __repr__(self):
-        return (f"{self.__class__.__module__}.{self.__class__.__name__}(book_start={self.book_start.name}, "
-                f"chapter_start={self.chapter_start.number}, verse_start={self.verse_start.number}, book_end={self.book_end.name}, "
-                f"chapter_end={self.chapter_end.number}, verse_end={self.verse_end.number})")
+        return (f"{self.__class__.__module__}.{self.__class__.__name__}(book_start={self._book_start.name}, "
+                f"chapter_start={self._chapter_start.number}, verse_start={self._verse_start.number}, book_end={self._book_end.name}, "
+                f"chapter_end={self._chapter_end.number}, verse_end={self._verse_end.number})")
 
     def __str__(self):
-        return (f"{utils.reference(self.book_start.name, self.chapter_start.number, self.verse_start.number)} - "
-                f"{utils.reference(self.book_end.name, self.chapter_end.number, self.verse_end.number)}")
+        return (f"{utils.reference(self._book_start.name, self._chapter_start.number, self._verse_start.number)} - "
+                f"{utils.reference(self._book_end.name, self._chapter_end.number, self._verse_end.number)}")
 
     @property
     def book_end(self):
@@ -519,7 +520,7 @@ class Passage:
 
     @property
     def int_reference(self):
-        return (f"{self.verse_start.int_reference} - {self.verse_end.int_reference}")
+        return (f"{self._verse_start.int_reference} - {self._verse_end.int_reference}")
 
     @property
     def translation(self):
@@ -537,15 +538,15 @@ class Passage:
         raise NotImplementedError()
 
     def books(self):
-        next_book = self.book_start
-        book_end_int_reference = int(self.book_end.int_reference)
+        next_book = self._book_start
+        book_end_int_reference = int(self._book_end.int_reference)
         while next_book is not None and int(next_book.int_reference) <= book_end_int_reference:
             yield next_book
             next_book = next_book.next()
 
     def chapters(self):
-        next_chapter = self.chapter_start
-        chapter_end_int_reference = int(self.chapter_end.int_reference)
+        next_chapter = self._chapter_start
+        chapter_end_int_reference = int(self._chapter_end.int_reference)
         while next_chapter is not None and int(next_chapter.int_reference) <= chapter_end_int_reference:
             yield next_chapter
             next_chapter = next_chapter.next()
@@ -553,7 +554,7 @@ class Passage:
     def characters(self):
         _characters = []
         int_reference_start, int_reference_end = self.int_reference.split(" - ")
-        for character in self.translation.characters().all():
+        for character in self._translation.characters().all():
             for passage in character.passages:
                 passage_int_reference_start, passage_int_reference_end = passage.int_reference.split(" - ")
                 if (
@@ -563,14 +564,14 @@ class Passage:
                 ):
                     _characters.append(character)
                     break
-        return utils.Filterable(_characters)
+        return utils.Filterable(Character, _characters)
 
     def text(self):
         raise NotImplementedError()
 
     def verses(self):
-        next_verse = self.verse_start
-        verse_end_int_reference = int(self.verse_end.int_reference)
+        next_verse = self._verse_start
+        verse_end_int_reference = int(self._verse_end.int_reference)
         while next_verse is not None and int(next_verse.int_reference) <= verse_end_int_reference:
             yield next_verse
             next_verse = next_verse.next()
@@ -607,4 +608,4 @@ class Character:
 
     @property
     def spouses(self):
-        return (self.translation._characters[spouse] for spouse in self._spouses)
+        return tuple(self.translation._characters[spouse] for spouse in self._spouses)

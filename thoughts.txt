@@ -1,4 +1,6 @@
 TO FIX
+    Fix the bug with combine() where iterables are getting consumed somehow. Who knows what the hell is going on there.
+
     Fix regex pattern for text (title not working properly - see genesis 1:17). Also, we are now included verse numbers so regex pattern may need completely reviewing
 
     audio! And update installation documentation.

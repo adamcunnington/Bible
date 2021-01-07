@@ -1,3 +1,4 @@
+import dataclasses
 import importlib
 import itertools
 import json
@@ -28,74 +29,105 @@ class BibleSetupError(Exception):
 
 
 class Filterable:
-    def __init__(self, iterable, attribute=None):
+    def __init__(self, dataclass, iterable, field=None):
+        self._dataclass = dataclass
         self._iterable = iterable
-        self._attribute = attribute
+        self._field = field
+        self._dataclass = dataclass
 
-    def __contains__(self, i):
-        return Filterable(self._filter(operator.contains, i), self._attribute)
+    def __eq__(self, value):
+        return Filterable(self.dataclass, self._filter(operator.eq, value), self._field)
 
-    def __eq__(self, other):
-        return Filterable(self._filter(operator.eq, other), self._attribute)
-
-    def __ge__(self, other):
-        return Filterable(self._filter(operator.ge, other), self._attribute)
+    def __ge__(self, value):
+        return Filterable(self.dataclass, self._filter(operator.ge, value), self._field)
 
     def __getattr__(self, name):
-        return Filterable(self._iterable, name)
+        if name not in self.fields:
+            raise AttributeError(f"{self.dataclass.__name__!r} object has no attribute {name!r}")
+        return Filterable(self.dataclass, self._iterable, name)
 
     def __getitem__(self, key):
-        for i in self._iterable:
+        for i in self:
             if i.id == key:
                 return i
         raise KeyError(key)
 
-    def __gt__(self, other):
-        return Filterable(self._filter(operator.gt, other), self._attribute)
+    def __gt__(self, value):
+        return Filterable(self.dataclass, self._filter(operator.gt, value), self._field)
 
     def __iter__(self):
-        raise TypeError(f"{self.__class__.__name__!r} object is not iterable")
+        return self._tee()
 
-    def __le__(self, other):
-        return Filterable(self._filter(operator.le, other), self._attribute)
+    def __le__(self, value):
+        return Filterable(self.dataclass, self._filter(operator.le, value), self._field)
 
     def __len__(self):
-        return sum(1 for _ in self._tee())
+        return sum(1 for _ in self)
 
-    def __lt__(self, other):
-        return Filterable(self._filter(operator.lt, other), self._attribute)
+    def __lt__(self, value):
+        return Filterable(self.dataclass, self._filter(operator.lt, value), self._field)
 
-    def __ne__(self, other):
-        return Filterable(self._filter(operator.ne, other), self._attribute)
+    def __ne__(self, value):
+        return Filterable(self.dataclass, self._filter(operator.ne, value), self._field)
 
-    @classmethod
-    def _combine(cls, *filterables):
-        seen = set()
-        for filterable in filterables:
-            for i in filterable._iterable:
-                if i not in seen:
-                    seen.add(i)
-                    yield i
+    def _combine(self, *filterables):
+        candidates = set()
+        candidates.union(*filterables)
+        for i in self:
+            if i in candidates:
+                yield i
 
-    @classmethod
-    def combine(cls, *filterables):
-        return Filterable(cls._combine(*filterables))
+    def _contains(self, value):
+        for i in self:
+            if value in getattr(i, self._field):
+                yield i
+
+    def _contains_not(self, value):
+        for i in self:
+            if value not in getattr(i, self._field):
+                yield i
 
     def _filter(self, operation, value):
-        for i in self._tee():
-            if operation(getattr(i, self._attribute), value):
+        for i in self:
+            if operation(getattr(i, self._field), value):
                 yield i
 
     def _tee(self):
         self._iterable, iterable_copy = itertools.tee(self._iterable)
         return iterable_copy
 
+    def _where(self, *values):
+        for i in self:
+            if getattr(i, self._field) in values:
+                yield i
+
+    def _where_not(self, *values):
+        for i in self:
+            if getattr(i, self._field) not in values:
+                yield i
+
+    @property
+    def dataclass(self):
+        return self._dataclass
+
+    @property
+    def fields(self):
+        return tuple(field.name for field in dataclasses.fields(self.dataclass))
+
     def all(self):
-        return list(self._tee())
+        return list(self)
+
+    def combine(self, *filterables):
+        return Filterable(self.dataclass, self._combine(*filterables), self._field)
+
+    def contains(self, value, inverse=False):
+        if not inverse:
+            return Filterable(self.dataclass, self._contains(value), self._field)
+        return Filterable(self.dataclass, self._contains_not(value), self._field)
 
     def one(self):
         first = None
-        for i in self._tee():
+        for i in self:
             if first is None:
                 first = i
             else:
@@ -103,9 +135,24 @@ class Filterable:
         return first
 
     def select(self, *args):
+        iterable = self._tee()
         if not args:
-            return [vars(i) for i in self._tee()]
-        return [{arg: getattr(i, arg) for arg in args} for i in self._tee()]
+            return [vars(i) for i in iterable]
+        return [{arg: getattr(i, arg) for arg in args} for i in iterable]
+
+    def values(self, *args):
+        iterable = self._tee()
+        if len(args) > 1:
+            return [[getattr(i, arg) for arg in args] for i in iterable]
+        arg = next(iter(args), self._field)
+        if arg is None:
+            raise BibleReferenceError("field is not set")
+        return [getattr(i, arg) for i in iterable]
+
+    def where(self, *values, inverse=False):
+        if not inverse:
+            return Filterable(self.dataclass, self._where(*values), self._field)
+        return Filterable(self.dataclass, self._where_not(*values), self._field)
 
 
 class FuzzyDict(dict):
