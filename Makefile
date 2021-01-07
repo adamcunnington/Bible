@@ -4,7 +4,7 @@ default: help
 
 # PARAMETERS
 ESV_API_TOKEN ?= $$ESV_API_TOKEN
-PYTHON3 ?= python3.9
+PYTHON3 ?= $$python3
 VENV_NAME ?= .venv
 
 # INTERNAL

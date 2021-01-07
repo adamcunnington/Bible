@@ -71,8 +71,7 @@ class Filterable:
         return Filterable(self.dataclass, self._filter(operator.ne, value), self._field)
 
     def _combine(self, *filterables):
-        candidates = set()
-        candidates.union(*filterables)
+        candidates = set().union(*filterables)
         for i in self:
             if i in candidates:
                 yield i
