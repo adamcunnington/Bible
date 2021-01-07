@@ -1,6 +1,4 @@
 TO FIX
-    Review regex logic for passages again. Genesis 3-6 should be Genesis, not reveleation.
-
     Fix regex pattern for text (title not working properly - see genesis 1:17). Also, we are now included verse numbers so regex pattern may need completely reviewing
 
     audio! And update installation documentation.

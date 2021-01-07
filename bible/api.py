@@ -345,15 +345,17 @@ class Book:
         if match is None:
             raise utils.BibleReferenceError(f"the reference, '{reference}' does not match the expected regex, {self._PASSAGE_REGEX}")
         groups = match.groupdict()
-        chapter_start = self[utils.safe_int(groups["chapter_number_start"]) or 1]
+        chapter_number_start = utils.safe_int(groups["chapter_number_start"])
+        chapter_start = self[chapter_number_start or 1]
         verse_number_start = utils.safe_int(groups["verse_number_start"])
         verse_start = chapter_start[verse_number_start or 1]
         if groups["range"] is None:
             chapter_end = chapter_start
             verse_end = verse_start
         else:
-            chapter_end = self[utils.safe_int(groups["chapter_number_end"]) or len(self)]
-            verse_end = chapter_end[utils.safe_int(groups["verse_number_end"]) or len(chapter_end)]
+            verse_number_end = utils.safe_int(groups["verse_number_end"])
+            chapter_end = self[utils.safe_int(groups["chapter_number_end"]) or (chapter_number_start if verse_number_end else len(self))]
+            verse_end = chapter_end[verse_number_end or len(chapter_end)]
         if int(verse_end.int_reference) < int(verse_start.int_reference):
             raise utils.BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
         return utils.module_of_instance(self).Passage(self, chapter_start, verse_start, self, chapter_end, verse_end)
@@ -456,19 +458,22 @@ class Translation:
             book_start_group = "book_number_start"
             book_end_group = "book_number_end"
         groups = match.groupdict()
-        book_start = self._books[utils.safe_int(groups[book_start_group]) or 1]
+        book_start_identifier = utils.safe_int(groups[book_start_group])
+        book_start = self._books[book_start_identifier or 1]
         chapter_number_start = utils.safe_int(groups["chapter_number_start"])
         chapter_start = book_start[chapter_number_start or 1]
-        verse_number_start = utils.safe_int(groups["verse_number_start"])
-        verse_start = chapter_start[verse_number_start or 1]
+        verse_start = chapter_start[utils.safe_int(groups["verse_number_start"]) or 1]
         if groups["range"] is None:
             book_end = book_start
             chapter_end = chapter_start
             verse_end = verse_start
         else:
-            book_end = self._books[utils.safe_int(groups[book_end_group]) or len(self)]
-            chapter_end = book_end[utils.safe_int(groups["chapter_number_end"]) or len(book_end)]
-            verse_end = chapter_end[utils.safe_int(groups["verse_number_end"]) or len(chapter_end)]
+            chapter_number_end = utils.safe_int(groups["chapter_number_end"])
+            verse_number_end = utils.safe_int(groups["verse_number_end"])
+            book_end = self._books[utils.safe_int(groups[book_end_group]) or
+                                   (book_start_identifier if (chapter_number_end or verse_number_end) else len(self))]
+            chapter_end = book_end[chapter_number_end or (chapter_number_start if verse_number_end else len(book_end))]
+            verse_end = chapter_end[verse_number_end or len(chapter_end)]
         if int(verse_end.int_reference) < int(verse_start.int_reference):
             raise utils.BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
         return utils.module_of_instance(self).Passage(book_start, chapter_start, verse_start, book_end, chapter_end, verse_end)

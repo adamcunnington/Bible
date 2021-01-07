@@ -83,7 +83,7 @@ The convention that passage references must follow is consistent across `Transla
 ```
 Translation.passage(reference=None, int_reference=None)
 ```
-* *reference* - takes the form, `<book> <chapter>:<verse> - <book> <chapter>:<verse>` where spaces are optional, each component is optional, book can be a number, fuzzy matched sluggified name or even fuzzy matched alternative name, and chapter/verse should be numbers. If a component is omitted from the left hand side, it will be assumed to be 1 whereas if a component is omitted from the right hand side, it will be assumed to be the final entity of whatever was omitted. This assumption cascades such that the extreme case of *reference=*`-` will actually return a `Passage` object that spans the entire Bible - from Genesis 1:1 to the final verse of the final chapter of the final book. It is also possible to return a single book/chapter/verse by omitting the right hand side entirely as well as the `-` character. If provided, the right hand side must be greater than the left.
+* *reference* - takes the form, `<book> <chapter>:<verse> - <book> <chapter>:<verse>` where spaces are optional, each component is optional, book can be a number, fuzzy matched sluggified name or even fuzzy matched alternative name, and chapter/verse should be numbers. If a component is omitted from the left hand side, it will be assumed to be 1 whereas if a component is omitted from the right hand side, it will either be: i) assumed to be the final entity if there were no components provided afterwards or ii) the same value as the left hand side if there were components provided afterwards. In the case of i), note this assumption cascades such that the extreme case of *reference=*`x-` will actually return a `Passage` object that spans the rest of the entire Bible (final verse of final chapter of final book) from x onwards. In the case of ii) a more intuitive short hand experience is realised, i.e. the desired behaviour of `Genesis 3-16` is *Genesis 3 - Genesis 16* rather than *Genesis 3 - Revelation 16*. It is also possible to return a single book/chapter/verse by omitting the right hand side entirely as well as the `-` character. If provided, the right hand side must be greater than the left.
 * *int_reference* - takes a simplified form, `XXYYYZZZ - XXYYYZZZ` where spaces are optional, XX is an optionally 0-padded book number (i.e. both 6 and 06 are acceptable), YYY is a 00-padded chapter number and ZZZ is a 00-padded verse number. For example, `Genesis 1:1 - Exodus 3:6` would be represented as `01001001 - 02003006`. Each side is optional but the component parts that make up the side are not. If provided, the right hand side must be canonically after the left hand side.
 
 ```
@@ -103,12 +103,16 @@ Chapter.passage(reference="-")
 | `Translation`.passage("Matth-")                  | 40 (Matthew) | 1             | 1           | 66 (Relevation) | 22          | 21        |
 | `Translation`.passage("John 2:3-John")           | 43 (John)    | 2             | 3           | 43 (John)       | 21          | 25        |
 | `Translation`.passage("John 2:3 - John 2")       | 43 (John)    | 2             | 3           | 43 (John)       | 2           | 25        |
+| `Translation`.passage("John 2-6")                | 43 (John)    | 2             | 1           | 43 (John)       | 6           | 71        |
+| `Translation`.passage("John 2:3-6")              | 43 (John)    | 2             | 3           | 43 (John)       | 2           | 6         |
 | `Translation`.passage("- Exo")                   | 1 (Genesis)  | 1             | 1           | 2 (Exodus)      | 40          | 38        |
 | `Translation`.passage(None, "01001001-02003006") | 1 (Genesis)  | 1             | 1           | 2 (Exodus)      | 3           | 6         |
 | `Translation`.passage(None, "37002003-")         | 37 (Haggai)  | 2             | 3           | 66 (Revelation) | 22          | 21        |
 | `Translation`.passage(None, "4002009")           | 4 (Numbers)  | 2             | 9           | 4 (Numbers)     | 2           | 9         |
 | `Translation`.passage(None, " -2003019")         | 1 (Genesis)  | 1             | 1           | 2 (Exodus)      | 3           | 19        |
 | `<Genesis>`.passage("7:13-9:21")                 | 1 (Genesis)  | 7             | 13          | 1 (Genesis)     | 9           | 21        |
+| `<Genesis>`.passage("7:13-21")                   | 1 (Genesis)  | 7             | 13          | 1 (Genesis)     | 7           | 21        |
+| `<Genesis>`.passage("7-21")                      | 1 (Genesis)  | 7             | 1           | 1 (Genesis)     | 21          | 34        |
 | `<Genesis>`.passage("-3:")                       | 1 (Genesis)  | 1             | 1           | 1 (Genesis)     | 3           | 24        |
 | `<Genesis>`.passage()                            | 1 (Genesis)  | 1             | 1           | 1 (Genesis)     | 50          | 26        |
 | `<John 3>`.passage("9-16")                       | 43 (John)    | 3             | 9           | 43 (John)       | 3           | 16        |
