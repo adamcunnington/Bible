@@ -1,4 +1,5 @@
 import importlib
+import itertools
 import json
 import operator
 import os
@@ -18,13 +19,21 @@ _json_merge_schema = {
 }
 
 
+class BibleReferenceError(Exception):
+    pass
+
+
+class BibleSetupError(Exception):
+    pass
+
+
 class Filterable:
-    def __init__(self, items, attribute=None):
-        self._items = set(items)
+    def __init__(self, iterable, attribute=None):
+        self._iterable = iterable
         self._attribute = attribute
 
-    def __contains__(self, item):
-        return Filterable(self._filter(operator.contains, item), self._attribute)
+    def __contains__(self, i):
+        return Filterable(self._filter(operator.contains, i), self._attribute)
 
     def __eq__(self, other):
         return Filterable(self._filter(operator.eq, other), self._attribute)
@@ -33,22 +42,25 @@ class Filterable:
         return Filterable(self._filter(operator.ge, other), self._attribute)
 
     def __getattr__(self, name):
-        return Filterable(self._items, name)
+        return Filterable(self._iterable, name)
 
     def __getitem__(self, key):
-        for item in self._items:
-            if item.id == key:
-                return item
+        for i in self._iterable:
+            if i.id == key:
+                return i
         raise KeyError(key)
 
     def __gt__(self, other):
         return Filterable(self._filter(operator.gt, other), self._attribute)
 
     def __iter__(self):
-        return iter(self._items)
+        raise TypeError(f"{self.__class__.__name__!r} object is not iterable")
 
     def __le__(self, other):
         return Filterable(self._filter(operator.le, other), self._attribute)
+
+    def __len__(self):
+        return sum(1 for _ in self._tee())
 
     def __lt__(self, other):
         return Filterable(self._filter(operator.lt, other), self._attribute)
@@ -56,18 +68,44 @@ class Filterable:
     def __ne__(self, other):
         return Filterable(self._filter(operator.ne, other), self._attribute)
 
-    def _filter(self, operation, value):
-        for item in self._items:
-            if operation(getattr(item, self._attribute), value):
-                yield item
-
-    def or(self, *filterables):
+    @classmethod
+    def _combine(cls, *filterables):
         seen = set()
         for filterable in filterables:
-            for item in filterable.items:
-                if item not in seen:
-                    seen.add(item)
-                    yield item
+            for i in filterable._iterable:
+                if i not in seen:
+                    seen.add(i)
+                    yield i
+
+    @classmethod
+    def combine(cls, *filterables):
+        return Filterable(cls._combine(*filterables))
+
+    def _filter(self, operation, value):
+        for i in self._tee():
+            if operation(getattr(i, self._attribute), value):
+                yield i
+
+    def _tee(self):
+        self._iterable, iterable_copy = itertools.tee(self._iterable)
+        return iterable_copy
+
+    def all(self):
+        return list(self._tee())
+
+    def one(self):
+        first = None
+        for i in self._tee():
+            if first is None:
+                first = i
+            else:
+                raise BibleReferenceError("there is more than one item that matches the current filter")
+        return first
+
+    def select(self, *args):
+        if not args:
+            return [vars(i) for i in self._tee()]
+        return [{arg: getattr(i, arg) for arg in args} for i in self._tee()]
 
 
 class FuzzyDict(dict):
@@ -103,6 +141,18 @@ class FuzzyDict(dict):
         return (closest_ratio >= ratio_threshold, closest_key, self.get(closest_key), closest_ratio)
 
 
+class Unknown:
+    def __str__(self):
+        return "Unknown"
+
+
+class Year(int):
+    def __str__(self):
+        if self < 0:
+            return f"{abs(self)} BC"
+        return f"{abs(self)} AD"  # abs() appears extraneous but needed to avoid infinite recursion
+
+
 def fetch_pattern(cls, group_suffix="_start"):
     name_pattern = getattr(cls, "_NAME_REGEX").pattern
     if group_suffix is not None:
@@ -131,6 +181,13 @@ def load_translation(module_name):
             chapter = api_module.Chapter(chapter_index + 1, book)
             for verse_index in range(verse_count):
                 _ = api_module.Verse(verse_index + 1, chapter)
+    for character_data in data["characters"]:
+        character_data["aliases"] = tuple(character_data.get("aliases", ()))
+        character_data["_mother"] = character_data.pop("mother", Unknown())
+        character_data["_father"] = character_data.pop("father", Unknown())
+        character_data["_spouses"] = tuple(character_data.pop("spouses", ()))
+        character_data["passages"] = tuple(translation.passage(passage) for passage in character_data.get("passages", ()))
+        _ = api_module.Character(translation=translation, **character_data)
     return translation
 
 
@@ -155,4 +212,4 @@ def slugify(value):
 
 
 def unique_value_iterating_dict(d):
-    yield from dict.fromkeys(d.values())  # ordered set from dict values
+    yield from dict.fromkeys(d.values())

@@ -1,14 +1,20 @@
 TO FIX
-    audio! And update installation documentation.
+    Review regex logic for passages again. Genesis 3-6 should be Genesis, not reveleation.
 
     Fix regex pattern for text (title not working properly - see genesis 1:17). Also, we are now included verse numbers so regex pattern may need completely reviewing
+
+    audio! And update installation documentation.
 
     It sucks that the metadata must be repeated across translations because of the subtle variations in passages. It would be better to centralise as much of this as possible even if it adds some complexity. Look into this.
 
 ARCHITECTURE
     Can we make the translations more self-contained and modular? E.g. can we avoid altering bible/__init__.py to register a new translation? Can we pip install translations separately?
 
-IDEAS for structure.json
+IDEAS for data.json
     When the book was written
 
+CHARACTER
+    Convert some string properties to enums? Where should the list be mastered?
+
 ADDITIONS to README.md
+    Characters

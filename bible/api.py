@@ -5,16 +5,7 @@ import typing
 from bible import utils
 
 
-_unknown = object()
 _range = "(?P<range>-)?"
-
-
-class BibleReferenceError(Exception):
-    pass
-
-
-class BibleSetupError(Exception):
-    pass
 
 
 class Verse:
@@ -65,6 +56,17 @@ class Verse:
     def audio(self):
         raise NotImplementedError()
 
+    def characters(self):
+        _characters = []
+        int_reference = int(self.int_reference)
+        for character in self.translation.characters().all():
+            for passage in character.passages:
+                passage_int_reference_start, passage_int_reference_end = passage.int_reference.split(" - ")
+                if int(passage_int_reference_start) <= int_reference <= int(passage_int_reference_end):
+                    _characters.append(character)
+                    break
+        return utils.Filterable(_characters)
+
     def next(self, overspill=True):
         if self.is_last:
             if overspill:
@@ -105,7 +107,7 @@ class Chapter:
         try:
             return self._verses[key]
         except KeyError:
-            raise BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
+            raise utils.BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
 
     def __iter__(self):
         return utils.unique_value_iterating_dict(self._verses)
@@ -122,7 +124,7 @@ class Chapter:
 
     def _register_verse(self, verse):
         if verse.number in self._verses:
-            raise BibleSetupError(f"there is already a verse registered in this chapter ({self}) with the number, {verse.number}")
+            raise utils.BibleSetupError(f"a verse is already registered in this chapter ({self}) with the number, {verse.number}")
         self._verses[verse.number] = verse
 
     @property
@@ -152,6 +154,20 @@ class Chapter:
     def audio(self):
         raise NotImplementedError()
 
+    def characters(self):
+        _characters = []
+        int_reference_0 = int(utils.int_reference(self.book.number, self.number, 0))
+        for character in self.translation.characters().all():
+            for passage in character.passages:
+                if (
+                    int(utils.int_reference(passage.book_start.number, passage.chapter_start.number, 0)) <=
+                    int_reference_0 <=
+                    int(utils.int_reference(passage.book_end.number, passage.chapter_end.number, 0))
+                   ):
+                    _characters.append(character)
+                    break
+        return utils.Filterable(_characters)
+
     def first(self):
         return self[1]
 
@@ -170,7 +186,7 @@ class Chapter:
     def passage(self, reference="-"):
         match = self._PASSAGE_REGEX.match(reference)
         if match is None:
-            raise BibleReferenceError(f"the reference, '{reference}'' does not match the expected regex pattern, {self._PASSAGE_REGEX}")
+            raise utils.BibleReferenceError(f"the reference, '{reference}'' does not match the expected regex, {self._PASSAGE_REGEX}")
         groups = match.groupdict()
         verse_start = self[utils.safe_int(groups["verse_number_start"]) or 1]
         if groups["range"] is None:
@@ -178,7 +194,7 @@ class Chapter:
         else:
             verse_end = self[utils.safe_int(groups["verse_number_end"]) or len(self)]
         if int(verse_end.int_reference) < int(verse_start.int_reference):
-            raise BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
+            raise utils.BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
         return utils.module_of_instance(self).Passage(self.book, self, verse_start, self.book, self, verse_end)
 
     def previous(self, overspill=True):
@@ -206,7 +222,7 @@ class Book:
     def __init__(self, name, number, translation, author, language, alt_names=(), categories=()):
         _id = utils.slugify(name)
         if not self._NAME_REGEX.match(_id):
-            raise BibleSetupError(f"the derived id, '{_id}' does not match the expected regex pattern, {self._NAME_REGEX}")
+            raise utils.BibleSetupError(f"the derived id, '{_id}' does not match the expected regex, {self._NAME_REGEX}")
         self._name = name
         self._id = _id
         self._number = number
@@ -226,7 +242,7 @@ class Book:
         try:
             return self._chapters[key]
         except KeyError:
-            raise BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
+            raise utils.BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
 
     def __iter__(self):
         return utils.unique_value_iterating_dict(self._chapters)
@@ -242,7 +258,7 @@ class Book:
 
     def _register_chapter(self, chapter):
         if chapter.number in self._chapters:
-            raise BibleSetupError(f"there is already a chapter registered in this book ({self}) with the number, {chapter.number}")
+            raise utils.BibleSetupError(f"a chapter is already registered in this book ({self}) with the number, {chapter.number}")
         self._chapters[chapter.number] = chapter
 
     @property
@@ -299,6 +315,20 @@ class Book:
     def chapters(self):
         yield from self._chapters.values()
 
+    def characters(self):
+        _characters = []
+        int_reference_0 = int(utils.int_reference(self.number, 0, 0))
+        for character in self.translation.characters().all():
+            for passage in character.passages:
+                if (
+                    int(utils.int_reference(passage.book_start.number, 0, 0)) <=
+                    int_reference_0 <=
+                    int(utils.int_reference(passage.book_end.number, 0, 0))
+                   ):
+                    _characters.append(character)
+                    break
+        return utils.Filterable(_characters)
+
     def first(self):
         return self[1]
 
@@ -313,7 +343,7 @@ class Book:
     def passage(self, reference="-"):
         match = self._PASSAGE_REGEX.match(reference)
         if match is None:
-            raise BibleReferenceError(f"the reference, '{reference}' does not match the expected regex pattern, {self._PASSAGE_REGEX}")
+            raise utils.BibleReferenceError(f"the reference, '{reference}' does not match the expected regex, {self._PASSAGE_REGEX}")
         groups = match.groupdict()
         chapter_start = self[utils.safe_int(groups["chapter_number_start"]) or 1]
         verse_number_start = utils.safe_int(groups["verse_number_start"])
@@ -325,7 +355,7 @@ class Book:
             chapter_end = self[utils.safe_int(groups["chapter_number_end"]) or len(self)]
             verse_end = chapter_end[utils.safe_int(groups["verse_number_end"]) or len(chapter_end)]
         if int(verse_end.int_reference) < int(verse_start.int_reference):
-            raise BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
+            raise utils.BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
         return utils.module_of_instance(self).Passage(self, chapter_start, verse_start, self, chapter_end, verse_end)
 
     def previous(self):
@@ -355,6 +385,7 @@ class Translation:
         self.name = name
         self._books = utils.FuzzyDict()
         self._categories = utils.FuzzyDict()
+        self._characters = {}
 
     def __contains__(self, item):
         return item in set(self._books.values())
@@ -363,7 +394,7 @@ class Translation:
         try:
             return self._books[utils.slugify(key)]
         except KeyError:
-            raise BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
+            raise utils.BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
 
     def __iter__(self):
         return utils.unique_value_iterating_dict(self._books)
@@ -378,7 +409,7 @@ class Translation:
         book_ids = (book.number, book.id, *book.alt_ids)
         existing_book_ids = [book_id for book_id in book_ids if book_id in self._books]
         if existing_book_ids:
-            raise BibleSetupError(f"there is already a book registered in this translation ({self}) with the key(s), {','.join(existing_book_ids)}")
+            raise utils.BibleSetupError(f"a book is already registered in this translation ({self}) with the id(s), {','.join(existing_book_ids)}")
         self._books.update(dict.fromkeys(book_ids, book))
         for category in book.categories:
             existing_category = self._categories.get(category)
@@ -386,12 +417,20 @@ class Translation:
                 existing_category = self._categories[category] = []
             existing_category.append(book)
 
+    def _register_character(self, character):
+        if character.id in self._characters:
+            raise utils.BibleSetupError(f"a character is already registered in this translation ({self}) with the id, {character.id}")
+        self._characters[character.id] = character
+
     @property
     def categories(self):
         return self._categories
 
     def books(self):
         yield from utils.unique_value_iterating_dict(self._books)
+
+    def characters(self):
+        return utils.Filterable(self._characters.values())
 
     def first(self):
         return self[1]
@@ -405,7 +444,7 @@ class Translation:
                 raise ValueError("reference and int_reference are mutually exclusive arguments; only 1 should be not None")
             match = self._PASSAGE_REGEX.match(utils.slugify(reference))
             if match is None:
-                raise BibleReferenceError(f"the reference, '{reference}' does not match the expected regex pattern, {self._PASSAGE_REGEX}")
+                raise utils.BibleReferenceError(f"the reference, '{reference}' does not match the expected regex, {self._PASSAGE_REGEX}")
             book_start_group = "book_name_start"
             book_end_group = "book_name_end"
         else:
@@ -413,7 +452,7 @@ class Translation:
                 raise ValueError("either reference or int_reference must be not None")
             match = self._INT_PASSAGE_REGEX.match(utils.slugify(int_reference))
             if match is None:
-                raise BibleReferenceError(f"the int_reference, {int_reference} does not match the expected regex pattern, {self._INT_PASSAGE_REGEX}")
+                raise utils.BibleReferenceError(f"the int_reference, {int_reference} does not match the expected regex, {self._INT_PASSAGE_REGEX}")
             book_start_group = "book_number_start"
             book_end_group = "book_number_end"
         groups = match.groupdict()
@@ -431,7 +470,7 @@ class Translation:
             chapter_end = book_end[utils.safe_int(groups["chapter_number_end"]) or len(book_end)]
             verse_end = chapter_end[utils.safe_int(groups["verse_number_end"]) or len(chapter_end)]
         if int(verse_end.int_reference) < int(verse_start.int_reference):
-            raise BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
+            raise utils.BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
         return utils.module_of_instance(self).Passage(book_start, chapter_start, verse_start, book_end, chapter_end, verse_end)
 
 
@@ -443,6 +482,7 @@ class Passage:
         self._book_end = book_end
         self._chapter_end = chapter_end
         self._verse_end = verse_end
+        self._translation = self._book_start.translation
 
     def __len__(self):
         return sum(1 for _ in self.verses())
@@ -474,7 +514,11 @@ class Passage:
 
     @property
     def int_reference(self):
-        return (f"{self.verse_start.int_reference}-{self.verse_end.int_reference}")
+        return (f"{self.verse_start.int_reference} - {self.verse_end.int_reference}")
+
+    @property
+    def translation(self):
+        return self._translation
 
     @property
     def verse_end(self):
@@ -501,6 +545,21 @@ class Passage:
             yield next_chapter
             next_chapter = next_chapter.next()
 
+    def characters(self):
+        _characters = []
+        int_reference_start, int_reference_end = self.int_reference.split(" - ")
+        for character in self.translation.characters().all():
+            for passage in character.passages:
+                passage_int_reference_start, passage_int_reference_end = passage.int_reference.split(" - ")
+                if (
+                    int(passage_int_reference_start) <= int(int_reference_start) <= int(passage_int_reference_end)
+                    or
+                    int(passage_int_reference_start) <= int(int_reference_end) <= int(passage_int_reference_end)
+                ):
+                    _characters.append(character)
+                    break
+        return utils.Filterable(_characters)
+
     def text(self):
         raise NotImplementedError()
 
@@ -515,16 +574,32 @@ class Passage:
 @dataclasses.dataclass(frozen=True)
 class Character:
     id: int
-    passages: list[Passage]
-    name: str = _unknown
-    aliases: list[str] = []
-    mother: typing.Type["Character"] = _unknown()
-    father: typing.Type["Character"] = _unknown()
-    spouses: list[typing.Type["Character"]] = []
-    nationality: str = _unknown  # enum?
-    born: int = _unknown
-    age: int = _unknown
-    died: int = _unknown
-    cause_of_death: str = _unknown  # enum?
-    place_of_death: str = _unknown  # enum?
-    primary_occupation: str = _unknown  # enum?
+    translation: Translation
+    passages: tuple[Passage]
+    _mother: typing.Union[utils.Unknown, int] = utils.Unknown()
+    _father: typing.Union[utils.Unknown, int] = utils.Unknown()
+    _spouses: tuple = dataclasses.field(default_factory=tuple)
+    name: typing.Union[utils.Unknown, str] = utils.Unknown()
+    aliases: tuple = dataclasses.field(default_factory=tuple)
+    nationality: typing.Union[utils.Unknown, str] = utils.Unknown()  # enum?
+    born: typing.Union[utils.Unknown, utils.Year] = utils.Unknown()
+    age: typing.Union[utils.Unknown, int] = utils.Unknown()
+    died: typing.Union[utils.Unknown, utils.Year] = utils.Unknown()
+    cause_of_death: typing.Union[utils.Unknown, str] = utils.Unknown()  # enum?
+    place_of_death: typing.Union[utils.Unknown, str] = utils.Unknown()  # enum?
+    primary_occupation: typing.Union[utils.Unknown, str] = utils.Unknown()  # enum?
+
+    def __post_init__(self):
+        self.translation._register_character(self)
+
+    @property
+    def mother(self):
+        return self.translation._characters.get(self._mother, utils.Unknown())
+
+    @property
+    def father(self):
+        return self.translation._characters.get(self._father, utils.Unknown())
+
+    @property
+    def spouses(self):
+        return (self.translation._characters[spouse] for spouse in self._spouses)

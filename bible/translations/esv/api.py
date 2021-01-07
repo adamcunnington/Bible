@@ -123,6 +123,10 @@ class Passage(ESVAPIMixin, api.Passage):
         self._audio(self.int_reference)
 
 
+class Character(api.Character):
+    pass
+
+
 class Text:
     _TEXT_REGEX = re.compile(r"^(?:(?P<title>.+?\w)\n\n)?(?:(?P<body>.+?))(?:\n\n)?(?:Footnotes\n\n(?P<footnotes>.+?)\n)?$", flags=re.DOTALL)
 

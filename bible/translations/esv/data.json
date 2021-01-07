@@ -356,7 +356,7 @@
             "cause_of_death": "",
             "place_of_death": "",
             "primary_occupation": "",
-            "passages": ["Genesis 2-?"]
+            "passages": ["Genesis 2 - Genesis"]
         },
         {
             "id": 2,
@@ -371,7 +371,7 @@
             "cause_of_death": "",
             "place_of_death": "",
             "primary_occupation": "",
-            "passages": ["Genesis 2-?"]
+            "passages": ["Genesis 2 - Genesis"]
         },
         {
             "id": 3,
@@ -386,7 +386,7 @@
             "died": 0,
             "cause_of_death": "",
             "place_of_death": "",
-            "passages": ["Genesis 3-?"]
+            "passages": ["Genesis 3 - Genesis"]
         },
         {
             "id": 4,
@@ -394,7 +394,7 @@
             "mother": 2,
             "father": 1,
             "spouses": [6],
-            "passages": ["Genesis 4-4"]
+            "passages": ["Genesis 4"]
         },
         {
             "id": 5,
@@ -402,12 +402,13 @@
             "mother": 2,
             "father": 1,
             "cause_of_death": "Murdered by Cain",
-            "passages": ["Genesis 4-4"]
+            "passages": ["Genesis 4"]
         },
         {
             "id": 6,
+            "name": "(Cain's Wife)",
             "spouses": [4],
-            "passages": ["Genesis 4:17-:"]
+            "passages": ["Genesis 4:17"]
         }
     ]
 }
