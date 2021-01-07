@@ -4,7 +4,7 @@ default: help
 
 # PARAMETERS
 ESV_API_TOKEN ?= $$ESV_API_TOKEN
-PYTHON3 ?= python3.9
+PYTHON3 ?= python3
 VENV_NAME ?= .venv
 
 # INTERNAL
@@ -41,7 +41,7 @@ run: ## ESV_API_TOKEN (run the application inside an interactive docker containe
 	docker run -it --rm -e ESV_API_TOKEN=$(ESV_API_TOKEN) bible:latest
 
 .PHONY: run-local
-run-local: ## PYTHON3=python3.9 VENV_NAME=.venv (run the application locally)
+run-local: ## PYTHON3=python3 VENV_NAME=.venv (run the application locally)
 	. $(_VENV_ACTIVATE) && \
 		python -ic "import bible"
 
