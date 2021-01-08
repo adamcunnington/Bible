@@ -131,13 +131,15 @@ class Filterable:
             return Filterable(self._dataclass, self._contains(value), self._field)
         return Filterable(self._dataclass, self._contains_not(value), self._field)
 
-    def one(self):
+    def one(self, error=True):
         first = None
         for i in self:
             if first is None:
                 first = i
-            else:
+            elif error:
                 raise BibleReferenceError("there is more than one item that matches the current filter")
+            else:
+                break
         return first
 
     def select(self, *args):
