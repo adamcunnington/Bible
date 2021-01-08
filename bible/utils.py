@@ -33,8 +33,14 @@ class Filterable:
     def __init__(self, dataclass, iterable, field=None):
         self._dataclass = dataclass
         self._iterable = iterable
-        self._field = field
         self._fields = self._inspect_fields(self._dataclass)
+        self.field = field
+
+    @staticmethod
+    def _getattr(i, field):
+        if field is None:
+            raise BibleReferenceError("the field attribute is not set on the parent object")
+        return getattr(i, field)
 
     @staticmethod
     def _inspect_fields(dataclass):
@@ -85,17 +91,17 @@ class Filterable:
 
     def _contains(self, value):
         for i in self:
-            if value in getattr(i, self._field):
+            if value in self._getattr(i, self.field):
                 yield i
 
     def _contains_not(self, value):
         for i in self:
-            if value not in getattr(i, self._field):
+            if value not in self._getattr(i, self.field):
                 yield i
 
     def _filter(self, operation, value):
         for i in self:
-            if operation(getattr(i, self._field), value):
+            if operation(self._getattr(i, self.field), value):
                 yield i
 
     def _tee(self):
@@ -104,17 +110,27 @@ class Filterable:
 
     def _where(self, *values):
         for i in self:
-            if getattr(i, self._field) in values:
+            if self._getattr(i, self.field) in values:
                 yield i
 
     def _where_not(self, *values):
         for i in self:
-            if getattr(i, self._field) not in values:
+            if self._getattr(i, self.field) not in values:
                 yield i
 
     @property
     def dataclass(self):
         return self._dataclass
+
+    @property
+    def field(self):
+        return self._field
+
+    @field.setter
+    def field(self, value):
+        if value is not None and value not in self._fields:
+            raise AttributeError(f"{self._dataclass.__name__!r} object has no attribute {value!r}")
+        self._field = value
 
     @property
     def fields(self):

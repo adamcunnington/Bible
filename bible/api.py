@@ -25,6 +25,15 @@ class Verse:
     def __str__(self):
         return utils.reference(self._book.name, self._chapter.number, self._number)
 
+    def _characters(self):
+        int_reference = int(self.int_reference)
+        for character in self._translation.characters().all():
+            for passage in character.passages:
+                passage_int_reference_start, passage_int_reference_end = passage.int_reference.split(" - ")
+                if int(passage_int_reference_start) <= int_reference <= int(passage_int_reference_end):
+                    yield character
+                    break
+
     @property
     def book(self):
         return self._book
@@ -56,16 +65,8 @@ class Verse:
     def audio(self):
         raise NotImplementedError()
 
-    def characters(self):
-        _characters = []
-        int_reference = int(self.int_reference)
-        for character in self._translation.characters().all():
-            for passage in character.passages:
-                passage_int_reference_start, passage_int_reference_end = passage.int_reference.split(" - ")
-                if int(passage_int_reference_start) <= int_reference <= int(passage_int_reference_end):
-                    _characters.append(character)
-                    break
-        return utils.Filterable(Character, _characters)
+    def characters(self, field=None):
+        return utils.Filterable(Character, self._characters(), field)
 
     def next(self, overspill=True):
         if self.is_last:
@@ -122,6 +123,18 @@ class Chapter:
     def __str__(self):
         return utils.reference(self._book.name, self._number)
 
+    def _characters(self):
+        int_reference_0 = int(utils.int_reference(self._book.number, self._number, 0))
+        for character in self._translation.characters().all():
+            for passage in character.passages:
+                if (
+                    int(utils.int_reference(passage.book_start.number, passage.chapter_start.number, 0)) <=
+                    int_reference_0 <=
+                    int(utils.int_reference(passage.book_end.number, passage.chapter_end.number, 0))
+                   ):
+                    yield character
+                    break
+
     def _register_verse(self, verse):
         if verse.number in self._verses:
             raise utils.BibleSetupError(f"a verse is already registered in this chapter ({self}) with the number, {verse.number}")
@@ -154,19 +167,8 @@ class Chapter:
     def audio(self):
         raise NotImplementedError()
 
-    def characters(self):
-        _characters = []
-        int_reference_0 = int(utils.int_reference(self._book.number, self._number, 0))
-        for character in self._translation.characters().all():
-            for passage in character.passages:
-                if (
-                    int(utils.int_reference(passage.book_start.number, passage.chapter_start.number, 0)) <=
-                    int_reference_0 <=
-                    int(utils.int_reference(passage.book_end.number, passage.chapter_end.number, 0))
-                   ):
-                    _characters.append(character)
-                    break
-        return utils.Filterable(Character, _characters)
+    def characters(self, field=None):
+        return utils.Filterable(Character, self._characters(), field)
 
     def first(self):
         return self[1]
@@ -257,6 +259,18 @@ class Book:
     def __str__(self):
         return utils.reference(self._name)
 
+    def _characters(self):
+        int_reference_0 = int(utils.int_reference(self._number, 0, 0))
+        for character in self._translation.characters().all():
+            for passage in character.passages:
+                if (
+                    int(utils.int_reference(passage.book_start.number, 0, 0)) <=
+                    int_reference_0 <=
+                    int(utils.int_reference(passage.book_end.number, 0, 0))
+                   ):
+                    yield character
+                    break
+
     def _register_chapter(self, chapter):
         if chapter.number in self._chapters:
             raise utils.BibleSetupError(f"a chapter is already registered in this book ({self}) with the number, {chapter.number}")
@@ -316,19 +330,8 @@ class Book:
     def chapters(self):
         yield from self._chapters.values()
 
-    def characters(self):
-        _characters = []
-        int_reference_0 = int(utils.int_reference(self._number, 0, 0))
-        for character in self._translation.characters().all():
-            for passage in character.passages:
-                if (
-                    int(utils.int_reference(passage.book_start.number, 0, 0)) <=
-                    int_reference_0 <=
-                    int(utils.int_reference(passage.book_end.number, 0, 0))
-                   ):
-                    _characters.append(character)
-                    break
-        return utils.Filterable(Character, _characters)
+    def characters(self, field=None):
+        return utils.Filterable(Character, self._characters(), field)
 
     def first(self):
         return self[1]
@@ -432,8 +435,8 @@ class Translation:
     def books(self):
         yield from utils.unique_value_iterating_dict(self._books)
 
-    def characters(self):
-        return utils.Filterable(Character, self._characters.values())
+    def characters(self, field=None):
+        return utils.Filterable(Character, self._characters.values(), field)
 
     def first(self):
         return self[1]
@@ -502,6 +505,19 @@ class Passage:
         return (f"{utils.reference(self._book_start.name, self._chapter_start.number, self._verse_start.number)} - "
                 f"{utils.reference(self._book_end.name, self._chapter_end.number, self._verse_end.number)}")
 
+    def _characters(self):
+        int_reference_start, int_reference_end = self.int_reference.split(" - ")
+        for character in self._translation.characters().all():
+            for passage in character.passages:
+                passage_int_reference_start, passage_int_reference_end = passage.int_reference.split(" - ")
+                if (
+                    int(passage_int_reference_start) <= int(int_reference_start) <= int(passage_int_reference_end)
+                    or
+                    int(passage_int_reference_start) <= int(int_reference_end) <= int(passage_int_reference_end)
+                ):
+                    yield character
+                    break
+
     @property
     def book_end(self):
         return self._book_end
@@ -551,20 +567,8 @@ class Passage:
             yield next_chapter
             next_chapter = next_chapter.next()
 
-    def characters(self):
-        _characters = []
-        int_reference_start, int_reference_end = self.int_reference.split(" - ")
-        for character in self._translation.characters().all():
-            for passage in character.passages:
-                passage_int_reference_start, passage_int_reference_end = passage.int_reference.split(" - ")
-                if (
-                    int(passage_int_reference_start) <= int(int_reference_start) <= int(passage_int_reference_end)
-                    or
-                    int(passage_int_reference_start) <= int(int_reference_end) <= int(passage_int_reference_end)
-                ):
-                    _characters.append(character)
-                    break
-        return utils.Filterable(Character, _characters)
+    def characters(self, field=None):
+        return utils.Filterable(Character, self._characters(), field)
 
     def text(self):
         raise NotImplementedError()
