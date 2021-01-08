@@ -1,5 +1,6 @@
 import dataclasses
 import importlib
+import inspect
 import itertools
 import json
 import operator
@@ -33,18 +34,24 @@ class Filterable:
         self._dataclass = dataclass
         self._iterable = iterable
         self._field = field
-        self._dataclass = dataclass
+        self._fields = self._inspect_fields(self._dataclass)
+
+    @staticmethod
+    def _inspect_fields(dataclass):
+        fields = (field.name for field in dataclasses.fields(dataclass) if not field.name.startswith("_"))
+        properties = (name for name, _ in inspect.getmembers(dataclass, lambda value: isinstance(value, property)))
+        return tuple(sorted((*fields, *properties)))
 
     def __eq__(self, value):
-        return Filterable(self.dataclass, self._filter(operator.eq, value), self._field)
+        return Filterable(self._dataclass, self._filter(operator.eq, value), self._field)
 
     def __ge__(self, value):
-        return Filterable(self.dataclass, self._filter(operator.ge, value), self._field)
+        return Filterable(self._dataclass, self._filter(operator.ge, value), self._field)
 
     def __getattr__(self, name):
         if name not in self.fields:
-            raise AttributeError(f"{self.dataclass.__name__!r} object has no attribute {name!r}")
-        return Filterable(self.dataclass, self._iterable, name)
+            raise AttributeError(f"{self._dataclass.__name__!r} object has no attribute {name!r}")
+        return Filterable(self._dataclass, self._iterable, name)
 
     def __getitem__(self, key):
         for i in self:
@@ -53,22 +60,22 @@ class Filterable:
         raise KeyError(key)
 
     def __gt__(self, value):
-        return Filterable(self.dataclass, self._filter(operator.gt, value), self._field)
+        return Filterable(self._dataclass, self._filter(operator.gt, value), self._field)
 
     def __iter__(self):
         return self._tee()
 
     def __le__(self, value):
-        return Filterable(self.dataclass, self._filter(operator.le, value), self._field)
+        return Filterable(self._dataclass, self._filter(operator.le, value), self._field)
 
     def __len__(self):
         return sum(1 for _ in self)
 
     def __lt__(self, value):
-        return Filterable(self.dataclass, self._filter(operator.lt, value), self._field)
+        return Filterable(self._dataclass, self._filter(operator.lt, value), self._field)
 
     def __ne__(self, value):
-        return Filterable(self.dataclass, self._filter(operator.ne, value), self._field)
+        return Filterable(self._dataclass, self._filter(operator.ne, value), self._field)
 
     def _combine(self, *filterables):
         candidates = set().union(*filterables)
@@ -111,18 +118,18 @@ class Filterable:
 
     @property
     def fields(self):
-        return tuple(field.name for field in dataclasses.fields(self.dataclass))
+        return self._fields
 
     def all(self):
         return list(self)
 
     def combine(self, *filterables):
-        return Filterable(self.dataclass, self._combine(*filterables), self._field)
+        return Filterable(self._dataclass, self._combine(*filterables), self._field)
 
     def contains(self, value, inverse=False):
         if not inverse:
-            return Filterable(self.dataclass, self._contains(value), self._field)
-        return Filterable(self.dataclass, self._contains_not(value), self._field)
+            return Filterable(self._dataclass, self._contains(value), self._field)
+        return Filterable(self._dataclass, self._contains_not(value), self._field)
 
     def one(self):
         first = None
@@ -150,8 +157,8 @@ class Filterable:
 
     def where(self, *values, inverse=False):
         if not inverse:
-            return Filterable(self.dataclass, self._where(*values), self._field)
-        return Filterable(self.dataclass, self._where_not(*values), self._field)
+            return Filterable(self._dataclass, self._where(*values), self._field)
+        return Filterable(self._dataclass, self._where_not(*values), self._field)
 
 
 class FuzzyDict(dict):
