@@ -163,4 +163,3 @@ class Passage(ESVAPIMixin, api.Passage):
 
 class Character(api.Character):
     pass
-
