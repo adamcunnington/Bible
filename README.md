@@ -233,11 +233,10 @@ The `Character` objects themselves don't have any interesting properties beyond 
 | combine(*filterables)          | Logical Method   | Return a new `Filterable` object, filtering self to characters described by any filterable. | c.combine(c.name == "Adam", c.age > 30) |
 | contains(value, inverse=False) | Logical Method   | Return a new `Filterable` object, behaves like in (or not in if inverse=True).              | c.spouses.contains(c[4], c[5])          |
 | where(*values, inverse=False)  | Logical Method   | Return a new `Filterable` object, like __eq__ (__ne__ if inverse=True) but for many values. | c.name.where("Adam", "Eve")             |
-| all()                          | Reduction Method | Return a tuple of `Character` objects matched by the current filtered object.               | c.all()                                 |
+| all(limit=None)                | Reduction Method | Return a tuple of limit/all `Character` objects matched by the current filtered object.     | c.all()                                 |
 | one(error=True)                | Reduction Method | Return the one matched `Character`, errors if > 1 unless error=False.                       | jesus = c.one()                         |
-| select(*fields)                | Reduction Method | Return a tuple of dicts mapping the provided fields (all if 0) to `Character` values.       | characters = c.select("name", "age")    |
-| values(*fields)                | Reduction Method | Return a tuple of scalars (if 0 or 1 field provided) or tuples of `Character` values.       | names = c.values("name")                |
-
+| select(*fields, limit=None)    | Reduction Method | Return a tuple of limit/all dicts mapping fields (all if none) to `Character` values.       | characters = c.select("name", "age")    |
+| values(*fields, limit=None)    | Reduction Method | Return a tuple of limit/all scalars (if 0 or 1 fields) or tuples of `Character` values.     | names = c.values("name")                |
 
 ---
 

@@ -69,7 +69,8 @@ class Filterable:
         return Filterable(self._dataclass, self._filter(operator.gt, value), self._field)
 
     def __iter__(self):
-        return self._tee()
+        self._iterable, iterable_copy = itertools.tee(self._iterable)
+        return iterable_copy
 
     def __le__(self, value):
         return Filterable(self._dataclass, self._filter(operator.le, value), self._field)
@@ -104,9 +105,10 @@ class Filterable:
             if operation(self._getattr(i, self.field), value):
                 yield i
 
-    def _tee(self):
-        self._iterable, iterable_copy = itertools.tee(self._iterable)
-        return iterable_copy
+    def _limit(self, limit):
+        if limit is None:
+            return self
+        return itertools.islice(self, limit)
 
     def _where(self, *values):
         for i in self:
@@ -136,8 +138,8 @@ class Filterable:
     def fields(self):
         return self._fields
 
-    def all(self):
-        return tuple(self)
+    def all(self, limit=None):
+        return tuple(self._limit(limit))
 
     def combine(self, *filterables):
         return Filterable(self._dataclass, self._combine(*filterables), self._field)
@@ -158,14 +160,14 @@ class Filterable:
                 break
         return first
 
-    def select(self, *fields):
-        iterable = self._tee()
+    def select(self, *fields, limit=None):
+        iterable = self._limit(limit)
         if not fields:
             return [vars(i) for i in iterable]
         return tuple({field: getattr(i, field) for field in fields} for i in iterable)
 
-    def values(self, *fields):
-        iterable = self._tee()
+    def values(self, *fields, limit=None):
+        iterable = self._limit(limit)
         if len(fields) > 1:
             return tuple(tuple(getattr(i, field) for field in fields) for i in iterable)
         field = next(iter(fields), self._field)
