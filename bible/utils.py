@@ -11,14 +11,12 @@ from fuzzywuzzy import fuzz
 import jsonmerge
 
 
-# INTERNALS
-_json_merge_schema = {
-    "properties": {
-        "books": {
-            "mergeStrategy": "arrayMergeByIndex"
-        }
-    }
-}
+class _Unknown:
+    def __str__(self):
+        return "Unknown"
+
+
+UNKNOWN = _Unknown()
 
 
 class BibleReferenceError(Exception):
@@ -61,7 +59,7 @@ class Filterable:
 
     def __getitem__(self, key):
         for i in self:
-            if i.id == key:
+            if i.number == key:
                 return i
         raise KeyError(key)
 
@@ -163,7 +161,7 @@ class Filterable:
     def select(self, *fields, limit=None):
         iterable = self._limit(limit)
         if not fields:
-            return [vars(i) for i in iterable]
+            return tuple(vars(i) for i in iterable)
         return tuple({field: getattr(i, field) for field in fields} for i in iterable)
 
     def values(self, *fields, limit=None):
@@ -214,11 +212,6 @@ class FuzzyDict(dict):
         return (closest_ratio >= ratio_threshold, closest_key, self.get(closest_key), closest_ratio)
 
 
-class Unknown:
-    def __str__(self):
-        return "Unknown"
-
-
 class Year(int):
     def __str__(self):
         if self < 0:
@@ -245,27 +238,36 @@ def load_translation(module_name):
     api_module = importlib.import_module(f"{module_name}.api")
     with open(file_path) as f:
         translation_data = json.load(f)
-    data = jsonmerge.Merger(_json_merge_schema).merge(base_data, translation_data)
-    translation = api_module.Translation(data["translation_meta"]["name"])
-    for book_index, book_data in enumerate(data["books"]):
-        book = api_module.Book(book_data["name"], book_index + 1, translation, book_data["author"], book_data["language"],
-                               alt_names=book_data.get("alt_names", ()), categories=book_data.get("categories", ()))
-        for chapter_index, verse_count in enumerate(book_data["chapter_verses"]):
-            chapter = api_module.Chapter(chapter_index + 1, book)
-            for verse_index in range(verse_count):
-                _ = api_module.Verse(verse_index + 1, chapter)
-    for character_data in data["characters"]:
-        character_data["aliases"] = tuple(character_data.get("aliases", ()))
-        character_data["_mother"] = character_data.pop("mother", Unknown())
-        character_data["_father"] = character_data.pop("father", Unknown())
-        character_data["_spouses"] = tuple(character_data.pop("spouses", ()))
-        character_data["passages"] = tuple(translation.passage(passage) for passage in character_data.get("passages", ()))
-        _ = api_module.Character(translation=translation, **character_data)
+    data = jsonmerge.merge(base_data, translation_data)
+    translation = api_module.Translation(**data["meta"])
+    for book_number, book_data in data.get("books", {}).items():
+        chapters = book_data.pop("chapters", {})
+        book = api_module.Book(number=int(book_number), name=book_data.pop("name"), translation=translation, **book_data)
+        for chapter_number, chapter_data in chapters.items():
+            verses = chapter_data.pop("verses", {})
+            chapter = api_module.Chapter(number=int(chapter_number), book=book, **chapter_data)
+            for verse_number, verse_data in verses.items():
+                _ = api_module.Verse(number=int(verse_number), chapter=chapter, **verse_data)
+    for character_number, character_data in data.get("characters", {}).items():
+        character_data["passages"] = tuple(map(translation.passage, character_data.get("passages", ())))
+        aliases = character_data.pop("aliases", UNKNOWN)
+        if aliases is not UNKNOWN:
+            character_data["aliases"] = tuple(aliases)
+        father = character_data.pop("father", UNKNOWN)
+        if father is not UNKNOWN:
+            character_data["_father"] = safe_int(father)
+        mother = character_data.pop("mother", UNKNOWN)
+        if mother is not UNKNOWN:
+            character_data["_mother"] = safe_int(mother)
+        spouses = character_data.pop("spouses", UNKNOWN)
+        if spouses is not UNKNOWN:
+            character_data["_spouses"] = tuple(map(int, spouses))
+        _ = api_module.Character(number=int(character_number), translation=translation, **character_data)
     return translation
 
 
 def module_of_instance(self):
-    return sys.modules[self.__class__.__module__]
+    return sys.modules[type(self).__module__]
 
 
 def reference(book_name, chapter_number=None, verse_number=None):

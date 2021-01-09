@@ -7,16 +7,18 @@ from bible import utils
 
 _range = "(?P<range>-)?"
 
+_unknown_type = type(utils.UNKNOWN)
+
 
 class Verse:
     _NAME_REGEX = re.compile(r"^(?P<verse_number>\d+)$")
 
     def __init__(self, number, chapter):
         self._number = number
-        chapter._register_verse(self)
         self._chapter = chapter
         self._book = self._chapter.book
         self._translation = self._book.translation
+        chapter._register_verse(self)
 
     def __repr__(self):
         return (f"{self.__class__.__module__}.{self.__class__.__name__}(number={self._number}, chapter={self._chapter.number}, "
@@ -96,10 +98,10 @@ class Chapter:
 
     def __init__(self, number, book):
         self._number = number
-        book._register_chapter(self)
         self._book = book
         self._translation = self._book.translation
         self._verses = {}
+        book._register_chapter(self)
 
     def __contains__(self, item):
         return item in self._verses.values()
@@ -188,7 +190,7 @@ class Chapter:
     def passage(self, reference="-"):
         match = self._PASSAGE_REGEX.match(reference)
         if match is None:
-            raise utils.BibleReferenceError(f"the reference, '{reference}'' does not match the expected regex, {self._PASSAGE_REGEX}")
+            raise utils.BibleReferenceError(f"the reference, '{reference}' does not match the expected regex, {self._PASSAGE_REGEX}")
         groups = match.groupdict()
         verse_start = self[utils.safe_int(groups["verse_number_start"]) or 1]
         if groups["range"] is None:
@@ -221,21 +223,21 @@ class Book:
                                 fr"(?P<chapter_number_end>(?<!:.*-)\d+|(?=\d*:)\d+)?:?{utils.fetch_pattern(Verse, '_end')}?$",
                                 flags=re.ASCII | re.IGNORECASE)
 
-    def __init__(self, name, number, translation, author, language, alt_names=(), categories=()):
+    def __init__(self, number, name, translation, alt_names=(), author=None, categories=(), language=None):
+        self._number = number
         _id = utils.slugify(name)
         if not self._NAME_REGEX.match(_id):
             raise utils.BibleSetupError(f"the derived id, '{_id}' does not match the expected regex, {self._NAME_REGEX}")
-        self._name = name
         self._id = _id
-        self._number = number
-        self._author = author
-        self._language = language
-        self._alt_names = sorted(alt_names)
-        self._alt_ids = sorted(utils.slugify(alt_name) for alt_name in alt_names)
-        self._categories = sorted(categories)
-        translation._register_book(self)
+        self._name = name
         self._translation = translation
+        self._alt_ids = tuple(sorted(map(utils.slugify, alt_names)))
+        self._alt_names = tuple(sorted(alt_names))
+        self._author = author
+        self._categories = tuple(sorted(categories))
+        self._language = language
         self._chapters = {}
+        translation._register_book(self)
 
     def __contains__(self, item):
         return item in self._chapters.values()
@@ -418,19 +420,21 @@ class Translation:
             raise utils.BibleSetupError(f"a book is already registered in this translation ({self}) with the id(s), {','.join(existing_book_ids)}")
         self._books.update(dict.fromkeys(book_ids, book))
         for category in book.categories:
-            existing_category = self._categories.get(category)
-            if existing_category is None:
-                existing_category = self._categories[category] = []
-            existing_category.append(book)
+            existing_category = self._categories.get(category, ())
+            self._categories[category] = existing_category + (book, )
 
     def _register_character(self, character):
-        if character.id in self._characters:
-            raise utils.BibleSetupError(f"a character is already registered in this translation ({self}) with the id, {character.id}")
-        self._characters[character.id] = character
+        if character.number in self._characters:
+            raise utils.BibleSetupError(f"a character is already registered in this translation ({self}) with the number, {character.number}")
+        self._characters[character.number] = character
 
     @property
     def categories(self):
         return self._categories
+
+    @property
+    def name(self):
+        return self._name
 
     def books(self):
         yield from utils.unique_value_iterating_dict(self._books)
@@ -583,32 +587,32 @@ class Passage:
 
 @dataclasses.dataclass(frozen=True)
 class Character:
-    id: int
+    number: int
     translation: Translation
     passages: tuple[Passage]
-    _mother: typing.Union[utils.Unknown, int] = utils.Unknown()
-    _father: typing.Union[utils.Unknown, int] = utils.Unknown()
+    _mother: typing.Union[_unknown_type, int] = utils.UNKNOWN
+    _father: typing.Union[_unknown_type, int] = utils.UNKNOWN
     _spouses: tuple = dataclasses.field(default_factory=tuple)
-    name: typing.Union[utils.Unknown, str] = utils.Unknown()
+    name: typing.Union[_unknown_type, str] = utils.UNKNOWN
     aliases: tuple = dataclasses.field(default_factory=tuple)
-    nationality: typing.Union[utils.Unknown, str] = utils.Unknown()  # enum?
-    born: typing.Union[utils.Unknown, utils.Year] = utils.Unknown()
-    age: typing.Union[utils.Unknown, int] = utils.Unknown()
-    died: typing.Union[utils.Unknown, utils.Year] = utils.Unknown()
-    cause_of_death: typing.Union[utils.Unknown, str] = utils.Unknown()  # enum?
-    place_of_death: typing.Union[utils.Unknown, str] = utils.Unknown()  # enum?
-    primary_occupation: typing.Union[utils.Unknown, str] = utils.Unknown()  # enum?
+    nationality: typing.Union[_unknown_type, str] = utils.UNKNOWN  # enum?
+    born: typing.Union[_unknown_type, utils.Year] = utils.UNKNOWN
+    age: typing.Union[_unknown_type, int] = utils.UNKNOWN
+    died: typing.Union[_unknown_type, utils.Year] = utils.UNKNOWN
+    cause_of_death: typing.Union[_unknown_type, str] = utils.UNKNOWN  # enum?
+    place_of_death: typing.Union[_unknown_type, str] = utils.UNKNOWN  # enum?
+    primary_occupation: typing.Union[_unknown_type, str] = utils.UNKNOWN  # enum?
 
     def __post_init__(self):
         self.translation._register_character(self)
 
     @property
     def mother(self):
-        return self.translation._characters.get(self._mother, utils.Unknown())
+        return self.translation._characters.get(self._mother, utils.UNKNOWN)
 
     @property
     def father(self):
-        return self.translation._characters.get(self._father, utils.Unknown())
+        return self.translation._characters.get(self._father, utils.UNKNOWN)
 
     @property
     def spouses(self):

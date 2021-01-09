@@ -23,7 +23,6 @@ class ESVError(Exception):
 
 
 class ESVAPIMixin:
-    _AUTH_HEADER = {"Authorization": f"Token {os.environ[_ESV_API_TOKEN_ENV_VAR]}"}
     _BASE_URL = "https://api.esv.org/v3/passage/"
     _GET_AUDIO_ENDPOINT_TEMPLATE = "audio/?q={query}"
     _GET_SEARCH_ENDPOINT_TEMPLATE = "search/?q={query}&page-size={page_size}&page={page}"
@@ -37,6 +36,7 @@ class ESVAPIMixin:
 
     def __init__(self, *args, **kwargs):
         self._text = None
+        self._api_token = kwargs.pop("api_token", None)
         super().__init__(*args, **kwargs)
 
     @staticmethod
@@ -54,7 +54,10 @@ class ESVAPIMixin:
         vlc.MediaPlayer(audio_file_path).play()
 
     def _get(self, endpoint_uri):
-        response = requests.get(self._BASE_URL + endpoint_uri, headers=self._AUTH_HEADER)
+        token = os.getenv(_ESV_API_TOKEN_ENV_VAR)
+        if token is None:
+            raise ESVError(f"the environment variable, {_ESV_API_TOKEN_ENV_VAR} is not set")
+        response = requests.get(self._BASE_URL + endpoint_uri, headers={"Authorization": f"Token {token}"})
         if not response.ok:
             response.raise_for_status()
         return response
@@ -75,60 +78,11 @@ class ESVAPIMixin:
             passages = self._get_json(self._GET_TEXT_ENDPOINT_TEMPLATE.format(reference=query))["passages"]
             for verse_index, passage in enumerate(passages):
                 verse = textless_verses[(chunk_index * self._MAX_VERSES_PER_TEXT_QUERY) + verse_index]
-                verse._text = Text(passage, verse.chapter.number if verse.number == 1 else None)
+                verse._text = ESVText(passage, verse.chapter.number if verse.number == 1 else None)
         return " ".join(verse.text().body for verse in self.verses())
 
 
-class Verse(ESVAPIMixin, api.Verse):
-    def text(self):
-        if self._text is None:
-            self._text = Text(self._get_json(self._GET_TEXT_ENDPOINT_TEMPLATE.format(reference=str(self)))["passages"][0])
-        return self._text
-
-
-class Chapter(ESVAPIMixin, api.Chapter):
-    pass
-
-
-class Book(ESVAPIMixin, api.Book):
-    pass
-
-
-class Translation(ESVAPIMixin, api.Translation):
-    def audio(self):
-        raise NotImplementedError()
-
-    def search(self, query):
-        page = 1
-        while page is not None:
-            response = self._get_json(self._GET_SEARCH_ENDPOINT_TEMPLATE.format(query=query, page_size=_default_page_size, page=page))
-            for result in response["results"]:
-                book, chapter_verse = result["reference"].rsplit(" ", 1)
-                chapter_verse_split = chapter_verse.split(":")
-                if len(chapter_verse_split) == 1:
-                    chapter_number = 1
-                    verse_number = chapter_verse_split[0]
-                else:
-                    chapter_number, verse_number = chapter_verse_split
-                verse = self[book][int(chapter_number)][int(verse_number)]
-                verse._text = Text(result["content"])
-                yield verse
-            page = page + 1 if page != response["total_pages"] else None
-
-    def text(self):
-        raise NotImplementedError()
-
-
-class Passage(ESVAPIMixin, api.Passage):
-    def audio(self):
-        self._audio(self.int_reference)
-
-
-class Character(api.Character):
-    pass
-
-
-class Text:
+class ESVText:
     _TEXT_REGEX = re.compile(r"^(?P<title>.+?)?(?P<body>\[\d+\].+?)(?:Footnotes(?P<footnotes>.+))?$")
     _FOOTNOTES_REGEX = re.compile(r"\((\d+)\) \d+:\d+ (.+?)(?=\(\d+\) |$)")
 
@@ -160,3 +114,53 @@ class Text:
     @property
     def title(self):
         return self._title
+
+
+class Verse(ESVAPIMixin, api.Verse):
+    def text(self):
+        if self._text is None:
+            self._text = ESVText(self._get_json(self._GET_TEXT_ENDPOINT_TEMPLATE.format(reference=str(self)))["passages"][0])
+        return self._text
+
+
+class Chapter(ESVAPIMixin, api.Chapter):
+    pass
+
+
+class Book(ESVAPIMixin, api.Book):
+    pass
+
+
+class Translation(ESVAPIMixin, api.Translation):
+    def audio(self):
+        raise NotImplementedError()
+
+    def search(self, query):
+        page = 1
+        while page is not None:
+            response = self._get_json(self._GET_SEARCH_ENDPOINT_TEMPLATE.format(query=query, page_size=_default_page_size, page=page))
+            for result in response["results"]:
+                book, chapter_verse = result["reference"].rsplit(" ", 1)
+                chapter_verse_split = chapter_verse.split(":")
+                if len(chapter_verse_split) == 1:
+                    chapter_number = 1
+                    verse_number = chapter_verse_split[0]
+                else:
+                    chapter_number, verse_number = chapter_verse_split
+                verse = self[book][int(chapter_number)][int(verse_number)]
+                verse._text = ESVText(result["content"])
+                yield verse
+            page = page + 1 if page != response["total_pages"] else None
+
+    def text(self):
+        raise NotImplementedError()
+
+
+class Passage(ESVAPIMixin, api.Passage):
+    def audio(self):
+        self._audio(self.int_reference)
+
+
+class Character(api.Character):
+    pass
+

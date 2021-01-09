@@ -1,535 +1,536 @@
 {
-    "translation_meta": {
+    "meta": {
         "name": ""
     },
-    "books": [
-        {
+    "books": {
+        "1": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Pentateuch", "Law"],
             "language": "Hebrew"
         },
-        {
+        "2": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Pentateuch", "Law"],
             "language": "Hebrew"
         },
-        {
+        "3": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Pentateuch", "Law"],
             "language": "Hebrew"
         },
-        {
+        "4": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Pentateuch", "Law"],
             "language": "Hebrew"
         },
-        {
+        "5": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Pentateuch", "Law"],
             "language": "Hebrew"
         },
-        {
+        "6": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "History", "Former Prophets"],
             "language": "Hebrew"
         },
-        {
+        "7": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "History", "Former Prophets"],
             "language": "Hebrew"
         },
-        {
+        "8": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "History"],
             "language": "Hebrew"
         },
-        {
+        "9": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "History", "Former Prophets", "Books of Samuel"],
             "language": "Hebrew"
         },
-        {
+        "10": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "History", "Former Prophets", "Books of Samuel"],
             "language": "Hebrew"
         },
-        {
+        "11": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "History", "Former Prophets", "Books of Kings"],
             "language": "Hebrew"
         },
-        {
+        "12": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "History", "Former Prophets", "Books of Kings"],
             "language": "Hebrew"
         },
-        {
+        "13": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "History", "Books of Chronicles"],
             "language": "Hebrew"
         },
-        {
+        "14": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "History", "Books of Chronicles"],
             "language": "Hebrew"
         },
-        {
+        "15": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "History"],
             "language": "Hebrew & Aramaic"
         },
-        {
+        "16": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "History"],
             "language": "Hebrew"
         },
-        {
+        "17": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "History"],
             "language": "Hebrew"
         },
-        {
+        "18": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Poetry & Wisdom"],
             "language": "Hebrew"
         },
-        {
+        "19": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Poetry & Wisdom"],
             "language": "Hebrew"
         },
-        {
+        "20": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Poetry & Wisdom"],
             "language": "Hebrew"
         },
-        {
+        "21": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Poetry & Wisdom"],
             "language": "Hebrew"
         },
-        {
+        "22": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Poetry & Wisdom"],
             "language": "Hebrew"
         },
-        {
+        "23": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Latter Prophets", "Major Prophets"],
             "language": "Hebrew"
         },
-        {
+        "24": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
-            "author": "",
-            "categories": ["Old Testament", "Latter Prophets", "Major Prophets"],
-            "language": "Hebrew & Aramaic"
-        },
-        {
-            "name": "",
-            "alt_names": [],
-            "chapter_verses": [],
-            "author": "",
-            "categories": ["Old Testament", "Latter Prophets", "Major Prophets"],
-            "language": "Hebrew"
-        },
-        {
-            "name": "",
-            "alt_names": [],
-            "chapter_verses": [],
-            "author": "",
-            "categories": ["Old Testament", "Latter Prophets", "Major Prophets"],
-            "language": "Hebrew"
-        },
-        {
-            "name": "",
-            "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Latter Prophets", "Major Prophets"],
             "language": "Hebrew & Aramaic"
         },
-        {
+        "25": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
+            "author": "",
+            "categories": ["Old Testament", "Latter Prophets", "Major Prophets"],
+            "language": "Hebrew"
+        },
+        "26": {
+            "name": "",
+            "chapters": {},
+            "alt_names": [],
+            "author": "",
+            "categories": ["Old Testament", "Latter Prophets", "Major Prophets"],
+            "language": "Hebrew"
+        },
+        "27": {
+            "name": "",
+            "chapters": {},
+            "alt_names": [],
+            "author": "",
+            "categories": ["Old Testament", "Latter Prophets", "Major Prophets"],
+            "language": "Hebrew & Aramaic"
+        },
+        "28": {
+            "name": "",
+            "chapters": {},
+            "alt_names": [],
             "author": "",
             "categories": ["Old Testament", "Latter Prophets", "Minor Prophets"],
             "language": "Hebrew"
         },
-        {
+        "29": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Latter Prophets", "Minor Prophets"],
             "language": "Hebrew"
         },
-        {
+        "30": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Latter Prophets", "Minor Prophets"],
             "language": "Hebrew"
         },
-        {
+        "31": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Latter Prophets", "Minor Prophets"],
             "language": "Hebrew"
         },
-        {
+        "32": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Latter Prophets", "Minor Prophets"],
             "language": "Hebrew"
         },
-        {
+        "33": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Latter Prophets", "Minor Prophets"],
             "language": "Hebrew"
         },
-        {
+        "34": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Latter Prophets", "Minor Prophets"],
             "language": "Hebrew"
         },
-        {
+        "35": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Latter Prophets", "Minor Prophets"],
             "language": "Hebrew"
         },
-        {
+        "36": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Latter Prophets", "Minor Prophets"],
             "language": "Hebrew"
         },
-        {
+        "37": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Latter Prophets", "Minor Prophets"],
             "language": "Hebrew"
         },
-        {
+        "38": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Latter Prophets", "Minor Prophets"],
             "language": "Hebrew"
         },
-        {
+        "39": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["Old Testament", "Latter Prophets", "Minor Prophets"],
             "language": "Hebrew"
         },
-        {
+        "40": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Canonical Gospels"],
             "language": "Aramaic"
         },
-        {
+        "41": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Canonical Gospels"],
             "language": "Greek"
         },
-        {
+        "42": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Canonical Gospels"],
             "language": "Greek"
         },
-        {
+        "43": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Canonical Gospels"],
             "language": "Greek"
         },
-        {
+        "44": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Apostolic History"],
             "language": "Greek"
         },
-        {
+        "45": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Pauline Epistles"],
             "language": "Greek"
         },
-        {
+        "46": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Pauline Epistles"],
             "language": "Greek"
         },
-        {
+        "47": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Pauline Epistles"],
             "language": "Greek"
         },
-        {
+        "48": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Pauline Epistles"],
             "language": "Greek"
         },
-        {
+        "49": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Pauline Epistles"],
             "language": "Greek"
         },
-        {
+        "50": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Pauline Epistles"],
             "language": "Greek"
         },
-        {
+        "51": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Pauline Epistles"],
             "language": "Greek"
         },
-        {
+        "52": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Pauline Epistles"],
             "language": "Greek"
         },
-        {
+        "53": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Pauline Epistles"],
             "language": "Greek"
         },
-        {
+        "54": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Pauline Epistles"],
             "language": "Greek"
         },
-        {
+        "55": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Pauline Epistles"],
             "language": "Greek"
         },
-        {
+        "56": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Pauline Epistles"],
             "language": "Greek"
         },
-        {
+        "57": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Pauline Epistles"],
             "language": "Greek"
         },
-        {
+        "58": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "General Epistles"],
             "language": "Greek"
         },
-        {
+        "59": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "General Epistles"],
             "language": "Greek"
         },
-        {
+        "60": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "General Epistles"],
             "language": "Greek"
         },
-        {
+        "61": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "General Epistles"],
             "language": "Greek"
         },
-        {
+        "62": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "General Epistles"],
             "language": "Greek"
         },
-        {
+        "63": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "General Epistles"],
             "language": "Greek"
         },
-        {
+        "64": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "General Epistles"],
             "language": "Greek"
         },
-        {
+        "65": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "General Epistles"],
             "language": "Greek"
         },
-        {
+        "66": {
             "name": "",
+            "chapters": {},
             "alt_names": [],
-            "chapter_verses": [],
             "author": "",
             "categories": ["New Testament", "Apocalypse"],
             "language": "Greek"
         }
-    ]
+    },
+    "characters": {}
 }

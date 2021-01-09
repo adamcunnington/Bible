@@ -25,6 +25,9 @@
   - [3. Loading the Translation](#3-loading-the-translation)
 
 
+## Overview
+
+
 ## Setup
 The application can be executed in two ways:
 1. Locally
@@ -153,7 +156,7 @@ Chapter.passage(reference="-")
 | *.is_first*                |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
 | *.is_last*                 |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
 | *.language*                |                    | :heavy_check_mark: |                    |                    |                    |
-| *.name*                    |                    | :heavy_check_mark: |                    |                    |                    |
+| *.name*                    | :heavy_check_mark: | :heavy_check_mark: |                    |                    |                    |
 | *.number*                  |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
 | *.translation*             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
 | *.verse_end*               |                    |                    |                    |                    | :heavy_check_mark: |
@@ -250,23 +253,23 @@ Translation.search(query, page_size=100)
 Search the bible for verses that are related to the query and return a generator.
 * *query* - a word or phrase to search for.
 
-#### Text Object Addition
-Calling the *text()* method on any object that supports it will return a `Text` object with the following attributes:
+#### ESVText Object Addition
+Calling the *text()* method on any object that supports it will return a `ESVText` object with the following attributes:
 
 ```
-len(Text) -> len(Text.body.split())
+len(ESVText) -> len(ESVText.body.split())
 ```
 ```
-repr(Text) -> Text.body
+repr(ESVText) -> ESVText.body
 ```
 ```
-Text.body -> String text body
+ESVText.body -> String text body
 ```
 ```
-Text.footnotes -> String footnotes
+ESVText.footnotes -> String footnotes
 ```
 ```
-Text.title -> String title (where relevant, and typically only first verses)
+ESVText.title -> String title (where relevant, and typically only first verses)
 ```
 
 ---
@@ -297,26 +300,26 @@ It is likely that additional environment variables will be required to accommoda
 ### 2. Translation-Specific Metadata
 The python package alone is not enough. Each translation must provide metadata for the bible structure (as there are subtle variations between translations) and characters.
 
-The base metadata is defined in `bible/data.json`. Translation-specific metadata must be provided at `bible/translations/<translation>/data.json` and is merged with precedence into the base metadata. The properties that relate to the bible book structures are self explanatory - refer to `bible/translations/esv/data/structure.json` for a more concrete example.
+The base metadata is defined in `bible/data.json`. Translation-specific metadata must be provided at `bible/translations/<translation>/data.json` and is merged with precedence into the base metadata. The properties that relate to the bible book structures are self explanatory - refer to `bible/translations/esv/data/data.json` for a more concrete example.
 
 Regarding character metadata, the below table details the properties available - all of which are optional except for *id* and *passages*.
 
-| Field Name         | Type              | Description                                                                           | Example                       |
-| ------------------ | ----------------- | ------------------------------------------------------------------------------------- | ----------------------------- |
-| id                 | integer           | The identifier of the character.                                                      | 1                             |
-| passages           | array of strings  | Each item should be a [valid Translation.passage reference](#passage-references).     | ["Matthew"]                   |
-| name               | string            | The primary name the character is known by.                                           | "Jesus"                       |
-| aliases            | array of strings  | Alternative names the character is known by.                                          | ["Son of Man", "Cornerstone"] |
-| mother             | integer           | The identifier of the mother character.                                               | 5                             |
-| father             | integer           | The identifier of the mother character.                                               | 4                             |
-| spouses            | array of integers | The identifierss of the character's husbands/wives.                                   | []                            |
-| nationality        | string            | The place/nation where the character is considerd to be from. Often not birthplace.   | "Nazareth"                    |
-| born               | integer           | The year the character was born. Negative number for BC, positive for AD.             | 0                             |
-| age                | integer           | The age the character died/left earth at.                                             | 35                            |
-| died               | integer           | The year the character died. Negative number for BC, positive for AD.                 | 35                            |
-| cause_of_death     | enum              | A string (from a consistent list) that describes how the character died.              | "Crucified"                   |
-| place_of_death     | enum              | A string (from a consistent list) that describes where the character died.            | "Golgotha"                    |
-| primary_occupation | enum              | A string (from a consistent list) that describes the character's main job / passtime. | "Carpenter/Savior!"           |
+| Field Name         | Type             | Description                                                                           | Example                       |
+| ------------------ | ---------------- | ------------------------------------------------------------------------------------- | ----------------------------- |
+| number             | string           | The identifier of the character.                                                      | "1"                           |
+| passages           | array of strings | Each item should be a [valid Translation.passage reference](#passage-references).     | ["Matthew"]                   |
+| age                | integer          | The age the character died/left earth at.                                             | 35                            |
+| aliases            | array of strings | Alternative names the character is known by.                                          | ["Son of Man", "Cornerstone"] |
+| born               | integer          | The year the character was born. Negative number for BC, positive for AD.             | 0                             |
+| cause_of_death     | enum             | A string (from a consistent list) that describes how the character died.              | "Crucified"                   |
+| died               | integer          | The year the character died. Negative number for BC, positive for AD.                 | 35                            |
+| father             | string           | The identifier of the mother character.                                               | "4"                           |
+| mother             | string           | The identifier of the mother character.                                               | "5"                           |
+| name               | string           | The primary name the character is known by.                                           | "Jesus"                       |
+| nationality        | string           | The place/nation where the character is considerd to be from. Often not birthplace.   | "Nazareth"                    |
+| place_of_death     | enum             | A string (from a consistent list) that describes where the character died.            | "Golgotha"                    |
+| primary_occupation | enum             | A string (from a consistent list) that describes the character's main job / passtime. | "Carpenter/Savior!"           |
+| spouses            | array of strings | The identifierss of the character's husbands/wives.                                   | ["1"]                         |
 
 For *passages*, it can be difficult to know how to accurately represent the range of passages that refer to a particular character. The following rule serves as useful guidance:
 * If the character is seldom mentioned (e.g. Melchizedek), then a list of very specific verses is most appropriate.
