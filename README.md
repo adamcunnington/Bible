@@ -1,6 +1,9 @@
 # Bible
 
-- [Setup](#setup)
+Interact with the Bible through an intuitive and extensible API with unprecedented ease. Traverse scripture at speed using a simple object model and run analytical queries across Character metadata through familiar python syntax. The application is designed primarily to be used via a notebook interface but can also be used to power applications.
+
+- [Quick Start (Ubuntu)](#quick-start-ubuntu)
+- [Full Setup](#full-setup)
   - [1. Local Instructions](#1-local-instructions)
     - [Pre Requisites](#pre-requisites)
     - [Installation](#installation)
@@ -18,17 +21,34 @@
     - [Character](#character)
   - [ESV API Specifics](#esv-api-specifics)
     - [Translation Object Extensions](#translation-object-extensions)
-    - [Text Object Addition](#text-object-addition)
+    - [ESVText Object Addition](#esvtext-object-addition)
 - [Developing Translations](#developing-translations)
   - [1. New Python Package](#1-new-python-package)
   - [2. Translation-Specific Metadata](#2-translation-specific-metadata)
   - [3. Loading the Translation](#3-loading-the-translation)
 
 
-## Overview
+## Quick Start (Ubuntu)
+Install system dependencies, create and activate a virtual environment, install the application from github and launch a python interpreter.
+```bash
+sudo apt update && sudo apt install -y build-essential python3.9 python3.9-dev vlc
+python3.9 -m venv .venv
+source .venv/bin/activate
+pip install git+https://github.com/adamcunnington/Bible#egg=bible
+python
+```
 
+Load the ESV translation, fetch text for Genesis 1:1, fetch audio for Genesis 1:2-2 and fetch a list of mentioned character names.
+```python
+import bible
+esv = bible.esv()
+genesis = esv[1]
+genesis[1][1].text()
+genesis.passage("1:2-2:").audio()
+genesis.characters().values("name")
+```
 
-## Setup
+## Full Setup
 The application can be executed in two ways:
 1. Locally
 2. Via Docker
@@ -40,7 +60,7 @@ The application can be ran locally (in editable mode) which is especially useful
 
 #### Pre Requisites
 1. Clone the repo.
-2. Install makefile dependencies, python3.x and python3.x-dev and build-essential packages (required by python-levenshtein).
+2. Install makefile dependencies, vlc, python3.x and python3.x-dev and build-essential packages (required by python-levenshtein).
 3. Set the `ESV_API_TOKEN` environment variable (either explicitly or implicitly via a ./.env file). To obtain an API token, visit [ESV API documentation](https://api.esv.org/docs/).
 
 #### Installation

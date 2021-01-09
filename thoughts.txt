@@ -7,11 +7,8 @@ FUNCTIONALITY
 IDEAS for data.json
     When the book was written.
 
-    Add character gender.
+    Add character gender - bool or enum?
 
     Convert some character string properties to enums? Where should the list be mastered?
 
 ADDITIONS to README.md
-    Populate overview (about the application, quick install, quick usage)
-
-    Add a pip install alternative to the makefile route?
