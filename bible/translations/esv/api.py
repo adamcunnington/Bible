@@ -74,7 +74,8 @@ class ESVAPIMixin:
             query = ",".join(verse.int_reference for verse in verse_chunk)
             passages = self._get_json(self._GET_TEXT_ENDPOINT_TEMPLATE.format(reference=query))["passages"]
             for verse_index, passage in enumerate(passages):
-                textless_verses[(chunk_index * self._MAX_VERSES_PER_TEXT_QUERY) + verse_index]._text = Text(passage)
+                verse = textless_verses[(chunk_index * self._MAX_VERSES_PER_TEXT_QUERY) + verse_index]
+                verse._text = Text(passage, verse.chapter.number if verse.number == 1 else None)
         return " ".join(verse.text().body for verse in self.verses())
 
 
@@ -128,18 +129,19 @@ class Character(api.Character):
 
 
 class Text:
-    _TEXT_REGEX = re.compile(r"^(?:(?P<title>.+?\w)\n\n)?(?:(?P<body>.+?))(?:\n\n)?(?:Footnotes\n\n(?P<footnotes>.+?)\n)?$", flags=re.DOTALL)
+    _TEXT_REGEX = re.compile(r"^(?P<title>.+?)?(?P<body>\[\d+\].+?)(?:Footnotes(?P<footnotes>.+))?$")
+    _FOOTNOTES_REGEX = re.compile(r"\((\d+)\) \d+:\d+ (.+?)(?=\(\d+\) |$)")
 
-    def __init__(self, raw_text):
+    def __init__(self, raw_text, chapter=None):
         self._raw_text = raw_text
-        match = self._TEXT_REGEX.match(raw_text)
+        match = self._TEXT_REGEX.match(raw_text.replace("\n", ""))
         if match is None:
-            raise ESVError("the raw_text did not match the expected pattern")
+            raise ESVError("the raw_text from the response did not match the expected pattern")
         groups = match.groupdict()
         self._title = groups["title"]
-        self._body = groups["body"].replace("\n", "")
+        self._body = (f"{{{chapter}}}" if chapter else '') + groups["body"]
         footnotes = groups["footnotes"]
-        self._footnotes = (footnotes.split("\n\n") if footnotes is not None else None)
+        self._footnotes = dict(self._FOOTNOTES_REGEX.findall(footnotes)) if footnotes is not None else {}
 
     def __len__(self):
         return len(self._body.split())

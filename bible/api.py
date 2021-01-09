@@ -613,3 +613,6 @@ class Character:
     @property
     def spouses(self):
         return tuple(self.translation._characters[spouse] for spouse in self._spouses)
+
+    def tree(self):
+        raise NotImplementedError()

@@ -137,7 +137,7 @@ class Filterable:
         return self._fields
 
     def all(self):
-        return list(self)
+        return tuple(self)
 
     def combine(self, *filterables):
         return Filterable(self._dataclass, self._combine(*filterables), self._field)
@@ -158,20 +158,20 @@ class Filterable:
                 break
         return first
 
-    def select(self, *args):
+    def select(self, *fields):
         iterable = self._tee()
-        if not args:
+        if not fields:
             return [vars(i) for i in iterable]
-        return [{arg: getattr(i, arg) for arg in args} for i in iterable]
+        return tuple({field: getattr(i, field) for field in fields} for i in iterable)
 
-    def values(self, *args):
+    def values(self, *fields):
         iterable = self._tee()
-        if len(args) > 1:
-            return [[getattr(i, arg) for arg in args] for i in iterable]
-        arg = next(iter(args), self._field)
-        if arg is None:
+        if len(fields) > 1:
+            return tuple(tuple(getattr(i, field) for field in fields) for i in iterable)
+        field = next(iter(fields), self._field)
+        if field is None:
             raise BibleReferenceError("field is not set")
-        return [getattr(i, arg) for i in iterable]
+        return tuple(getattr(i, field) for i in iterable)
 
     def where(self, *values, inverse=False):
         if not inverse:
