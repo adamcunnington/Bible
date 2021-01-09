@@ -34,7 +34,7 @@ Install system dependencies, create and activate a virtual environment, install 
 sudo apt update && sudo apt install -y build-essential python3.9 python3.9-dev vlc
 python3.9 -m venv .venv
 source .venv/bin/activate
-pip install git+https://github.com/adamcunnington/Bible#egg=bible
+pip install git+https://github.com/adamcunnington/Bible#egg=Bible
 python
 ```
 
