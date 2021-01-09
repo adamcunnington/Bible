@@ -7,7 +7,7 @@ with open("requirements.txt") as f:
 
 setuptools.setup(
     name="Bible",
-    packages=setuptools.find_packages()
+    packages=setuptools.find_packages(),
     install_requires=dependencies,
     extras_require={
         "dev": [
