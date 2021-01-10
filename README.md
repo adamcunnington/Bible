@@ -348,4 +348,4 @@ For *passages*, it can be difficult to know how to accurately represent the rang
 ### 3. Loading the Translation
 This is the simplest step. `bible/__init__.py` should be altered in two ways:
 - An additional import will be needed; `import bible.translations.<translation>`
-- An additional global object will be added; `<translation> = utils.load_translation(bible.translations.<translation>.__name__)`
+- An additional function will be needed; `def <translation>: return utils.load_translation(bible.translations.<translation>.__name__)`
