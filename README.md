@@ -45,7 +45,7 @@ esv = bible.esv()
 genesis = esv[1]
 genesis[1][1].text()
 genesis.passage("1:2-2:").audio()
-genesis.characters().values("name")
+genesis.passage("1-2").characters().values("name")
 ```
 
 ## Full Setup
