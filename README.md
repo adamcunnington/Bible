@@ -324,22 +324,22 @@ The base metadata is defined in `bible/data.json`. Translation-specific metadata
 
 Regarding character metadata, the below table details the properties available - all of which are optional except for *id* and *passages*.
 
-| Field Name         | Type             | Description                                                                           | Example                       |
-| ------------------ | ---------------- | ------------------------------------------------------------------------------------- | ----------------------------- |
-| number             | string           | The identifier of the character.                                                      | "1"                           |
-| passages           | array of strings | Each item should be a [valid Translation.passage reference](#passage-references).     | ["Matthew"]                   |
-| age                | integer          | The age the character died/left earth at.                                             | 35                            |
-| aliases            | array of strings | Alternative names the character is known by.                                          | ["Son of Man", "Cornerstone"] |
-| born               | integer          | The year the character was born. Negative number for BC, positive for AD.             | 0                             |
-| cause_of_death     | enum             | A string (from a consistent list) that describes how the character died.              | "Crucified"                   |
-| died               | integer          | The year the character died. Negative number for BC, positive for AD.                 | 35                            |
-| father             | string           | The identifier of the mother character.                                               | "4"                           |
-| mother             | string           | The identifier of the mother character.                                               | "5"                           |
-| name               | string           | The primary name the character is known by.                                           | "Jesus"                       |
-| nationality        | string           | The place/nation where the character is considerd to be from. Often not birthplace.   | "Nazareth"                    |
-| place_of_death     | enum             | A string (from a consistent list) that describes where the character died.            | "Golgotha"                    |
-| primary_occupation | enum             | A string (from a consistent list) that describes the character's main job / passtime. | "Carpenter/Savior!"           |
-| spouses            | array of strings | The identifierss of the character's husbands/wives.                                   | ["1"]                         |
+| Field Name           | Type             | Description                                                                           | Example                       |
+| -------------------- | ---------------- | ------------------------------------------------------------------------------------- | ----------------------------- |
+| *number*             | string           | The identifier of the character.                                                      | "1"                           |
+| *passages*           | array of strings | Each item should be a [valid Translation.passage reference](#passage-references).     | ["Matthew"]                   |
+| *age*                | integer          | The age the character died/left earth at.                                             | 35                            |
+| *aliases*            | array of strings | Alternative names the character is known by.                                          | ["Son of Man", "Cornerstone"] |
+| *born*               | integer          | The year the character was born. Negative number for BC, positive for AD.             | 0                             |
+| *cause_of_death*     | enum             | A string (from a consistent list) that describes how the character died.              | "Crucified"                   |
+| *died*               | integer          | The year the character died. Negative number for BC, positive for AD.                 | 35                            |
+| *father*             | string           | The identifier of the mother character.                                               | "4"                           |
+| *mother*             | string           | The identifier of the mother character.                                               | "5"                           |
+| *name*               | string           | The primary name the character is known by.                                           | "Jesus"                       |
+| *nationality*        | string           | The place/nation where the character is considerd to be from. Often not birthplace.   | "Nazareth"                    |
+| *place_of_death*     | enum             | A string (from a consistent list) that describes where the character died.            | "Golgotha"                    |
+| *primary_occupation* | enum             | A string (from a consistent list) that describes the character's main job / passtime. | "Carpenter/Savior!"           |
+| *spouses*            | array of strings | The identifierss of the character's husbands/wives.                                   | ["1"]                         |
 
 For *passages*, it can be difficult to know how to accurately represent the range of passages that refer to a particular character. The following rule serves as useful guidance:
 * If the character is seldom mentioned (e.g. Melchizedek), then a list of very specific verses is most appropriate.
