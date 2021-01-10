@@ -238,28 +238,28 @@ Chapter.passage(reference="-")
 
 #### Character
 The `Character` objects themselves don't have any interesting properties beyond those described in [Character attributes](#2-translation-specific-metadata) but as indicated in the above table, when the `.characters(field=None)` method is called, a `Filterable` object is returned which represents a collection of characters. Any supported logical operation (like SQL predicates) or attempt to access a character attribute will return a new, filtered-down `Filterable` object. Additional reduction methods allow the selection of values (like SQL selects). The following table summarises what is possible:
-| ATTRIBUTE                      | CATEGORY         | DESCRIPTION                                                                                 | EXAMPLE                                 |
-| ------------------------------ | ---------------- | ------------------------------------------------------------------------------------------- | --------------------------------------- |
-| dataclass                      | Property         | The dataclass that the object's collection are instances of. (read only).                   | c.dataclass                             |
-| field                          | Property         | The attribute that will be used for logical operations and the values() method by default.  | c.field = "name"                        |
-| fields                         | Property         | The tuple of attributes that the collection of objects support.                             | c.fields                                |
-| __eq__                         | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute == the value.     | c.name == "Adam"                        |
-| __ge__                         | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute was >= value.     | c.age >= 35                             |
-| __getattr__                    | Magic Method     | Return a new `Filterable` object, with the *field* attribute set to the name.               | c.name                                  |
-| __getitem__                    | Magic Method     | Return the `Character` object based on the *id* attribute of the Character.                 | c[5]                                    |
-| __gt__                         | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute was > value.      | c.age > 35                              |
-| __iter__                       | Magic Method     | Return an iterable of `Character` objects matched by the current filtered object.           | for character in c: ...                 |
-| __le__                         | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute was <= the value. | c.age <= "Adam"                         |
-| __len__                        | Magic Method     | Return the number of `Character` objects matched by the current filtered object.            | len(c)                                  |
-| __lt__                         | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute was < the value.  | c.age < 35                              |
-| __ne__                         | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute != the value.     | c.name != "Adam"                        |
-| combine(*filterables)          | Logical Method   | Return a new `Filterable` object, filtering self to characters described by any filterable. | c.combine(c.name == "Adam", c.age > 30) |
-| contains(value, inverse=False) | Logical Method   | Return a new `Filterable` object, behaves like in (or not in if inverse=True).              | c.spouses.contains(c[4], c[5])          |
-| where(*values, inverse=False)  | Logical Method   | Return a new `Filterable` object, like __eq__ (__ne__ if inverse=True) but for many values. | c.name.where("Adam", "Eve")             |
-| all(limit=None)                | Reduction Method | Return a tuple of limit/all `Character` objects matched by the current filtered object.     | c.all()                                 |
-| one(error=True)                | Reduction Method | Return the one matched `Character`, errors if > 1 unless error=False.                       | jesus = c.one()                         |
-| select(*fields, limit=None)    | Reduction Method | Return a tuple of limit/all dicts mapping fields (all if none) to `Character` values.       | characters = c.select("name", "age")    |
-| values(*fields, limit=None)    | Reduction Method | Return a tuple of limit/all scalars (if 0 or 1 fields) or tuples of `Character` values.     | names = c.values("name")                |
+| ATTRIBUTE                        | CATEGORY         | DESCRIPTION                                                                                 | EXAMPLE                              |
+| -------------------------------- | ---------------- | ------------------------------------------------------------------------------------------- | ------------------------------------ |
+| *dataclass*                      | Property         | The dataclass that the object's collection are instances of. (read only).                   | c.dataclass                          |
+| *field*                          | Property         | The attribute that will be used for logical operations and the values() method by default.  | c.field = "name"                     |
+| *fields*                         | Property         | The tuple of attributes that the collection of objects support.                             | c.fields                             |
+| *\_\_eq\_\_*                     | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute == the value.     | c.name == "Adam"                     |
+| *\_\_ge\_\_*                     | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute was >= value.     | c.age >= 35                          |
+| *\_\_getattr\_\_*                | Magic Method     | Return a new `Filterable` object, with the *field* attribute set to the name.               | c.name                               |
+| *\_\_getitem\_\_*                | Magic Method     | Return the `Character` object based on the *id* attribute of the Character.                 | c[5]                                 |
+| *\_\_gt\_\_*                     | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute was > value.      | c.age > 35                           |
+| *\_\_iter\_\_*                   | Magic Method     | Return an iterable of `Character` objects matched by the current filtered object.           | for character in c: ...              |
+| *\_\_le\_\_*                     | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute <= the value.     | c.age <= "Adam"                      |
+| *\_\_len\_\_*                    | Magic Method     | Return the number of `Character` objects matched by the current filtered object.            | len(c)                               |
+| *\_\_lt\_\_*                     | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute < the value.      | c.age < 35                           |
+| *\_\_ne\_\_*                     | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute != the value.     | c.name != "Adam"                     |
+| *combine(*filterables)*          | Logical Method   | Return a new `Filterable` object, filtering self to characters described by any filterable. | c.combine(c.born > 200, c.age > 30)  |
+| *contains(value, inverse=False)* | Logical Method   | Return a new `Filterable` object, behaves like in (or not in if inverse=True).              | c.spouses.contains(c[4], c[5])       |
+| *where(*values, inverse=False)*  | Logical Method   | Return a new `Filterable` object, like __eq__ (__ne__ if inverse=True) but for many values. | c.name.where("Adam", "Eve")          |
+| *all(limit=None)*                | Reduction Method | Return a tuple of limit/all `Character` objects matched by the current filtered object.     | c.all()                              |
+| *one(error=True)*                | Reduction Method | Return the one matched `Character`, errors if > 1 unless error=False.                       | jesus = c.one()                      |
+| *select(*fields, limit=None)*    | Reduction Method | Return a tuple of limit/all dicts mapping fields (all if none) to `Character` values.       | characters = c.select("name", "age") |
+| *values(*fields, limit=None)*    | Reduction Method | Return a tuple of limit/all scalars (if 0 or 1 fields) or tuples of `Character` values.     | names = c.values("name")             |
 
 ---
 
