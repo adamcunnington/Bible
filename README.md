@@ -253,13 +253,13 @@ The `Character` objects themselves don't have any interesting properties beyond 
 | *\_\_len\_\_*                    | Magic Method     | Return the number of `Character` objects matched by the current filtered object.            | len(c)                               |
 | *\_\_lt\_\_*                     | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute < the value.      | c.age < 35                           |
 | *\_\_ne\_\_*                     | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute != the value.     | c.name != "Adam"                     |
-| *combine(*filterables)*          | Logical Method   | Return a new `Filterable` object, filtering self to characters described by any filterable. | c.combine(c.born > 200, c.age > 30)  |
+| *combine(\*filterables)*         | Logical Method   | Return a new `Filterable` object, filtering self to characters described by any filterable. | c.combine(c.born > 200, c.age > 30)  |
 | *contains(value, inverse=False)* | Logical Method   | Return a new `Filterable` object, behaves like in (or not in if inverse=True).              | c.spouses.contains(c[4], c[5])       |
-| *where(*values, inverse=False)*  | Logical Method   | Return a new `Filterable` object, like __eq__ (__ne__ if inverse=True) but for many values. | c.name.where("Adam", "Eve")          |
+| *where(\*values, inverse=False)* | Logical Method   | Return a new `Filterable` object, like __eq__ (__ne__ if inverse=True) but for many values. | c.name.where("Adam", "Eve")          |
 | *all(limit=None)*                | Reduction Method | Return a tuple of limit/all `Character` objects matched by the current filtered object.     | c.all()                              |
 | *one(error=True)*                | Reduction Method | Return the one matched `Character`, errors if > 1 unless error=False.                       | jesus = c.one()                      |
-| *select(*fields, limit=None)*    | Reduction Method | Return a tuple of limit/all dicts mapping fields (all if none) to `Character` values.       | characters = c.select("name", "age") |
-| *values(*fields, limit=None)*    | Reduction Method | Return a tuple of limit/all scalars (if 0 or 1 fields) or tuples of `Character` values.     | names = c.values("name")             |
+| *select(\*fields, limit=None)*   | Reduction Method | Return a tuple of limit/all dicts mapping fields (all if none) to `Character` values.       | characters = c.select("name", "age") |
+| *values(\*fields, limit=None)*   | Reduction Method | Return a tuple of limit/all scalars (if 0 or 1 fields) or tuples of `Character` values.     | names = c.values("name")             |
 
 ---
 
