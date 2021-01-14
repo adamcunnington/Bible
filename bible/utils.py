@@ -16,9 +16,13 @@ from bible import enums
 
 class _Unknown:
     def __repr__(self):
-        return "'UNKNOWN'"
+        return repr(self.value)
 
     def __str__(self):
+        return self.value
+
+    @property
+    def value(self):
         return "UNKNOWN"
 
 
@@ -239,7 +243,14 @@ class FuzzyDict(dict):
 
 
 class Year(int):
+    def __repr__(self):
+        return repr(self.value)
+
     def __str__(self):
+        return self.value
+
+    @property
+    def value(self):
         if self < 0:
             return f"{abs(self)} BC"
         return f"{abs(self)} AD"  # abs() appears extraneous but needed to avoid infinite recursion
@@ -274,18 +285,14 @@ def load_translation(api_module, enums_module=enums):
                 _ = api_module.Verse(number=int(verse_number), chapter=chapter, **verse_data)
     for character_number, character_data in data.get("characters", {}).items():
         character_data["passages"] = tuple(map(translation.passage, character_data.get("passages", ())))
-        aliases = character_data.pop("aliases", UNKNOWN)
-        if aliases is not UNKNOWN:
-            character_data["aliases"] = tuple(aliases)
-        father = character_data.pop("father", UNKNOWN)
-        if father is not UNKNOWN:
-            character_data["_father"] = safe_int(father)
-        mother = character_data.pop("mother", UNKNOWN)
-        if mother is not UNKNOWN:
-            character_data["_mother"] = safe_int(mother)
-        spouses = character_data.pop("spouses", UNKNOWN)
-        if spouses is not UNKNOWN:
-            character_data["_spouses"] = tuple(map(int, spouses))
+        character_data["aliases"] = tuple(character_data.pop("aliases", ()))
+        character_data["_father"] = safe_int(character_data.pop("father", UNKNOWN))
+        character_data["_mother"] = safe_int(character_data.pop("mother", UNKNOWN))
+        character_data["_spouses"] = tuple(map(int, character_data.pop("spouses", ())))
+        for attribute in ("age", "born", "died"):
+            value = character_data.pop(attribute, UNKNOWN)
+            if value is not UNKNOWN:
+                character_data[attribute] = Year(value)
         _ = api_module.Character(number=int(character_number), translation=translation, **character_data)
     return translation
 

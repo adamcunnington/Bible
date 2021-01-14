@@ -21,8 +21,8 @@ class Verse:
         chapter._register_verse(self)
 
     def __repr__(self):
-        return (f"{self.__class__.__module__}.{self.__class__.__name__}(number={self._number}, chapter={self._chapter.number}, "
-                f"book={self._book.name}, translation={self._translation.name})")
+        return (f"{self.__class__.__name__}(number={self._number}, chapter={self._chapter.number}, book={self._book.name}, "
+                f"translation={self._translation.name})")
 
     def __str__(self):
         return utils.reference(self._book.name, self._chapter.number, self._number)
@@ -119,8 +119,7 @@ class Chapter:
         return len(self._verses)
 
     def __repr__(self):
-        return (f"{self.__class__.__module__}.{self.__class__.__name__}(number={self._number}, book={self._book.name}, "
-                f"translation={self._translation.name})")
+        return f"{self.__class__.__name__}(number={self._number}, book={self._book.name}, translation={self._translation.name})"
 
     def __str__(self):
         return utils.reference(self._book.name, self._number)
@@ -255,8 +254,7 @@ class Book:
         return len(self._chapters)
 
     def __repr__(self):
-        return (f"{self.__class__.__module__}.{self.__class__.__name__}(name={self._name}, number={self._number}, "
-                f"translation={self._translation.name})")
+        return f"{self.__class__.__name__}(name={self._name}, number={self._number}, translation={self._translation.name})"
 
     def __str__(self):
         return utils.reference(self._name)
@@ -411,7 +409,7 @@ class Translation:
         return len(set(self._books.values()))
 
     def __repr__(self):
-        return f"{self.__class__.__module__}.{self.__class__.__name__}(name={self._name})"
+        return f"{self.__class__.__name__}(name={self._name})"
 
     def _register_book(self, book):
         book_ids = (book.number, book.id, *book.alt_ids)
@@ -501,9 +499,9 @@ class Passage:
         return sum(1 for _ in self.verses())
 
     def __repr__(self):
-        return (f"{self.__class__.__module__}.{self.__class__.__name__}(book_start={self._book_start.name}, "
-                f"chapter_start={self._chapter_start.number}, verse_start={self._verse_start.number}, book_end={self._book_end.name}, "
-                f"chapter_end={self._chapter_end.number}, verse_end={self._verse_end.number})")
+        return (f"{self.__class__.__name__}(book_start={self._book_start.name}, chapter_start={self._chapter_start.number}, "
+                f"verse_start={self._verse_start.number}, book_end={self._book_end.name}, chapter_end={self._chapter_end.number}, "
+                f"verse_end={self._verse_end.number})")
 
     def __str__(self):
         return (f"{utils.reference(self._book_start.name, self._chapter_start.number, self._verse_start.number)} - "
