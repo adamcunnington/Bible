@@ -303,10 +303,11 @@ Adding a translation to the codebase entails 3 tasks:
 Each of these tasks will be explored in greater detail. It is useful to refer to bible/translations/esv/ as an existing example.
 
 ### 1. New Python Package
-At minimum, the new translation should consist of:
+A typical translation should consist of:
 ```
-bible/translations/<translation>/__init__.py - empty file
-bible/translations/<translation>/api.py - this file name is mandatory and this is where the logic will sit
+bible/translations/<translation>/__init__.py - needed so the translation is a python package; can be empty
+bible/translations/<translation>/api.py - the file name is irrelevant but api.py is suggested for consistency
+bible/translations/<translation>/enums.py - an optional file where custom enums can be defined
 ```
 
 In `api.py`, the `Translation`, `Book`, `Chapter`, `Verse`, `Passage` and `Character` classes from `bible.api` should be inherited and implementations should be provided for the `text()` and `audio()` methods. Typically, content for these will come from 3rd party API services. Optionally, extensions to the API can also be made.
@@ -320,7 +321,7 @@ It is likely that additional environment variables will be required to accommoda
 ### 2. Translation-Specific Metadata
 The python package alone is not enough. Each translation must provide metadata for the bible structure (as there are subtle variations between translations) and characters.
 
-The base metadata is defined in `bible/data.json`. Translation-specific metadata must be provided at `bible/translations/<translation>/data.json` and is merged with precedence into the base metadata. The properties that relate to the bible book structures are self explanatory - refer to `bible/translations/esv/data/data.json` for a more concrete example.
+The base metadata is defined in `bible/data.json`. Translation-specific metadata must be provided at `bible/translations/<translation>/data.json` and is merged with precedence into the base metadata. The properties that relate to the bible book structures are self explanatory - refer to `bible/translations/esv/data/data.json` for a more concrete example. The only detail to call out is the special syntax for expressing enum values. String values can take the form of "X.Y" where X is the name of the enum class and Y is the name of a valid enum within the class. When deserialised, the enum value will be imported as a regular string but this serves to validate the provided values in the JSON.
 
 Regarding character metadata, the below table details the properties available - all of which are optional except for *id* and *passages*.
 
@@ -347,5 +348,7 @@ For *passages*, it can be difficult to know how to accurately represent the rang
 
 ### 3. Loading the Translation
 This is the simplest step. `bible/__init__.py` should be altered in two ways:
-- An additional import will be needed; `import bible.translations.<translation>`
-- An additional function will be needed; `def <translation>: return utils.load_translation(bible.translations.<translation>.__name__)`
+- An additional import will be needed; `import bible.translations.<translation>.api`
+- An additional function will be needed; `def <translation>: return utils.load_translation(bible.translations.<translation>.api)`
+
+Note that the `utils.load_translation` method takes a second argument which is the enums module to use when deserialising the JSON data. If omitted, `bible.enums` will be used.

@@ -7,8 +7,4 @@ FUNCTIONALITY
 IDEAS for data.json
     When the book was written.
 
-    Add character gender - bool or enum?
-
-    Convert some character string properties to enums? Where should the list be mastered?
-
 ADDITIONS to README.md
