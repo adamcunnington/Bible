@@ -15,8 +15,11 @@ from bible import enums
 
 
 class _Unknown:
+    def __repr__(self):
+        return "'UNKNOWN'"
+
     def __str__(self):
-        return "Unknown"
+        return "UNKNOWN"
 
 
 UNKNOWN = _Unknown()
@@ -128,7 +131,7 @@ class Filterable:
 
     def _limit(self, limit):
         if limit is None:
-            return self
+            return iter(self)
         return itertools.islice(self, limit)
 
     def _where(self, *values):
@@ -160,7 +163,7 @@ class Filterable:
         return self._fields
 
     def all(self, limit=None):
-        return tuple(self._limit(limit))
+        yield from self._limit(limit)
 
     def combine(self, *filterables):
         return Filterable(self._dataclass, self._combine(*filterables), self._field)
@@ -184,17 +187,17 @@ class Filterable:
     def select(self, *fields, limit=None):
         iterable = self._limit(limit)
         if not fields:
-            return tuple(vars(i) for i in iterable)
-        return tuple({field: getattr(i, field) for field in fields} for i in iterable)
+            yield from (vars(i) for i in iterable)
+        yield from ({field: getattr(i, field) for field in fields} for i in iterable)
 
     def values(self, *fields, limit=None):
         iterable = self._limit(limit)
         if len(fields) > 1:
-            return tuple(tuple(getattr(i, field) for field in fields) for i in iterable)
+            yield from (tuple(getattr(i, field) for field in fields) for i in iterable)
         field = next(iter(fields), self._field)
         if field is None:
             raise BibleReferenceError("field is not set")
-        return tuple(getattr(i, field) for i in iterable)
+        yield from (getattr(i, field) for i in iterable)
 
     def where(self, *values, inverse=False):
         if not inverse:
