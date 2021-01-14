@@ -1,4 +1,5 @@
 import dataclasses
+import enum
 import importlib
 import inspect
 import itertools
@@ -9,6 +10,8 @@ import sys
 
 from fuzzywuzzy import fuzz
 import jsonmerge
+
+from bible import enums
 
 
 class _Unknown:
@@ -25,6 +28,26 @@ class BibleReferenceError(Exception):
 
 class BibleSetupError(Exception):
     pass
+
+
+class _EnumDecoder(json.JSONDecoder):
+    def __init__(self, *args, **kwargs):
+        self.enum_classes = dict(inspect.getmembers(kwargs.pop("enums_module", None) or enums, lambda value: isinstance(value, enum.EnumMeta)))
+        super().__init__(*args, **kwargs)
+        self._parse_string = self.parse_string
+        self.parse_string = self.py_scanstring
+        self.scan_once = json.scanner.py_make_scanner(self)
+
+    def py_scanstring(self, *args, **kwargs):
+        s, i = self._parse_string(*args, **kwargs)
+        enum_class_name, sep, rest = s.partition(".")
+        enum_class = self.enum_classes.get(enum_class_name)
+        if not sep or not enum_class:
+            return s, i
+        try:
+            return getattr(enum_class, rest).value, i
+        except AttributeError:
+            raise json.decoder.JSONDecodeError(f"{rest} is not a valid enumeration of {enum_class}", s, i)
 
 
 class Filterable:
@@ -230,14 +253,14 @@ def int_reference(book_number, chapter_number=1, verse_number=1):
     return f"{book_number:01d}{chapter_number:03d}{verse_number:03d}"
 
 
-def load_translation(module_name):
+def load_translation(module_name, enums_module=None):
     with open(os.path.join(os.path.dirname(__file__), "data.json")) as f:
         base_data = json.load(f)
     module = sys.modules[module_name]
     file_path = os.path.join(os.path.dirname(module.__file__), "data.json")
     api_module = importlib.import_module(f"{module_name}.api")
     with open(file_path) as f:
-        translation_data = json.load(f)
+        translation_data = json.load(f, cls=_EnumDecoder, enums_module=enums_module)
     data = jsonmerge.merge(base_data, translation_data)
     translation = api_module.Translation(**data["meta"])
     for book_number, book_data in data.get("books", {}).items():
