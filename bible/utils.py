@@ -32,7 +32,7 @@ class BibleSetupError(Exception):
 
 class _EnumDecoder(json.JSONDecoder):
     def __init__(self, *args, **kwargs):
-        self.enum_classes = dict(inspect.getmembers(kwargs["enums_module"], lambda value: isinstance(value, enum.EnumMeta)))
+        self.enum_classes = dict(inspect.getmembers(kwargs.pop("enums_module"), lambda value: isinstance(value, enum.EnumMeta)))
         super().__init__(*args, **kwargs)
         self._parse_string = self.parse_string
         self.parse_string = self.py_scanstring
