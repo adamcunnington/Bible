@@ -36179,6 +36179,7 @@
             "cause_of_death": "",
             "died": 0,
             "father": null,
+            "gender": "CharacterGender.MALE",
             "mother": null,
             "name": "Adam",
             "nationality": "CharacterNationality.EDEN",
@@ -36193,6 +36194,7 @@
             "cause_of_death": "",
             "died": 0,
             "father": null,
+            "gender": "CharacterGender.FEMALE",
             "mother": null,
             "name": "Eve",
             "nationality": "CharacterNationality.EDEN",
@@ -36217,6 +36219,7 @@
         "4": {
             "passages": ["Genesis 4"],
             "father": "1",
+            "gender": "CharacterGender.MALE",
             "mother": "2",
             "name": "Cain",
             "spouses": ["6"]
@@ -36225,11 +36228,13 @@
             "passages": ["Genesis 4"],
             "cause_of_death": "CharacterCauseOfDeath.MURDERED_BY_CAIN",
             "father": "1",
+            "gender": "CharacterGender.MALE",
             "mother": "2",
             "name": "Abel"
         },
         "6": {
             "passages": ["Genesis 4-17"],
+            "gender": "CharacterGender.FEMALE",
             "name": "(Cain's Wife)",
             "spouses": ["4"]
         }

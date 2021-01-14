@@ -593,13 +593,14 @@ class Character:
     _mother: typing.Union[_unknown_type, int] = utils.UNKNOWN
     _father: typing.Union[_unknown_type, int] = utils.UNKNOWN
     _spouses: tuple = dataclasses.field(default_factory=tuple)
-    name: typing.Union[_unknown_type, str] = utils.UNKNOWN
-    aliases: tuple = dataclasses.field(default_factory=tuple)
-    nationality: typing.Union[_unknown_type, str] = utils.UNKNOWN  # enum?
-    born: typing.Union[_unknown_type, utils.Year] = utils.UNKNOWN
     age: typing.Union[_unknown_type, int] = utils.UNKNOWN
-    died: typing.Union[_unknown_type, utils.Year] = utils.UNKNOWN
+    aliases: tuple = dataclasses.field(default_factory=tuple)
+    born: typing.Union[_unknown_type, utils.Year] = utils.UNKNOWN
     cause_of_death: typing.Union[_unknown_type, str] = utils.UNKNOWN  # enum?
+    died: typing.Union[_unknown_type, utils.Year] = utils.UNKNOWN
+    gender: typing.Union[_unknown_type, str] = utils.UNKNOWN
+    name: typing.Union[_unknown_type, str] = utils.UNKNOWN
+    nationality: typing.Union[_unknown_type, str] = utils.UNKNOWN  # enum?
     place_of_death: typing.Union[_unknown_type, str] = utils.UNKNOWN  # enum?
     primary_occupation: typing.Union[_unknown_type, str] = utils.UNKNOWN  # enum?
 
