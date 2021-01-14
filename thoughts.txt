@@ -4,6 +4,10 @@ TO FIX
 FUNCTIONALITY
     Integrate anytree for visualising genealogy. Currently have open question here; https://github.com/c0fec0de/anytree/issues/151. If we are stuck with single parent, will have to be inventive with the methods we expose to give user flexibility. Also, might need some extra attribute such as "main" or "dominant" or something so we know to use them for the parent of a child when there is ambiguity.
 
+    Bind video to docker container (like we do for audio).
+
+    Want to be able to say "show me genealogy between x and y". We could add optional parameters to the tree method but it would be more elegant for the Filterable class to be able to understand "between", e.g. give me all the characters between x and y (either based on lineage or based on born/died) and then call .tree() on the result.
+
 IDEAS for data.json
     When the book was written.
 

@@ -9,7 +9,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PULSE_SERVER=tcp:host.docker.internal:4713
 
 RUN apt-get update && \
-    apt-get install -y build-essential make pulseaudio vlc && \
+    apt-get install -y build-essential graphviz make pulseaudio vlc && \
     apt-get autoremove
 
 COPY . .

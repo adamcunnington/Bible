@@ -1,6 +1,6 @@
 import dataclasses
 import enum
-import importlib
+import graphviz
 import inspect
 import itertools
 import json
@@ -23,7 +23,7 @@ class _Unknown:
 
     @property
     def value(self):
-        return "UNKNOWN"
+        return "?"
 
 
 UNKNOWN = _Unknown()
@@ -193,6 +193,17 @@ class Filterable:
         if not fields:
             yield from (vars(i) for i in iterable)
         yield from ({field: getattr(i, field) for field in fields} for i in iterable)
+
+    def tree(self): # WIP
+        dot = graphviz.Digraph(comment="Genealogy")
+        relationships = []
+        for character in self:
+            dot.node(str(character.number), f"{character.name} ({character.born} - {character.died})")
+            for parent in (character.mother, character.father):
+                if parent is not UNKNOWN:
+                    relationships.append((str(parent.number), str(character.number)))
+        dot.edges(relationships)
+        dot.render("test.gv", view=True, format="png")
 
     def values(self, *fields, limit=None):
         iterable = self._limit(limit)
