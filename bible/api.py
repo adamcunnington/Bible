@@ -12,6 +12,23 @@ _range = "(?P<range>-)?"
 _unknown_type = type(utils.UNKNOWN)
 
 
+class _Characters(utils.Filterable):
+    def lineage(self, ancestor, descendant):
+        return self.combine(self.number == ancestor.number, self.ancestors.contains(ancestor).descendants.contains(descendant),
+                            self.number == descendant.number)
+
+    def tree(self, directory=f".tmp/{__name__}", view=True):  # WIP
+        dot = graphviz.Digraph(comment="Genealogy")
+        relationships = []
+        for character in self:
+            dot.node(str(character.number), f"{character.name} ({character.born} - {character.died})")
+            for parent in (character.mother, character.father):
+                if parent is not utils.UNKNOWN:
+                    relationships.append((str(parent.number), str(character.number)))
+        dot.edges(relationships)
+        dot.render(directory=directory, view=view, cleanup=True, format="png", quiet=True, quiet_view=True)
+
+
 class Verse:
     _NAME_REGEX = re.compile(r"^(?P<verse_number>\d+)$")
 
@@ -70,7 +87,7 @@ class Verse:
         raise NotImplementedError()
 
     def characters(self, field=None):
-        return Characters(Character, self._characters(), field)
+        return _Characters(Character, self._characters(), field)
 
     def next(self, overspill=True):
         if self.is_last:
@@ -171,7 +188,7 @@ class Chapter:
         raise NotImplementedError()
 
     def characters(self, field=None):
-        return Characters(Character, self._characters(), field)
+        return _Characters(Character, self._characters(), field)
 
     def first(self):
         return self[1]
@@ -333,7 +350,7 @@ class Book:
         yield from self._chapters.values()
 
     def characters(self, field=None):
-        return Characters(Character, self._characters(), field)
+        return _Characters(Character, self._characters(), field)
 
     def first(self):
         return self[1]
@@ -440,7 +457,7 @@ class Translation:
         yield from utils.unique_value_iterating_dict(self._books)
 
     def characters(self, field=None):
-        return Characters(Character, self._characters.values(), field)
+        return _Characters(Character, self._characters.values(), field)
 
     def first(self):
         return self[1]
@@ -572,7 +589,7 @@ class Passage:
             next_chapter = next_chapter.next()
 
     def characters(self, field=None):
-        return Characters(Character, self._characters(), field)
+        return _Characters(Character, self._characters(), field)
 
     def text(self):
         raise NotImplementedError()
@@ -662,19 +679,3 @@ class Character:
     def spouses(self):
         return tuple(self.translation._characters[spouse] for spouse in self._spouses)
 
-
-class Characters(utils.Filterable):
-    def lineage(self, ancestor, descendant):
-        return self.combine(self.number == ancestor.number, self.ancestors.contains(ancestor).descendants.contains(descendant),
-                            self.number == descendant.number)
-
-    def tree(self):  # WIP
-        dot = graphviz.Digraph(comment="Genealogy")
-        relationships = []
-        for character in self:
-            dot.node(str(character.number), f"{character.name} ({character.born} - {character.died})")
-            for parent in (character.mother, character.father):
-                if parent is not utils.UNKNOWN:
-                    relationships.append((str(parent.number), str(character.number)))
-        dot.edges(relationships)
-        dot.render("test.gv", view=True, format="png")

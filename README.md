@@ -225,7 +225,7 @@ Chapter.passage(reference="-")
 | *audio()*                  | Method       | Fetches and plays the audio that relates to the object's text.              |                                                                |
 | *books()*                  | Method       | Returns a generator of `Book` objects that relate to the object.            |                                                                |
 | *chapters()*               | Method       | Returns a generator of `Chapter` objects that relate to the object.         |                                                                |
-| *characters(field=None)*   | Method       | Returns a Filterable object of `Chapter` objects for querying.              |                                                                |
+| *characters(field=None)*   | Method       | Returns a `Characters` object containing `Character` objects for querying.  |                                                                |
 | *first()*                  | Method       | Returns the first child object of parent (e.g. first chapter).              |                                                                |
 | *last()*                   | Method       | Returns the last child object of parent (e.g. last chapter of book).        |                                                                |
 | *next(overspill=True)*     | Method       | Returns the next object. Spill into next parent object/None.                |                                                                |
@@ -237,29 +237,34 @@ Chapter.passage(reference="-")
 ---
 
 #### Character
-The `Character` objects themselves don't have any interesting properties beyond those described in [Character attributes](#2-translation-specific-metadata) but as indicated in the above table, when the `.characters(field=None)` method is called, a `Filterable` object is returned which represents a collection of characters. Any supported logical operation (like SQL predicates) or attempt to access a character attribute will return a new, filtered-down `Filterable` object. Additional reduction methods allow the selection of values (like SQL selects). The following table summarises what is possible:
-| ATTRIBUTE                        | CATEGORY         | DESCRIPTION                                                                                 | EXAMPLE                              |
-| -------------------------------- | ---------------- | ------------------------------------------------------------------------------------------- | ------------------------------------ |
-| *dataclass*                      | Property         | The dataclass that the object's collection are instances of. (read only).                   | c.dataclass                          |
-| *field*                          | Property         | The attribute that will be used for logical operations and the values() method by default.  | c.field = "name"                     |
-| *fields*                         | Property         | The tuple of attributes that the collection of objects support.                             | c.fields                             |
-| *\_\_eq\_\_*                     | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute == the value.     | c.name == "Adam"                     |
-| *\_\_ge\_\_*                     | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute was >= value.     | c.age >= 35                          |
-| *\_\_getattr\_\_*                | Magic Method     | Return a new `Filterable` object, with the *field* attribute set to the name.               | c.name                               |
-| *\_\_getitem\_\_*                | Magic Method     | Return the `Character` object based on the *id* attribute of the Character.                 | c[5]                                 |
-| *\_\_gt\_\_*                     | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute was > value.      | c.age > 35                           |
-| *\_\_iter\_\_*                   | Magic Method     | Return an iterable of `Character` objects matched by the current filtered object.           | for character in c: ...              |
-| *\_\_le\_\_*                     | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute <= the value.     | c.age <= "Adam"                      |
-| *\_\_len\_\_*                    | Magic Method     | Return the number of `Character` objects matched by the current filtered object.            | len(c)                               |
-| *\_\_lt\_\_*                     | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute < the value.      | c.age < 35                           |
-| *\_\_ne\_\_*                     | Magic Method     | Return a new `Filterable` object, filtering to characters whose attribute != the value.     | c.name != "Adam"                     |
-| *combine(\*filterables)*         | Logical Method   | Return a new `Filterable` object, filtering self to characters described by any filterable. | c.combine(c.born > 200, c.age > 30)  |
-| *contains(value, inverse=False)* | Logical Method   | Return a new `Filterable` object, behaves like in (or not in if inverse=True).              | c.spouses.contains(c[4], c[5])       |
-| *where(\*values, inverse=False)* | Logical Method   | Return a new `Filterable` object, like __eq__ (__ne__ if inverse=True) but for many values. | c.name.where("Adam", "Eve")          |
-| *all(limit=None)*                | Reduction Method | Return a generator of limit/all `Character` objects matched by the current filtered object. | c.all()                              |
-| *one(error=True)*                | Reduction Method | Return the one matched `Character`, errors if > 1 unless error=False.                       | jesus = c.one()                      |
-| *select(\*fields, limit=None)*   | Reduction Method | Return a generator of limit/all dicts mapping fields (all if none) to `Character` values.   | characters = c.select("name", "age") |
-| *values(\*fields, limit=None)*   | Reduction Method | Return a generator of limit/all scalars (if 0 or 1 fields) or tuples of `Character` values. | names = c.values("name")             |
+The `Character` objects expose all of the attributes described in [Character attributes](#2-translation-specific-metadata) plus some additional derived attributes (access `.fields` for a full list) but as indicated in the above table, when the `.characters(field=None)` method is called on any other core API object, a `Characters` object is returned which represents a collection of characters. Any supported logical operation (like SQL predicates) or attempt to access a character attribute will return a new, filtered-down `Characters` object. Additional reduction methods allow the selection of values (like SQL selects) as well as some special methods that provide geanealogy-specific functionality. The following table summarises what is possible:
+
+| ATTRIBUTE                        | CATEGORY          | DESCRIPTION                                                                                | EXAMPLE                              |
+| -------------------------------- | ----------------- | ------------------------------------------------------------------------------------------ | ------------------------------------ |
+| *dataclass*                      | Property          | The dataclass that the object's collection are instances of. (read only).                  | c.dataclass                          |
+| *field*                          | Property          | The attribute that will be used for logical operations and the values() method by default. | c.field = "name"                     |
+| *fields*                         | Property          | The tuple of attributes that the collection of objects support.                            | c.fields                             |
+| *\_\_eq\_\_*                     | Magic Method      | Return a new `Characters` object filtering to characters whose attribute == the value.     | c.name == "Adam"                     |
+| *\_\_ge\_\_*                     | Magic Method      | Return a new `Characters` object filtering to characters whose attribute was >= value.     | c.age >= 35                          |
+| *\_\_getattr\_\_*                | Magic Method      | Return a new `Characters` object with the *field* attribute set to the name.               | c.name                               |
+| *\_\_getitem\_\_*                | Magic Method      | Return the `Character` object based on the *id* attribute of the Character.                | c[5]                                 |
+| *\_\_gt\_\_*                     | Magic Method      | Return a new `Characters` object filtering to characters whose attribute was > value.      | c.age > 35                           |
+| *\_\_iter\_\_*                   | Magic Method      | Return an iterable of `Character` objects currently contained.                             | for character in c: ...              |
+| *\_\_le\_\_*                     | Magic Method      | Return a new `Characters` object filtering to characters whose attribute <= the value.     | c.age <= "Adam"                      |
+| *\_\_len\_\_*                    | Magic Method      | Return the number of `Character` objects currently contained.                              | len(c)                               |
+| *\_\_lt\_\_*                     | Magic Method      | Return a new `Characters` object filtering to characters whose attribute < the value.      | c.age < 35                           |
+| *\_\_ne\_\_*                     | Magic Method      | Return a new `Characters` object filtering to characters whose attribute != the value.     | c.name != "Adam"                     |
+| *combine(\*filterables)*         | Logical Method    | Return a new `Characters` object filtering to characters described by any filterables.     | c.combine(c.born > 200, c.age > 30)  |
+| *contains(value, inverse=False)* | Logical Method    | Return a new `Characters` object behaves like in (or not in if inverse=True).              | c.spouses.contains(c[4], c[5])       |
+| *false()*                        | Logical Method    | Return a new `Characters` object filtering to characters whose attribute is false.         | c.male.false()                       |
+| *true()*                         | Logical Method    | Return a new `Characters` object filtering to characters whose attribute is true.          | c.male.true()                        |
+| *where(\*values, inverse=False)* | Logical Method    | Return a new `Characters` object like __eq__ (__ne__ if inverse=True) but for > 1 value.   | c.name.where("Adam", "Eve")          |
+| *all(limit=None)*                | Reduction Method  | Return a generator of limit/all `Character` objects currently contained.                   | c.all()                              |
+| *one(error=True)*                | Reduction Method  | Return the one matched `Character`, errors if > 1 unless error=False.                      | jesus = c.one()                      |
+| *select(\*fields, limit=None)*   | Reduction Method  | Return a generator of limit/all dicts mapping fields (all if none) to values.              | characters = c.select("name", "age") |
+| *values(\*fields, limit=None)*   | Reduction Method  | Return a generator of limit/all scalars (if 0 or 1 fields) or tuples of values.            | names = c.values("name")             |
+| *lineage(ancestor, descendant)*  | Geanealogy Method | Return a new `Characters` object filtering direct lineage between ancestor and descendant. | c.lineage(c[1], c[4])                |
+| *tree(view=True)*                | Genealogy Method  | Render a tree of characters currently contained (open in default photo app if view=True).  | c.tree()                             |
 
 ---
 
