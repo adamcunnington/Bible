@@ -1,8 +1,10 @@
+import collections
 import dataclasses
+import graphviz
 import regex as re  # we need variable-width lookbehind assertions
 import typing
 
-from bible import utils
+from bible import enums, utils
 
 
 _range = "(?P<range>-)?"
@@ -68,7 +70,7 @@ class Verse:
         raise NotImplementedError()
 
     def characters(self, field=None):
-        return utils.Filterable(Character, self._characters(), field)
+        return Characters(Character, self._characters(), field)
 
     def next(self, overspill=True):
         if self.is_last:
@@ -169,7 +171,7 @@ class Chapter:
         raise NotImplementedError()
 
     def characters(self, field=None):
-        return utils.Filterable(Character, self._characters(), field)
+        return Characters(Character, self._characters(), field)
 
     def first(self):
         return self[1]
@@ -224,10 +226,10 @@ class Book:
 
     def __init__(self, number, name, translation, alt_names=(), author=None, categories=(), language=None):
         self._number = number
-        _id = utils.slugify(name)
-        if not self._NAME_REGEX.match(_id):
-            raise utils.BibleSetupError(f"the derived id, '{_id}' does not match the expected regex, {self._NAME_REGEX}")
-        self._id = _id
+        id_ = utils.slugify(name)
+        if not self._NAME_REGEX.match(id_):
+            raise utils.BibleSetupError(f"the derived id, '{id_}' does not match the expected regex, {self._NAME_REGEX}")
+        self._id = id_
         self._name = name
         self._translation = translation
         self._alt_ids = tuple(sorted(map(utils.slugify, alt_names)))
@@ -331,7 +333,7 @@ class Book:
         yield from self._chapters.values()
 
     def characters(self, field=None):
-        return utils.Filterable(Character, self._characters(), field)
+        return Characters(Character, self._characters(), field)
 
     def first(self):
         return self[1]
@@ -438,7 +440,7 @@ class Translation:
         yield from utils.unique_value_iterating_dict(self._books)
 
     def characters(self, field=None):
-        return utils.Filterable(Character, self._characters.values(), field)
+        return Characters(Character, self._characters.values(), field)
 
     def first(self):
         return self[1]
@@ -570,7 +572,7 @@ class Passage:
             next_chapter = next_chapter.next()
 
     def characters(self, field=None):
-        return utils.Filterable(Character, self._characters(), field)
+        return Characters(Character, self._characters(), field)
 
     def text(self):
         raise NotImplementedError()
@@ -594,16 +596,51 @@ class Character:
     age: typing.Union[_unknown_type, int] = utils.UNKNOWN
     aliases: tuple = dataclasses.field(default_factory=tuple)
     born: typing.Union[_unknown_type, utils.Year] = utils.UNKNOWN
-    cause_of_death: typing.Union[_unknown_type, str] = utils.UNKNOWN  # enum?
+    cause_of_death: typing.Union[_unknown_type, str] = utils.UNKNOWN
     died: typing.Union[_unknown_type, utils.Year] = utils.UNKNOWN
     gender: typing.Union[_unknown_type, str] = utils.UNKNOWN
     name: typing.Union[_unknown_type, str] = utils.UNKNOWN
-    nationality: typing.Union[_unknown_type, str] = utils.UNKNOWN  # enum?
-    place_of_death: typing.Union[_unknown_type, str] = utils.UNKNOWN  # enum?
-    primary_occupation: typing.Union[_unknown_type, str] = utils.UNKNOWN  # enum?
+    nationality: typing.Union[_unknown_type, str] = utils.UNKNOWN
+    place_of_death: typing.Union[_unknown_type, str] = utils.UNKNOWN
+    primary_occupation: typing.Union[_unknown_type, str] = utils.UNKNOWN
 
     def __post_init__(self):
+        self._children = []
+        for parent in self.parents:
+            parent._children.append(self)
         self.translation._register_character(self)
+
+    @property
+    def ancestors(self):
+        next_ancestors = collections.deque(self.parents)
+        while next_ancestors:
+            next_ancestor = next_ancestors.popleft()
+            yield next_ancestor
+            next_ancestors.extend(next_ancestor.parents)
+
+    @property
+    def children(self):
+        return tuple(self._children)
+
+    @property
+    def daughters(self):
+        return tuple(child for child in self.children if child.female)
+
+    @property
+    def descendants(self):
+        next_descendants = collections.deque(self.children)
+        while next_descendants:
+            next_descendant = next_descendants.popleft()
+            yield next_descendant
+            next_descendants.extend(next_descendant.children)
+
+    @property
+    def female(self):
+        return self.gender == enums.CharacterGender.FEMALE.value
+
+    @property
+    def male(self):
+        return self.gender == enums.CharacterGender.MALE.value
 
     @property
     def mother(self):
@@ -614,8 +651,30 @@ class Character:
         return self.translation._characters.get(self._father, utils.UNKNOWN)
 
     @property
+    def parents(self):
+        return tuple(filter(None, (self.mother, self.father)))
+
+    @property
+    def sons(self):
+        return tuple(child for child in self.children if child.male)
+
+    @property
     def spouses(self):
         return tuple(self.translation._characters[spouse] for spouse in self._spouses)
 
-    def tree(self):
-        raise NotImplementedError()
+
+class Characters(utils.Filterable):
+    def lineage(self, ancestor, descendant):
+        return self.combine(self.number == ancestor.number, self.ancestors.contains(ancestor).descendants.contains(descendant),
+                            self.number == descendant.number)
+
+    def tree(self):  # WIP
+        dot = graphviz.Digraph(comment="Genealogy")
+        relationships = []
+        for character in self:
+            dot.node(str(character.number), f"{character.name} ({character.born} - {character.died})")
+            for parent in (character.mother, character.father):
+                if parent is not utils.UNKNOWN:
+                    relationships.append((str(parent.number), str(character.number)))
+        dot.edges(relationships)
+        dot.render("test.gv", view=True, format="png")

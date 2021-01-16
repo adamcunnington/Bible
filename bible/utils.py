@@ -1,6 +1,5 @@
 import dataclasses
 import enum
-import graphviz
 import inspect
 import itertools
 import json
@@ -15,6 +14,9 @@ from bible import enums
 
 
 class _Unknown:
+    def __bool__(self):
+        return False
+
     def __repr__(self):
         return repr(self.value)
 
@@ -77,15 +79,15 @@ class Filterable:
         return tuple(sorted((*fields, *properties)))
 
     def __eq__(self, value):
-        return Filterable(self._dataclass, self._filter(operator.eq, value), self._field)
+        return type(self)(self._dataclass, self._filter(operator.eq, value), self._field)
 
     def __ge__(self, value):
-        return Filterable(self._dataclass, self._filter(operator.ge, value), self._field)
+        return type(self)(self._dataclass, self._filter(operator.ge, value), self._field)
 
     def __getattr__(self, name):
         if name not in self.fields:
             raise AttributeError(f"{self._dataclass.__name__!r} object has no attribute {name!r}")
-        return Filterable(self._dataclass, self._iterable, name)
+        return type(self)(self._dataclass, self._iterable, name)
 
     def __getitem__(self, key):
         for i in self:
@@ -94,23 +96,23 @@ class Filterable:
         raise KeyError(key)
 
     def __gt__(self, value):
-        return Filterable(self._dataclass, self._filter(operator.gt, value), self._field)
+        return type(self)(self._dataclass, self._filter(operator.gt, value), self._field)
 
     def __iter__(self):
         self._iterable, iterable_copy = itertools.tee(self._iterable)
         return iterable_copy
 
     def __le__(self, value):
-        return Filterable(self._dataclass, self._filter(operator.le, value), self._field)
+        return type(self)(self._dataclass, self._filter(operator.le, value), self._field)
 
     def __len__(self):
         return sum(1 for _ in self)
 
     def __lt__(self, value):
-        return Filterable(self._dataclass, self._filter(operator.lt, value), self._field)
+        return type(self)(self._dataclass, self._filter(operator.lt, value), self._field)
 
     def __ne__(self, value):
-        return Filterable(self._dataclass, self._filter(operator.ne, value), self._field)
+        return type(self)(self._dataclass, self._filter(operator.ne, value), self._field)
 
     def _combine(self, *filterables):
         candidates = set().union(*filterables)
@@ -131,6 +133,11 @@ class Filterable:
     def _filter(self, operation, value):
         for i in self:
             if operation(self._getattr(i, self.field), value):
+                yield i
+
+    def _filter_unary(self, operation):
+        for i in self:
+            if operation(self._getattr(i, self.field)):
                 yield i
 
     def _limit(self, limit):
@@ -170,12 +177,15 @@ class Filterable:
         yield from self._limit(limit)
 
     def combine(self, *filterables):
-        return Filterable(self._dataclass, self._combine(*filterables), self._field)
+        return type(self)(self._dataclass, self._combine(*filterables), self._field)
 
     def contains(self, value, inverse=False):
         if not inverse:
-            return Filterable(self._dataclass, self._contains(value), self._field)
-        return Filterable(self._dataclass, self._contains_not(value), self._field)
+            return type(self)(self._dataclass, self._contains(value), self._field)
+        return type(self)(self._dataclass, self._contains_not(value), self._field)
+
+    def false(self):
+        return type(self)(self._dataclass, self._filter_unary(operator.not_), self._field)
 
     def one(self, error=True):
         first = None
@@ -194,16 +204,8 @@ class Filterable:
             yield from (vars(i) for i in iterable)
         yield from ({field: getattr(i, field) for field in fields} for i in iterable)
 
-    def tree(self): # WIP
-        dot = graphviz.Digraph(comment="Genealogy")
-        relationships = []
-        for character in self:
-            dot.node(str(character.number), f"{character.name} ({character.born} - {character.died})")
-            for parent in (character.mother, character.father):
-                if parent is not UNKNOWN:
-                    relationships.append((str(parent.number), str(character.number)))
-        dot.edges(relationships)
-        dot.render("test.gv", view=True, format="png")
+    def true(self):
+        return type(self)(self._dataclass, self._filter_unary(operator.truth), self._field)
 
     def values(self, *fields, limit=None):
         iterable = self._limit(limit)
@@ -216,8 +218,8 @@ class Filterable:
 
     def where(self, *values, inverse=False):
         if not inverse:
-            return Filterable(self._dataclass, self._where(*values), self._field)
-        return Filterable(self._dataclass, self._where_not(*values), self._field)
+            return type(self)(self._dataclass, self._where(*values), self._field)
+        return type(self)(self._dataclass, self._where_not(*values), self._field)
 
 
 class FuzzyDict(dict):
