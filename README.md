@@ -31,7 +31,7 @@ Interact with the Bible through an intuitive and extensible API with unprecedent
 ## Quick Start (Ubuntu)
 Install system dependencies, create and activate a virtual environment, install the application from github and launch a python interpreter.
 ```bash
-sudo apt update && sudo apt install -y build-essential python3.9 python3.9-dev vlc
+sudo apt update && sudo apt install -y build-essential graphviz python3.9 python3.9-dev vlc
 python3.9 -m venv .venv
 source .venv/bin/activate
 pip install git+https://github.com/adamcunnington/Bible#egg=Bible
@@ -60,7 +60,7 @@ The application can be ran locally (in editable mode) which is especially useful
 
 #### Pre Requisites
 1. Clone the repo.
-2. Install makefile dependencies, vlc, python3.x and python3.x-dev and build-essential packages (required by python-levenshtein).
+2. Install makefile dependencies, graphviz, vlc, python3.x and python3.x-dev and build-essential packages (required by python-levenshtein).
 3. Set the `ESV_API_TOKEN` environment variable (either explicitly or implicitly via a ./.env file). To obtain an API token, visit [ESV API documentation](https://api.esv.org/docs/).
 
 #### Installation
@@ -88,7 +88,7 @@ The application can also be ran inside of a docker container. No dependencies ar
 ---
 
 ## Usage
-The execution of the application, whether locally or via Docker, starts a python interpreter with the bible package already imported. Translations should be accessed directly through the bible namespace, e.g. `bible.esv`. All attributes are accessed through the `Translation` object directly, or indirectly via descendent objects.
+The execution of the application, whether locally or via Docker, starts a python interpreter with the bible package already imported. Translations should be accessed directly through the bible namespace, e.g. `bible.esv()`. All attributes are accessed through the `Translation` object directly, or indirectly via descendent objects.
 
 ### Core API
 There are 6 main objects in the core API.
@@ -302,20 +302,19 @@ ESVText.title -> String title (where relevant, and typically only first verses)
 ## Developing Translations
 Adding a translation to the codebase entails 3 tasks:
 1. Create a python package under `bible/translations/`
-2. Create the translation-specific metadata under `bible/translations/<translation>/data.json`
-3. Add the loading of the translation to `bible/__init__.py`
+2. Create the translation-specific metadata - typically `bible/translations/<translation>/data.json`
+3. Add a function that will load the translation to `bible/__init__.py`
 
 Each of these tasks will be explored in greater detail. It is useful to refer to bible/translations/esv/ as an existing example.
 
 ### 1. New Python Package
 A typical translation should consist of:
 ```
-bible/translations/<translation>/__init__.py - needed so the translation is a python package; can be empty
-bible/translations/<translation>/api.py - the file name is irrelevant but api.py is suggested for consistency
-bible/translations/<translation>/enums.py - an optional file where custom enums can be defined
+bible/translations/<translation>/__init__.py - to organise the translation as a python package; can be empty
+bible/translations/<translation>/api.py - to hold the logic for the translation; the file name is irrelevant but api.py is suggested for consistency
 ```
 
-In `api.py`, the `Translation`, `Book`, `Chapter`, `Verse`, `Passage` and `Character` classes from `bible.api` should be inherited and implementations should be provided for the `text()` and `audio()` methods. Typically, content for these will come from 3rd party API services. Optionally, extensions to the API can also be made.
+In `api.py`, the `Translation`, `Book`, `Chapter`, `Verse`, `Passage` and `Character` classes from `bible.api` should be inherited and implementations should be provided for the `text()` and `audio()` methods. Typically, content for these will come from 3rd party API services. The *MixIn* class pattern is well suited. Optionally, extensions to the API can also be made.
 
 It is likely that additional environment variables will be required to accommodate API secrets and possibly additional python dependencies too. Therefore, it is expected that the following files in the root of the project may also need changing accordingly:
 - `Dockerfile`
@@ -326,7 +325,7 @@ It is likely that additional environment variables will be required to accommoda
 ### 2. Translation-Specific Metadata
 The python package alone is not enough. Each translation must provide metadata for the bible structure (as there are subtle variations between translations) and characters.
 
-The base metadata is defined in `bible/data.json`. Translation-specific metadata must be provided at `bible/translations/<translation>/data.json` and is merged with precedence into the base metadata. The properties that relate to the bible book structures are self explanatory - refer to `bible/translations/esv/data/data.json` for a more concrete example. The only detail to call out is the special syntax for expressing enum values. String values can take the form of "X.Y" where X is the name of the enum class and Y is the name of a valid enum within the class. When deserialised, the enum value will be imported as a regular string but this serves to validate the provided values in the JSON.
+The base metadata is defined in `bible/data.json`. Translation-specific should be provided (e.g. `bible/translations/<translation>/data.json`) and this data will take precedence when merged into the base metadata. The properties that relate to the bible book structures are self explanatory - refer to `bible/translations/esv/data.json` for a more concrete example. The only detail to call out is the special syntax for expressing enum values. Any string values inside the JSON file can take the form of "X.Y" where X is the name of the enum class and Y is the name of a valid enum within the class. When deserialised, the enum value will be imported as a regular string but this serves to validate the provided values in the JSON.
 
 Regarding character metadata, the below table details the properties available - all of which are optional except for *id* and *passages*.
 
@@ -353,7 +352,15 @@ For *passages*, it can be difficult to know how to accurately represent the rang
 
 ### 3. Loading the Translation
 This is the simplest step. `bible/__init__.py` should be altered in two ways:
-- An additional import will be needed; `import bible.translations.<translation>.api`
-- An additional function will be needed; `def <translation>: return utils.load_translation(bible.translations.<translation>.api)`
+- An additional import will be needed; `from bible.translations.<translation> import api as <translation>_api`
+- An additional function will be needed; `def <translation>: return utils.load_translation(...)`
 
-Note that the `utils.load_translation` method takes a second argument which is the enums module to use when deserialising the JSON data. If omitted, `bible.enums` will be used.
+The function, `utils.load_translation` takes the following parameters:
+- `data_file_path=None` - an absolute file path to the translation-specific data. If omitted, a JSON (data.json if available) will be found alongside the module of any of the below provided classes. If none are provided, no translation-specific data will be loaded; only the base data.
+- `translation_cls=None` - the `Translation` class to use; if omitted, falls back to `bible.api.Translation`.
+- `book_cls=None` - the `Book` class to use; if omitted, falls back to `bible.api.Book`.
+- `chapter_cls=None` - the `Chapter` class to use; if omitted, falls back to `bible.api.Chapter`.
+- `verse_cls=None` - the `Verse` class to use; if omitted, falls back to `bible.api.Verse`.
+- `passage_cls=None` - the `Passage` class to use; if omitted, falls back to `bible.api.Passage`.
+- `character_cls=None` - the `Character` class to use; if omitted, falls back to `bible.api.Character`.
+- `enum_classes=()` - an iterable of enum classes to use to validate the loaded JSON; if omitted, falls back to all enum classes defined in `bible.enums`.

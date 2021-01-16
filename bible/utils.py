@@ -305,7 +305,7 @@ def load_data(file_path, enum_classes):
 
 
 def load_translation(data_file_path=None, translation_cls=None, book_cls=None, chapter_cls=None, verse_cls=None, passage_cls=None, character_cls=None,
-                     enum_classes=None):
+                     enum_classes=()):
     from bible import api  # Avoid circular import
     enum_classes = enum_classes or tuple(find_enum_classes())
     data = base_data = load_data(find_data_file_path(), enum_classes=enum_classes)

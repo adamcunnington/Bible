@@ -43,7 +43,7 @@ run: ## ESV_API_TOKEN (run the application inside an interactive docker containe
 .PHONY: run-local
 run-local: ## PYTHON3=python3 VENV_NAME=.venv (run the application locally)
 	. $(_VENV_ACTIVATE) && \
-		python -ic "import bible; esv = bible.esv()"
+		python -ic "import bible"
 
 .PHONY: venv
 venv: $(_VENV_ACTIVATE) ## PYTHON3=python3.9 VENV_NAME=.venv (create a virtual env if it doesn't exist)
