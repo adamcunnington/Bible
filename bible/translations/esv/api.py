@@ -158,7 +158,3 @@ class Translation(ESVAPIMixin, api.Translation):
 class Passage(ESVAPIMixin, api.Passage):
     def audio(self):
         self._audio(self.int_reference)
-
-
-class Character(api.Character):
-    pass

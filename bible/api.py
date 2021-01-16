@@ -9,8 +9,6 @@ from bible import enums, utils
 
 _range = "(?P<range>-)?"
 
-_unknown_type = type(utils.UNKNOWN)
-
 
 class _Characters(utils.Filterable):
     def lineage(self, ancestor, descendant):
@@ -40,7 +38,7 @@ class Verse:
         chapter._register_verse(self)
 
     def __repr__(self):
-        return (f"{type(self).__name__}(number={self._number}, chapter={self._chapter.number}, book={self._book.name}, "
+        return (f"{utils.name(type(self))}(number={self._number}, chapter={self._chapter.number}, book={self._book.name}, "
                 f"translation={self._translation.name})")
 
     def __str__(self):
@@ -138,7 +136,7 @@ class Chapter:
         return len(self._verses)
 
     def __repr__(self):
-        return f"{type(self).__name__}(number={self._number}, book={self._book.name}, translation={self._translation.name})"
+        return f"{utils.name(type(self))}(number={self._number}, book={self._book.name}, translation={self._translation.name})"
 
     def __str__(self):
         return utils.reference(self._book.name, self._number)
@@ -188,7 +186,7 @@ class Chapter:
         raise NotImplementedError()
 
     def characters(self, field=None):
-        return _Characters(self._characters(), Character, field)
+        return _Characters(self._characters(), self._translation.Character, field)
 
     def first(self):
         return self[1]
@@ -217,7 +215,7 @@ class Chapter:
             verse_end = self[utils.safe_int(groups["verse_number_end"]) or len(self)]
         if int(verse_end.int_reference) < int(verse_start.int_reference):
             raise utils.BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
-        return utils.module_of_instance(self).Passage(self._book, self, verse_start, self._book, self, verse_end)
+        return self._translation.Passage(self._book, self, verse_start, self._book, self, verse_end)
 
     def previous(self, overspill=True):
         if self.is_last:
@@ -273,7 +271,7 @@ class Book:
         return len(self._chapters)
 
     def __repr__(self):
-        return f"{type(self).__name__}(name={self._name}, number={self._number}, translation={self._translation.name})"
+        return f"{utils.name(type(self))}(name={self._name}, number={self._number}, translation={self._translation.name})"
 
     def __str__(self):
         return utils.reference(self._name)
@@ -350,7 +348,7 @@ class Book:
         yield from self._chapters.values()
 
     def characters(self, field=None):
-        return _Characters(self._characters(), Character, field)
+        return _Characters(self._characters(), self._translation.Character, field)
 
     def first(self):
         return self[1]
@@ -381,7 +379,7 @@ class Book:
             verse_end = chapter_end[verse_number_end or len(chapter_end)]
         if int(verse_end.int_reference) < int(verse_start.int_reference):
             raise utils.BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
-        return utils.module_of_instance(self).Passage(self, chapter_start, verse_start, self, chapter_end, verse_end)
+        return self._translation.Passage(self, chapter_start, verse_start, self, chapter_end, verse_end)
 
     def previous(self):
         if self.is_first:
@@ -406,8 +404,10 @@ class Translation:
                                 fr"{utils.fetch_pattern(Book, '_end')}?(?P<chapter_number_end>(?<!:.*-)\d+|(?=\d*:)\d+)?:?"
                                 fr"{utils.fetch_pattern(Verse, '_end')}?$", flags=re.ASCII | re.IGNORECASE)
 
-    def __init__(self, name):
+    def __init__(self, name, passage_cls, character_cls):
         self._name = name
+        self._passage_cls = passage_cls
+        self._character_cls = character_cls
         self._books = utils.FuzzyDict()
         self._categories = utils.FuzzyDict()
         self._characters = {}
@@ -428,7 +428,7 @@ class Translation:
         return len(set(self._books.values()))
 
     def __repr__(self):
-        return f"{type(self).__name__}(name={self._name})"
+        return f"{utils.name(type(self))}(name={self._name})"
 
     def _register_book(self, book):
         book_ids = (book.number, book.id, *book.alt_ids)
@@ -450,14 +450,22 @@ class Translation:
         return self._categories
 
     @property
+    def Character(self):
+        return self._character_cls
+
+    @property
     def name(self):
         return self._name
+
+    @property
+    def Passage(self):
+        return self._passage_cls
 
     def books(self):
         yield from utils.unique_value_iterating_dict(self._books)
 
     def characters(self, field=None):
-        return _Characters(self._characters.values(), Character, field)
+        return _Characters(self._characters.values(), self.Character, field)
 
     def first(self):
         return self[1]
@@ -501,7 +509,7 @@ class Translation:
             verse_end = chapter_end[verse_number_end or len(chapter_end)]
         if int(verse_end.int_reference) < int(verse_start.int_reference):
             raise utils.BibleReferenceError("the requested passage range is invalid; the right hand side of the range must be greater than the left")
-        return utils.module_of_instance(self).Passage(book_start, chapter_start, verse_start, book_end, chapter_end, verse_end)
+        return self.Passage(book_start, chapter_start, verse_start, book_end, chapter_end, verse_end)
 
 
 class Passage:
@@ -518,7 +526,7 @@ class Passage:
         return sum(1 for _ in self.verses())
 
     def __repr__(self):
-        return (f"{type(self).__name__}(book_start={self._book_start.name}, chapter_start={self._chapter_start.number}, "
+        return (f"{utils.name(type(self))}(book_start={self._book_start.name}, chapter_start={self._chapter_start.number}, "
                 f"verse_start={self._verse_start.number}, book_end={self._book_end.name}, chapter_end={self._chapter_end.number}, "
                 f"verse_end={self._verse_end.number})")
 
@@ -589,7 +597,7 @@ class Passage:
             next_chapter = next_chapter.next()
 
     def characters(self, field=None):
-        return _Characters(self._characters(), Character, field)
+        return _Characters(self._characters(), self._translation.Character, field)
 
     def text(self):
         raise NotImplementedError()
@@ -607,28 +615,28 @@ class Character:
     number: int
     translation: Translation
     passages: tuple[Passage]
-    _mother: typing.Union[_unknown_type, int] = utils.UNKNOWN
-    _father: typing.Union[_unknown_type, int] = utils.UNKNOWN
+    _mother: typing.Union[utils.Unknown, int] = utils.UNKNOWN
+    _father: typing.Union[utils.Unknown, int] = utils.UNKNOWN
     _spouses: tuple = dataclasses.field(default_factory=tuple)
-    age: typing.Union[_unknown_type, int] = utils.UNKNOWN
+    age: typing.Union[utils.Unknown, int] = utils.UNKNOWN
     aliases: tuple = dataclasses.field(default_factory=tuple)
-    born: typing.Union[_unknown_type, utils.Year] = utils.UNKNOWN
-    cause_of_death: typing.Union[_unknown_type, str] = utils.UNKNOWN
-    died: typing.Union[_unknown_type, utils.Year] = utils.UNKNOWN
-    gender: typing.Union[_unknown_type, str] = utils.UNKNOWN
-    name: typing.Union[_unknown_type, str] = utils.UNKNOWN
-    nationality: typing.Union[_unknown_type, str] = utils.UNKNOWN
-    place_of_death: typing.Union[_unknown_type, str] = utils.UNKNOWN
-    primary_occupation: typing.Union[_unknown_type, str] = utils.UNKNOWN
+    born: typing.Union[utils.Unknown, utils.Year] = utils.UNKNOWN
+    cause_of_death: typing.Union[utils.Unknown, str] = utils.UNKNOWN
+    died: typing.Union[utils.Unknown, utils.Year] = utils.UNKNOWN
+    gender: typing.Union[utils.Unknown, str] = utils.UNKNOWN
+    name: typing.Union[utils.Unknown, str] = utils.UNKNOWN
+    nationality: typing.Union[utils.Unknown, str] = utils.UNKNOWN
+    place_of_death: typing.Union[utils.Unknown, str] = utils.UNKNOWN
+    primary_occupation: typing.Union[utils.Unknown, str] = utils.UNKNOWN
+    _children: list = dataclasses.field(default_factory=list)
 
     def __post_init__(self):
-        self._children = []
         for parent in self.parents:
             parent._children.append(self)
         self.translation._register_character(self)
 
     def __repr__(self):
-        return f"{type(self).__name__}(number={self.number}, name={self.name}, born={self.born})"
+        return f"{utils.name(type(self))}(number={self.number}, name={self.name}, born={self.born})"
 
     @property
     def ancestors(self):

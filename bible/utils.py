@@ -1,5 +1,6 @@
 import dataclasses
 import enum
+import glob
 import inspect
 import itertools
 import json
@@ -13,7 +14,7 @@ import jsonmerge
 from bible import enums
 
 
-class _Unknown:
+class Unknown:
     def __bool__(self):
         return False
 
@@ -28,7 +29,7 @@ class _Unknown:
         return "?"
 
 
-UNKNOWN = _Unknown()
+UNKNOWN = Unknown()
 
 
 class BibleReferenceError(Exception):
@@ -41,7 +42,7 @@ class BibleSetupError(Exception):
 
 class _EnumDecoder(json.JSONDecoder):
     def __init__(self, *args, **kwargs):
-        self.enum_classes = dict(inspect.getmembers(kwargs.pop("enums_module"), lambda value: isinstance(value, enum.EnumMeta)))
+        self.enum_classes = {name(enum_class): enum_class for enum_class in kwargs.pop("enum_classes")}
         super().__init__(*args, **kwargs)
         self._parse_string = self.parse_string
         self.parse_string = self.py_scanstring
@@ -88,7 +89,7 @@ class Filterable:
 
     def __getattr__(self, name):
         if self._dataclass is not None and name not in self._fields:
-            raise AttributeError(f"{self._dataclass.__name__!r} object has no attribute {name!r}")
+            raise AttributeError(f"{name(self._dataclass)!r} object has no attribute {name!r}")
         return type(self)(self._iterable, self._dataclass, name)
 
     def __getitem__(self, key):
@@ -117,7 +118,7 @@ class Filterable:
         return type(self)(self._filter(operator.ne, value), self._dataclass, self._field)
 
     def __repr__(self):
-        return f"{type(self).__name__}(field={self._field}, dataclass={self._dataclass.__name__}, len={len(self)})"
+        return f"{name(type(self))}(field={self._field}, dataclass={name(self._dataclass)}, len={len(self)})"
 
     def _check_fields(self, fields):
         if not fields:
@@ -178,7 +179,7 @@ class Filterable:
     @field.setter
     def field(self, value):
         if value is not None and self._dataclass is not None and value not in self._fields:
-            raise AttributeError(f"{self._dataclass.__name__!r} object has no attribute {value!r}")
+            raise AttributeError(f"{name(self._dataclass)!r} object has no attribute {value!r}")
         self._field = value
 
     @property
@@ -279,26 +280,50 @@ def fetch_pattern(cls, group_suffix="_start"):
     return name_pattern[1:-1]
 
 
+def find_data_file_path(adjacent_module_name=__name__):
+    module = sys.modules[adjacent_module_name]
+    module_directory = os.path.dirname(module.__file__)
+    data_json_file_path = os.path.join(module_directory, "data.json")
+    return data_json_file_path if os.path.isfile(data_json_file_path) else next(glob.iglob(os.path.join(module_directory, "*.json")), None)
+
+
+def find_enum_classes(*modules):
+    if not modules:
+        modules = (enums, )
+    for module in modules:
+        for _, enum_class in inspect.getmembers(module, lambda value: isinstance(value, enum.EnumMeta)):
+            yield enum_class
+
+
 def int_reference(book_number, chapter_number=1, verse_number=1):
     return f"{book_number:01d}{chapter_number:03d}{verse_number:03d}"
 
 
-def load_translation(api_module, enums_module=enums):
-    with open(os.path.join(os.path.dirname(__file__), "data.json")) as f:
-        base_data = json.load(f)
-    file_path = os.path.join(os.path.dirname(api_module.__file__), "data.json")
+def load_data(file_path, enum_classes):
     with open(file_path) as f:
-        translation_data = json.load(f, cls=_EnumDecoder, enums_module=enums_module)
-    data = jsonmerge.merge(base_data, translation_data)
-    translation = api_module.Translation(**data["meta"])
+        return json.load(f, cls=_EnumDecoder, enum_classes=enum_classes)
+
+
+def load_translation(data_file_path=None, translation_cls=None, book_cls=None, chapter_cls=None, verse_cls=None, passage_cls=None, character_cls=None,
+                     enum_classes=None):
+    from bible import api  # Avoid circular import
+    enum_classes = enum_classes or tuple(find_enum_classes())
+    data = base_data = load_data(find_data_file_path(), enum_classes=enum_classes)
+    arbitrary_cls = next(filter(None, (translation_cls, book_cls, chapter_cls, verse_cls, passage_cls, character_cls)), None)
+    if arbitrary_cls is not None:
+        data = jsonmerge.merge(base_data, load_data(data_file_path or find_data_file_path(arbitrary_cls.__module__), enum_classes=enum_classes))
+    passage_cls = passage_cls or api.Passage
+    character_cls = character_cls or api.Character
+    meta_data = data["meta"]
+    translation = (translation_cls or api.Translation)(name=meta_data.pop("name"), passage_cls=passage_cls, character_cls=character_cls, **meta_data)
     for book_number, book_data in data.get("books", {}).items():
         chapters = book_data.pop("chapters", {})
-        book = api_module.Book(number=int(book_number), name=book_data.pop("name"), translation=translation, **book_data)
+        book = (book_cls or api.Book)(number=int(book_number), name=book_data.pop("name"), translation=translation, **book_data)
         for chapter_number, chapter_data in chapters.items():
             verses = chapter_data.pop("verses", {})
-            chapter = api_module.Chapter(number=int(chapter_number), book=book, **chapter_data)
+            chapter = (chapter_cls or api.Chapter)(number=int(chapter_number), book=book, **chapter_data)
             for verse_number, verse_data in verses.items():
-                _ = api_module.Verse(number=int(verse_number), chapter=chapter, **verse_data)
+                _ = (verse_cls or api.Verse)(number=int(verse_number), chapter=chapter, **verse_data)
     for character_number, character_data in data.get("characters", {}).items():
         character_data["passages"] = tuple(map(translation.passage, character_data.get("passages", ())))
         character_data["aliases"] = tuple(character_data.pop("aliases", ()))
@@ -309,12 +334,12 @@ def load_translation(api_module, enums_module=enums):
             value = character_data.pop(attribute, UNKNOWN)
             if value is not UNKNOWN:
                 character_data[attribute] = Year(value)
-        _ = api_module.Character(number=int(character_number), translation=translation, **character_data)
+        _ = character_cls(number=int(character_number), translation=translation, **character_data)
     return translation
 
 
-def module_of_instance(self):
-    return sys.modules[type(self).__module__]
+def name(obj):
+    return obj.__name__
 
 
 def reference(book_name, chapter_number=None, verse_number=None):
