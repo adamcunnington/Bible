@@ -60,9 +60,9 @@ class _EnumDecoder(json.JSONDecoder):
 
 
 class Filterable:
-    def __init__(self, dataclass, iterable, field=None):
-        self._dataclass = dataclass
+    def __init__(self, iterable, dataclass=None, field=None):
         self._iterable = iterable
+        self._dataclass = dataclass
         self._fields = self._inspect_fields(self._dataclass)
         self.field = field
 
@@ -74,20 +74,22 @@ class Filterable:
 
     @staticmethod
     def _inspect_fields(dataclass):
+        if dataclass is None:
+            return ()
         fields = (field.name for field in dataclasses.fields(dataclass) if not field.name.startswith("_"))
         properties = (name for name, _ in inspect.getmembers(dataclass, lambda value: isinstance(value, property)))
         return tuple(sorted((*fields, *properties)))
 
     def __eq__(self, value):
-        return type(self)(self._dataclass, self._filter(operator.eq, value), self._field)
+        return type(self)(self._filter(operator.eq, value), self._dataclass, self._field)
 
     def __ge__(self, value):
-        return type(self)(self._dataclass, self._filter(operator.ge, value), self._field)
+        return type(self)(self._filter(operator.ge, value), self._dataclass, self._field)
 
     def __getattr__(self, name):
-        if name not in self.fields:
+        if self._dataclass is not None and name not in self._fields:
             raise AttributeError(f"{self._dataclass.__name__!r} object has no attribute {name!r}")
-        return type(self)(self._dataclass, self._iterable, name)
+        return type(self)(self._iterable, self._dataclass, name)
 
     def __getitem__(self, key):
         for i in self:
@@ -96,23 +98,26 @@ class Filterable:
         raise KeyError(key)
 
     def __gt__(self, value):
-        return type(self)(self._dataclass, self._filter(operator.gt, value), self._field)
+        return type(self)(self._filter(operator.gt, value), self._dataclass, self._field)
 
     def __iter__(self):
         self._iterable, iterable_copy = itertools.tee(self._iterable)
         return iterable_copy
 
     def __le__(self, value):
-        return type(self)(self._dataclass, self._filter(operator.le, value), self._field)
+        return type(self)(self._filter(operator.le, value), self._dataclass, self._field)
 
     def __len__(self):
         return sum(1 for _ in self)
 
     def __lt__(self, value):
-        return type(self)(self._dataclass, self._filter(operator.lt, value), self._field)
+        return type(self)(self._filter(operator.lt, value), self._dataclass, self._field)
 
     def __ne__(self, value):
-        return type(self)(self._dataclass, self._filter(operator.ne, value), self._field)
+        return type(self)(self._filter(operator.ne, value), self._dataclass, self._field)
+
+    def __repr__(self):
+        return f"{type(self).__name__}(field={self._field}, dataclass={self._dataclass.__name__}, len={len(self)})"
 
     def _combine(self, *filterables):
         candidates = set().union(*filterables)
@@ -165,7 +170,7 @@ class Filterable:
 
     @field.setter
     def field(self, value):
-        if value is not None and value not in self._fields:
+        if value is not None and self._dataclass is not None and value not in self._fields:
             raise AttributeError(f"{self._dataclass.__name__!r} object has no attribute {value!r}")
         self._field = value
 
@@ -177,15 +182,15 @@ class Filterable:
         yield from self._limit(limit)
 
     def combine(self, *filterables):
-        return type(self)(self._dataclass, self._combine(*filterables), self._field)
+        return type(self)(self._combine(*filterables), self._dataclass, self._field)
 
     def contains(self, value, inverse=False):
         if not inverse:
-            return type(self)(self._dataclass, self._contains(value), self._field)
-        return type(self)(self._dataclass, self._contains_not(value), self._field)
+            return type(self)(self._contains(value), self._dataclass, self._field)
+        return type(self)(self._contains_not(value), self._dataclass, self._field)
 
     def false(self):
-        return type(self)(self._dataclass, self._filter_unary(operator.not_), self._field)
+        return type(self)(self._filter_unary(operator.not_), self._dataclass, self._field)
 
     def one(self, error=True):
         first = None
@@ -205,7 +210,7 @@ class Filterable:
         yield from ({field: getattr(i, field) for field in fields} for i in iterable)
 
     def true(self):
-        return type(self)(self._dataclass, self._filter_unary(operator.truth), self._field)
+        return type(self)(self._filter_unary(operator.truth), self._dataclass, self._field)
 
     def values(self, *fields, limit=None):
         iterable = self._limit(limit)
@@ -218,8 +223,8 @@ class Filterable:
 
     def where(self, *values, inverse=False):
         if not inverse:
-            return type(self)(self._dataclass, self._where(*values), self._field)
-        return type(self)(self._dataclass, self._where_not(*values), self._field)
+            return type(self)(self._where(*values), self._dataclass, self._field)
+        return type(self)(self._where_not(*values), self._dataclass, self._field)
 
 
 class FuzzyDict(dict):

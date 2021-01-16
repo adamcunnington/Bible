@@ -40,7 +40,7 @@ class Verse:
         chapter._register_verse(self)
 
     def __repr__(self):
-        return (f"{self.__class__.__name__}(number={self._number}, chapter={self._chapter.number}, book={self._book.name}, "
+        return (f"{type(self).__name__}(number={self._number}, chapter={self._chapter.number}, book={self._book.name}, "
                 f"translation={self._translation.name})")
 
     def __str__(self):
@@ -87,7 +87,7 @@ class Verse:
         raise NotImplementedError()
 
     def characters(self, field=None):
-        return _Characters(Character, self._characters(), field)
+        return _Characters(self._characters(), Character, field)
 
     def next(self, overspill=True):
         if self.is_last:
@@ -138,7 +138,7 @@ class Chapter:
         return len(self._verses)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(number={self._number}, book={self._book.name}, translation={self._translation.name})"
+        return f"{type(self).__name__}(number={self._number}, book={self._book.name}, translation={self._translation.name})"
 
     def __str__(self):
         return utils.reference(self._book.name, self._number)
@@ -188,7 +188,7 @@ class Chapter:
         raise NotImplementedError()
 
     def characters(self, field=None):
-        return _Characters(Character, self._characters(), field)
+        return _Characters(self._characters(), Character, field)
 
     def first(self):
         return self[1]
@@ -273,7 +273,7 @@ class Book:
         return len(self._chapters)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(name={self._name}, number={self._number}, translation={self._translation.name})"
+        return f"{type(self).__name__}(name={self._name}, number={self._number}, translation={self._translation.name})"
 
     def __str__(self):
         return utils.reference(self._name)
@@ -350,7 +350,7 @@ class Book:
         yield from self._chapters.values()
 
     def characters(self, field=None):
-        return _Characters(Character, self._characters(), field)
+        return _Characters(self._characters(), Character, field)
 
     def first(self):
         return self[1]
@@ -428,7 +428,7 @@ class Translation:
         return len(set(self._books.values()))
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(name={self._name})"
+        return f"{type(self).__name__}(name={self._name})"
 
     def _register_book(self, book):
         book_ids = (book.number, book.id, *book.alt_ids)
@@ -457,7 +457,7 @@ class Translation:
         yield from utils.unique_value_iterating_dict(self._books)
 
     def characters(self, field=None):
-        return _Characters(Character, self._characters.values(), field)
+        return _Characters(self._characters.values(), Character, field)
 
     def first(self):
         return self[1]
@@ -518,7 +518,7 @@ class Passage:
         return sum(1 for _ in self.verses())
 
     def __repr__(self):
-        return (f"{self.__class__.__name__}(book_start={self._book_start.name}, chapter_start={self._chapter_start.number}, "
+        return (f"{type(self).__name__}(book_start={self._book_start.name}, chapter_start={self._chapter_start.number}, "
                 f"verse_start={self._verse_start.number}, book_end={self._book_end.name}, chapter_end={self._chapter_end.number}, "
                 f"verse_end={self._verse_end.number})")
 
@@ -589,7 +589,7 @@ class Passage:
             next_chapter = next_chapter.next()
 
     def characters(self, field=None):
-        return _Characters(Character, self._characters(), field)
+        return _Characters(self._characters(), Character, field)
 
     def text(self):
         raise NotImplementedError()
@@ -626,6 +626,9 @@ class Character:
         for parent in self.parents:
             parent._children.append(self)
         self.translation._register_character(self)
+
+    def __repr__(self):
+        return f"{type(self).__name__}(number={self.number}, name={self.name}, born={self.born})"
 
     @property
     def ancestors(self):
@@ -678,4 +681,3 @@ class Character:
     @property
     def spouses(self):
         return tuple(self.translation._characters[spouse] for spouse in self._spouses)
-
