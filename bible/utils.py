@@ -119,6 +119,13 @@ class Filterable:
     def __repr__(self):
         return f"{type(self).__name__}(field={self._field}, dataclass={self._dataclass.__name__}, len={len(self)})"
 
+    def _check_fields(self, fields):
+        if not fields:
+            if self._field is None:
+                raise BibleReferenceError("field is not set")
+            fields = (self._field, )
+        return fields
+
     def _combine(self, *filterables):
         candidates = set().union(*filterables)
         for i in self:
@@ -204,22 +211,13 @@ class Filterable:
         return first
 
     def select(self, *fields, limit=None):
-        iterable = self._limit(limit)
-        if not fields:
-            yield from (vars(i) for i in iterable)
-        yield from ({field: getattr(i, field) for field in fields} for i in iterable)
+        yield from ({field: getattr(i, field) for field in self._check_fields(fields)} for i in self._limit(limit))
 
     def true(self):
         return type(self)(self._filter_unary(operator.truth), self._dataclass, self._field)
 
     def values(self, *fields, limit=None):
-        iterable = self._limit(limit)
-        if len(fields) > 1:
-            yield from (tuple(getattr(i, field) for field in fields) for i in iterable)
-        field = next(iter(fields), self._field)
-        if field is None:
-            raise BibleReferenceError("field is not set")
-        yield from (getattr(i, field) for i in iterable)
+        yield from (tuple(getattr(i, field) for field in self._check_fields(fields)) for i in self._limit(limit))
 
     def where(self, *values, inverse=False):
         if not inverse:
