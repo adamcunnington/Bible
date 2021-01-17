@@ -11,9 +11,6 @@ FUNCTIONALITY
     Make text more terminal print friendly.
 
 CHARACTERS
-    Character["ada"] using levenhstein
-    Also, implement .like() method using levenhstein
-    Rename where to any? Also should there be a like=False parameter?
     Method on character to find out how they are related to x. should return from the character's perspective. e.g. x is my <relation>. Might get very complicated!
     Don't forget to update docs.
 
