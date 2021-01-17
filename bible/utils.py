@@ -14,6 +14,9 @@ import jsonmerge
 from bible import enums
 
 
+DEFAULT_THRESHOLD = 0.6
+
+
 class Unknown:
     def __bool__(self):
         return False
@@ -129,22 +132,39 @@ class Filterable:
 
     def _contains(self, value):
         for i in self:
-            if value in self._getattr(i, self.field):
+            if value in self._getattr(i, self._field):
                 yield i
 
     def _contains_not(self, value):
         for i in self:
-            if value not in self._getattr(i, self.field):
+            if value not in self._getattr(i, self._field):
                 yield i
 
     def _filter(self, operation, value):
         for i in self:
-            if operation(self._getattr(i, self.field), value):
+            if operation(self._getattr(i, self._field), value):
                 yield i
 
     def _filter_unary(self, operation):
         for i in self:
-            if operation(self._getattr(i, self.field)):
+            if operation(self._getattr(i, self._field)):
+                yield i
+
+    def _like(self, *values, threshold):
+        for i in self:
+            field_value = self._getattr(i, self._field)
+            for value in values:
+                if safe_partial_ratio(field_value, value) >= threshold:
+                    yield i
+                    break
+
+    def _like_not(self, *values, threshold):
+        for i in self:
+            field_value = self._getattr(i, self._field)
+            for value in values:
+                if safe_partial_ratio(field_value, value) >= threshold:
+                    break
+            else:
                 yield i
 
     def _limit(self, limit):
@@ -152,14 +172,14 @@ class Filterable:
             return iter(self)
         return itertools.islice(self, limit)
 
-    def _where(self, *values):
+    def _any(self, *values):
         for i in self:
-            if self._getattr(i, self.field) in values:
+            if self._getattr(i, self._field) in values:
                 yield i
 
-    def _where_not(self, *values):
+    def _any_not(self, *values):
         for i in self:
-            if self._getattr(i, self.field) not in values:
+            if self._getattr(i, self._field) not in values:
                 yield i
 
     @property
@@ -183,16 +203,26 @@ class Filterable:
     def all(self, limit=None):
         yield from self._limit(limit)
 
+    def any(self, *values, not_=False):
+        if not not_:
+            return type(self)(self._any(*values), self._dataclass, self._field)
+        return type(self)(self._any_not(*values), self._dataclass, self._field)
+
     def combine(self, *filterables):
         return type(self)(self._combine(*filterables), self._dataclass, self._field)
 
-    def contains(self, value, inverse=False):
-        if not inverse:
+    def contains(self, value, not_=False):
+        if not not_:
             return type(self)(self._contains(value), self._dataclass, self._field)
         return type(self)(self._contains_not(value), self._dataclass, self._field)
 
     def false(self):
         return type(self)(self._filter_unary(operator.not_), self._dataclass, self._field)
+
+    def like(self, *values, not_=False, threshold=DEFAULT_THRESHOLD):
+        if not not_:
+            return type(self)(self._like(*values, threshold=threshold), self._dataclass, self._field)
+        return type(self)(self._like_not(*values, threshold=threshold), self._dataclass, self._field)
 
     def one(self, error=True):
         first = None
@@ -206,25 +236,20 @@ class Filterable:
         return first
 
     def select(self, *fields, limit=None):
-        yield from ({field: getattr(i, field) for field in self._check_fields(fields)} for i in self._limit(limit))
+        yield from ({field: self._getattr(i, field) for field in self._check_fields(fields)} for i in self._limit(limit))
 
     def true(self):
         return type(self)(self._filter_unary(operator.truth), self._dataclass, self._field)
 
-    def values(self, *fields, limit=None):
-        yield from (tuple(getattr(i, field) for field in self._check_fields(fields)) for i in self._limit(limit))
-
-    def where(self, *values, inverse=False):
-        if not inverse:
-            return type(self)(self._where(*values), self._dataclass, self._field)
-        return type(self)(self._where_not(*values), self._dataclass, self._field)
+    def values(self, field=None, limit=None):
+        return tuple(self._getattr(i, field or self._field) for i in self._limit(limit))
 
 
 class FuzzyDict(dict):
     _MISSING = object()
 
     def __init__(self, *args, **kwargs):
-        self.ratio_threshold = kwargs.pop("ratio_threshold", 60)
+        self.threshold = kwargs.pop("threshold", DEFAULT_THRESHOLD)
         super().__init__(*args, **kwargs)
 
     def __getitem__(self, key):
@@ -233,24 +258,21 @@ class FuzzyDict(dict):
             if closest_key is self._MISSING:
                 raise KeyError(key)
             raise KeyError(f"'{key}'. The closest match was {closest_key} but with a ratio ({closest_ratio}) < the threshold "
-                           f"({self.ratio_threshold})")
+                           f"({self.threshold})")
         return value
 
-    def search(self, key, return_first=False, ratio_threshold_override=None):
-        if key in self:
+    def search(self, key, return_first=False, threshold=None):
+        value = self.get(key, self._MISSING)
+        if value is not self._MISSING:
             return (True, key, super().__getitem__(key), 1)
-        if not isinstance(key, str):
-            return (False, key, None, 0)
         matched = False
         closest_key = self._MISSING
         closest_ratio = 0
-        ratio_threshold = ratio_threshold_override or self.ratio_threshold
+        threshold = threshold or self.threshold
         for existing_key in self:
-            if not isinstance(existing_key, str):
-                continue
-            ratio = fuzz.partial_ratio(key, existing_key)
-            if ratio > closest_ratio:  # if it's the same, we will favour the one found first; deterministic as python dicts retain order from 3.7
-                matched = closest_ratio >= ratio_threshold
+            ratio = safe_partial_ratio(key, existing_key)
+            if ratio > closest_ratio:
+                matched = closest_ratio >= threshold
                 closest_ratio = ratio
                 closest_key = existing_key
                 if return_first and matched:
@@ -348,6 +370,15 @@ def reference(book_name, chapter_number=None, verse_number=None):
 def safe_int(value):
     str_value = str(value)
     return int(str_value) if str_value.isdigit() else value
+
+
+def safe_partial_ratio(s1, s2):
+    ratio = 0
+    try:
+        ratio = fuzz.partial_ratio(s1, s2)
+    except TypeError:
+        pass
+    return ratio
 
 
 def slugify(value):

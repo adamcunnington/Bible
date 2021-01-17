@@ -12,10 +12,23 @@ _range = "(?P<range>-)?"
 
 class _Characters(utils.Filterable):
     def __getitem__(self, key):
-        for i in self:
-            if i.number == key:
-                return i
-        raise KeyError(key)
+        character = (self.number == key).one()
+        if character is None:
+            highest_ratio = utils.DEFAULT_THRESHOLD
+            most_verses = 0
+            for potential_character in self:
+                ratio = utils.safe_partial_ratio(key, potential_character.name)
+                if ratio < highest_ratio:
+                    continue
+                total_verses = sum(map(len, potential_character.passages))
+                if ratio == highest_ratio and total_verses <= most_verses:
+                    continue
+                highest_ratio = ratio
+                most_verses = total_verses
+                character = potential_character
+            if character is None:
+                raise KeyError(key)
+        return character
 
     def lineage(self, ancestor, descendant):
         return self.combine(self.number == ancestor.number, self.ancestors.contains(ancestor).descendants.contains(descendant),
