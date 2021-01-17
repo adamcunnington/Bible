@@ -92,12 +92,6 @@ class Filterable:
             raise AttributeError(f"{name(self._dataclass)!r} object has no attribute {name!r}")
         return type(self)(self._iterable, self._dataclass, name)
 
-    def __getitem__(self, key):
-        for i in self:
-            if i.number == key:
-                return i
-        raise KeyError(key)
-
     def __gt__(self, value):
         return type(self)(self._filter(operator.gt, value), self._dataclass, self._field)
 

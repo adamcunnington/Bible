@@ -11,6 +11,12 @@ _range = "(?P<range>-)?"
 
 
 class _Characters(utils.Filterable):
+    def __getitem__(self, key):
+        for i in self:
+            if i.number == key:
+                return i
+        raise KeyError(key)
+
     def lineage(self, ancestor, descendant):
         return self.combine(self.number == ancestor.number, self.ancestors.contains(ancestor).descendants.contains(descendant),
                             self.number == descendant.number)

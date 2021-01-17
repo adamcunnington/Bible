@@ -247,7 +247,7 @@ The `Character` objects expose all of the attributes described in [Character att
 | *\_\_eq\_\_*                     | Magic Method      | Return a new `Characters` object filtering to characters whose attribute == the value.    | c.name == "Adam"                     |
 | *\_\_ge\_\_*                     | Magic Method      | Return a new `Characters` object filtering to characters whose attribute was >= value.    | c.age >= 35                          |
 | *\_\_getattr\_\_*                | Magic Method      | Return a new `Characters` object with the *field* attribute set to the name.              | c.name                               |
-| *\_\_getitem\_\_*                | Magic Method      | Return the `Character` object based on the *id* attribute of the Character.               | c[5]                                 |
+| *\_\_getitem\_\_*                | Magic Method      | Return the `Character` object based on the *number* attribute of the Character.           | c[5]                                 |
 | *\_\_gt\_\_*                     | Magic Method      | Return a new `Characters` object filtering to characters whose attribute was > value.     | c.age > 35                           |
 | *\_\_iter\_\_*                   | Magic Method      | Return an iterable of `Character` objects currently contained.                            | for character in c: ...              |
 | *\_\_le\_\_*                     | Magic Method      | Return a new `Characters` object filtering to characters whose attribute <= the value.    | c.age <= "Adam"                      |
