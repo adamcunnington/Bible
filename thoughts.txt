@@ -4,17 +4,18 @@ TO FIX
     Get display working for docker container.
 
 FUNCTIONALITY
-    Finessee tree() method.
-
     Bind display to docker container (like we do for audio).
+
+    Finessee tree() method.
 
     Make text more terminal print friendly.
 
 CHARACTERS
-    character["ada"] using levenhstein
-    also, implement .like() method using levenhstein
-    method on character to find out how they are related to x. should return from the character's perspective. e.g. x is my <relation>. Might get very complicated!
-    don't forget to update docs.
+    Character["ada"] using levenhstein
+    Also, implement .like() method using levenhstein
+    Rename where to any? Also should there be a like=False parameter?
+    Method on character to find out how they are related to x. should return from the character's perspective. e.g. x is my <relation>. Might get very complicated!
+    Don't forget to update docs.
 
 MAKE ENTERPRISE (all require make target updates)
     Docstrings

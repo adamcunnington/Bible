@@ -36173,70 +36173,271 @@
     },
     "characters": {
         "1": {
-            "passages": ["Genesis 2 - Genesis"],
-            "age": 0,
-            "aliases": [],
-            "cause_of_death": "",
-            "died": 0,
+            "passages": ["Genesis 1-?"],
+            "aliases": ["LORD"],
+            "father": null,
+            "mother": null,
+            "name": "God"
+        },
+        "2": {
+            "passages": ["Genesis 1:2"],
+            "aliases": ["Spirit of God"],
+            "father": null,
+            "mother": null,
+            "name": "Holy Spirit"
+        },
+        "3": {
+            "passages": ["Genesis 2-5"],
+            "age": "930",
+            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
             "father": null,
             "gender": "CharacterGender.MALE",
             "mother": null,
             "name": "Adam",
             "nationality": "CharacterNationality.EDEN",
-            "place_of_death": "",
-            "primary_occupation": "",
-            "spouses": ["2"]
+            "spouses": ["4"]
         },
-        "2": {
-            "passages": ["Genesis 2 - Genesis"],
-            "age": 0,
-            "aliases": [],
-            "cause_of_death": "",
-            "died": 0,
+        "4": {
+            "passages": ["Genesis 2-3", "Genesis 4:25"],
             "father": null,
             "gender": "CharacterGender.FEMALE",
             "mother": null,
             "name": "Eve",
             "nationality": "CharacterNationality.EDEN",
-            "place_of_death": "",
-            "primary_occupation": "",
-            "spouses": ["1"]
-        },
-        "3": {
-            "passages": ["Genesis 3 - Genesis"],
-            "age": 0,
-            "aliases": [],
-            "born": 0,
-            "cause_of_death": "",
-            "died": 0,
-            "father": null,
-            "mother": null,
-            "name": "Serpent",
-            "nationality": "CharacterNationality.EARTH",
-            "place_of_death": "",
-            "spouses": []
-        },
-        "4": {
-            "passages": ["Genesis 4"],
-            "father": "1",
-            "gender": "CharacterGender.MALE",
-            "mother": "2",
-            "name": "Cain",
-            "spouses": ["6"]
+            "spouses": ["3"]
         },
         "5": {
-            "passages": ["Genesis 4"],
-            "cause_of_death": "CharacterCauseOfDeath.MURDERED_BY_CAIN",
-            "father": "1",
-            "gender": "CharacterGender.MALE",
-            "mother": "2",
-            "name": "Abel"
+            "passages": ["Genesis 3"],
+            "father": null,
+            "mother": null,
+            "name": "Serpent"
         },
         "6": {
-            "passages": ["Genesis 4-17"],
+            "passages": ["Genesis 4"],
+            "father": "3",
+            "gender": "CharacterGender.MALE",
+            "mother": "4",
+            "name": "Cain",
+            "nationality": "CharacterNationality.ENOCH",
+            "primary_occupation": "Farmer",
+            "spouses": ["8"]
+        },
+        "7": {
+            "passages": ["Genesis 4"],
+            "cause_of_death": "CharacterCauseOfDeath.MURDERED_BY_CAIN",
+            "father": "3",
+            "gender": "CharacterGender.MALE",
+            "mother": "4",
+            "name": "Abel",
+            "primary_occupation": "Shepherd"
+        },
+        "8": {
+            "passages": ["Genesis 4:17"],
             "gender": "CharacterGender.FEMALE",
             "name": "(Cain's Wife)",
-            "spouses": ["4"]
+            "nationality": "CharacterNationality.ENOCH",
+            "spouses": ["6"]
+        },
+        "9": {
+            "passages": ["Genesis 4:17-18"],
+            "father": "6",
+            "gender": "CharacterGender.MALE",
+            "mother": "8",
+            "name": "Enoch",
+            "nationality": "CharacterNationality.ENOCH"
+        },
+        "10": {
+            "passages": ["Genesis 4:18"],
+            "father": "9",
+            "gender": "CharacterGender.MALE",
+            "name": "Irad"
+        },
+        "11": {
+            "passages": ["Genesis 4:18"],
+            "father": "10",
+            "gender": "CharacterGender.MALE",
+            "name": "Mehujael"
+        },
+        "12": {
+            "passages": ["Genesis 4:18"],
+            "father": "11",
+            "gender": "CharacterGender.MALE",
+            "name": "Methushael"
+        },
+        "13": {
+            "passages": ["Genesis 4:18-24"],
+            "father": "12",
+            "gender": "CharacterGender.MALE",
+            "name": "Lamech",
+            "spouses": ["14", "15"]
+        },
+        "14": {
+            "passages": ["Genesis 4:19-23"],
+            "gender": "CharacterGender.FEMALE",
+            "name": "Adah",
+            "spouses": ["13"]
+        },
+        "15": {
+            "passages": ["Genesis 4:19-23"],
+            "gender": "CharacterGender.FEMALE",
+            "name": "Zillah",
+            "spouses": ["13"]
+        },
+        "16": {
+            "passages": ["Genesis 4:20"],
+            "father": "13",
+            "gender": "CharacterGender.MALE",
+            "mother": "14",
+            "name": "Jabal",
+            "primary_occupation": "Stockman"
+        },
+        "17": {
+            "passages": ["Genesis 4:21"],
+            "father": "13",
+            "gender": "CharacterGender.MALE",
+            "mother": "14",
+            "name": "Jubal",
+            "primary_occupation": "Musician"
+        },
+        "18": {
+            "passages": ["Genesis 4:22"],
+            "father": "13",
+            "gender": "CharacterGender.MALE",
+            "mother": "15",
+            "name": "Tubal-Cain",
+            "primary_occupation": "Metalsmith"
+        },
+        "19": {
+            "passages": ["Genesis 4:22"],
+            "father": "13",
+            "gender": "CharacterGender.FEMALE",
+            "mother": "15",
+            "name": "Naamah"
+        },
+        "20": {
+            "passages": ["Genesis 4:25", "Genesis 5:3-8"],
+            "age": "912",
+            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
+            "father": "3",
+            "gender": "CharacterGender.MALE",
+            "mother": "4",
+            "name": "Seth"
+        },
+        "21": {
+            "passages": ["Genesis 4:26", "Genesis 5:6-11"],
+            "age": "905",
+            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
+            "father": "20",
+            "gender": "CharacterGender.MALE",
+            "name": "Enosh"
+        },
+        "22": {
+            "passages": ["Genesis 5:9-14"],
+            "age": "910",
+            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
+            "father": "21",
+            "gender": "CharacterGender.MALE",
+            "name": "Kenan"
+        },
+        "23": {
+            "passages": ["Genesis 5:15-17"],
+            "age": "895",
+            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
+            "father": "22",
+            "gender": "CharacterGender.MALE",
+            "name": "Mahalalel"
+        },
+        "24": {
+            "passages": ["Genesis 5:15-20"],
+            "age": "962",
+            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
+            "father": "23",
+            "gender": "CharacterGender.MALE",
+            "name": "Jared"
+        },
+        "25": {
+            "passages": ["Genesis 5:18-24"],
+            "age": "365",
+            "cause_of_death": "CharacterCauseOfDeath.TAKEN_TO_HEAVEN",
+            "father": "24",
+            "gender": "CharacterGender.MALE",
+            "name": "Enoch"
+        },
+        "26": {
+            "passages": ["Genesis 5:21-27"],
+            "age": "969",
+            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
+            "father": "25",
+            "gender": "CharacterGender.MALE",
+            "name": "Methuselah"
+        },
+        "27": {
+            "passages": ["Genesis 5:25-31"],
+            "age": "777",
+            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
+            "father": "26",
+            "gender": "CharacterGender.MALE",
+            "name": "Lamech"
+        },
+        "28": {
+            "passages": ["Genesis 5:29", "Genesis 6-9", "Genesis 10:1"],
+            "age": "950",
+            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
+            "father": "27",
+            "gender": "CharacterGender.MALE",
+            "name": "Noah",
+            "spouses": ["32"]
+        },
+        "29": {
+            "passages": ["Genesis 5:32", "Genesis 6-9"],
+            "father": "28",
+            "gender": "CharacterGender.MALE",
+            "name": "Shem",
+            "spouses": ["33"]
+        },
+        "30": {
+            "passages": ["Genesis 5:32", "Genesis 6-9"],
+            "father": "28",
+            "gender": "CharacterGender.MALE",
+            "name": "Ham",
+            "spouses": ["34"]
+        },
+        "31": {
+            "passages": ["Genesis 5:32", "Genesis 6-9"],
+            "father": "28",
+            "gender": "CharacterGender.MALE",
+            "name": "Japheth",
+            "spouses": ["35"]
+        },
+        "32": {
+            "passages": ["Genesis 6-9"],
+            "gender": "CharacterGender.FEMALE",
+            "name": "(Noah's Wife)",
+            "spouses": ["28"]
+        },
+        "33": {
+            "passages": ["Genesis 6-9"],
+            "gender": "CharacterGender.FEMALE",
+            "name": "(Shem's Wife)",
+            "spouses": ["29"]
+        },
+        "34": {
+            "passages": ["Genesis 6-9"],
+            "gender": "CharacterGender.FEMALE",
+            "name": "(Ham's Wife)",
+            "spouses": ["30"]
+        },
+        "35": {
+            "passages": ["Genesis 6-9"],
+            "gender": "CharacterGender.FEMALE",
+            "name": "(Japheth's Wife)",
+            "spouses": ["31"]
+        },
+        "36": {
+            "passages": ["Genesis 9:18-25"],
+            "father": "30",
+            "gender": "CharacterGender.MALE",
+            "name": "Canaan"
         }
     }
 }
