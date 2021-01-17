@@ -221,24 +221,28 @@ class Filterable:
 
 
 class FuzzyDict(dict):
+    _MISSING = object()
+
     def __init__(self, *args, **kwargs):
         self.ratio_threshold = kwargs.pop("ratio_threshold", 60)
         super().__init__(*args, **kwargs)
 
     def __getitem__(self, key):
-        matched, closest_key, closest_value, ratio = self.search(key)
+        matched, closest_key, value, closest_ratio = self.search(key)
         if not matched:
-            if closest_key is None:
+            if closest_key is self._MISSING:
                 raise KeyError(key)
-            raise KeyError(f"'{key}'. The closest match was {closest_key} but with a ratio ({ratio}) < the threshold ({self.ratio_threshold})")
-        return closest_value
+            raise KeyError(f"'{key}'. The closest match was {closest_key} but with a ratio ({closest_ratio}) < the threshold "
+                           f"({self.ratio_threshold})")
+        return value
 
     def search(self, key, return_first=False, ratio_threshold_override=None):
         if key in self:
             return (True, key, super().__getitem__(key), 1)
         if not isinstance(key, str):
             return (False, key, None, 0)
-        closest_key = None
+        matched = False
+        closest_key = self._MISSING
         closest_ratio = 0
         ratio_threshold = ratio_threshold_override or self.ratio_threshold
         for existing_key in self:
@@ -246,11 +250,12 @@ class FuzzyDict(dict):
                 continue
             ratio = fuzz.partial_ratio(key, existing_key)
             if ratio > closest_ratio:  # if it's the same, we will favour the one found first; deterministic as python dicts retain order from 3.7
+                matched = closest_ratio >= ratio_threshold
                 closest_ratio = ratio
                 closest_key = existing_key
-                if return_first and closest_ratio >= ratio_threshold:
+                if return_first and matched:
                     break
-        return (closest_ratio >= ratio_threshold, closest_key, self.get(closest_key), closest_ratio)
+        return (matched, closest_key, self.get(closest_key), closest_ratio)
 
 
 class Year(int):
