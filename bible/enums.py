@@ -13,8 +13,8 @@ class CharacterCauseOfDeath(enum.Enum):
 
 
 class CharacterNationality(enum.Enum):
-    EARTH = "Earth"
     EDEN = "Eden"
+    ENOCH = "Enoch"
 
 
 class CharacterPlaceOfDeath(enum.Enum):
