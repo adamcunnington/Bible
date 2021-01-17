@@ -14,7 +14,7 @@ import jsonmerge
 from bible import enums
 
 
-DEFAULT_THRESHOLD = 0.6
+DEFAULT_THRESHOLD = 70
 
 
 class Unknown:
@@ -272,10 +272,10 @@ class FuzzyDict(dict):
         for existing_key in self:
             ratio = safe_partial_ratio(key, existing_key)
             if ratio > closest_ratio:
-                matched = closest_ratio >= threshold
+                matched = ratio >= threshold
                 closest_ratio = ratio
                 closest_key = existing_key
-                if return_first and matched:
+                if matched and return_first:
                     break
         return (matched, closest_key, self.get(closest_key), closest_ratio)
 

@@ -146,7 +146,7 @@ class Chapter:
         try:
             return self._verses[key]
         except KeyError:
-            raise utils.BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
+            raise utils.BibleReferenceError(f"{key} is not a valid number between {str(self.first())} and {str(self.last())}")
 
     def __iter__(self):
         return utils.unique_value_iterating_dict(self._verses)
@@ -281,7 +281,7 @@ class Book:
         try:
             return self._chapters[key]
         except KeyError:
-            raise utils.BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
+            raise utils.BibleReferenceError(f"{key} is not a valid number between {str(self.first())} and {str(self.last())}")
 
     def __iter__(self):
         return utils.unique_value_iterating_dict(self._chapters)
@@ -438,7 +438,7 @@ class Translation:
         try:
             return self._books[utils.slugify(key)]
         except KeyError:
-            raise utils.BibleReferenceError(f"{key} is not between {str(self.first())} and {str(self.last())}")
+            raise utils.BibleReferenceError(f"{key} cannot be found")
 
     def __iter__(self):
         return utils.unique_value_iterating_dict(self._books)
