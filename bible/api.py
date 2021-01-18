@@ -630,7 +630,7 @@ class Passage:
 
 
 @dataclasses.dataclass(frozen=True)
-class Character:
+class Character(utils.FamilyTreeMixin):
     number: int
     translation: Translation
     passages: tuple[Passage]
@@ -655,7 +655,7 @@ class Character:
         self.translation._register_character(self)
 
     def __repr__(self):
-        return f"{utils.name(type(self))}(number={self.number}, name={self.name}, born={self.born})"
+        return f"{utils.name(type(self))}(number={self.number}, name={self.name}, gender={self.gender}, born={self.born})"
 
     @property
     def ancestors(self):

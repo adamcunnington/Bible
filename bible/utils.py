@@ -63,6 +63,14 @@ class _EnumDecoder(json.JSONDecoder):
             raise json.decoder.JSONDecodeError(f"{rest} is not a valid enumeration of {enum_class}", s, i)
 
 
+class FamilyTreeMixin:
+    def _lowest_common_ancestors(self, other):
+        pass
+
+    def relation(self, other):
+        pass
+
+
 class Filterable:
     def __init__(self, iterable, dataclass=None, field=None):
         self._iterable = iterable
