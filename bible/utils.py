@@ -114,7 +114,7 @@ class FamilyTreeMixin:
         other_ancestors = {other: (*ancestor_set(**{other.gender.lower(): other}), generation_count)}
         my_next_ancestor_sets = [ancestor_set(male=self.father, female=self.mother)] if self.parents else []
         other_next_ancestor_sets = [ancestor_set(male=other.father, female=other.mother)] if other.parents else []
-        while my_next_ancestor_sets or other_next_ancestor_sets:  # infinite loop; need to check for non-unknown
+        while my_next_ancestor_sets or other_next_ancestor_sets:
             generation_count += 1
             for ancestors, next_ancestor_sets in ((my_ancestors, my_next_ancestor_sets), (other_ancestors, other_next_ancestor_sets)):
                 for male, female in next_ancestor_sets:
@@ -178,6 +178,8 @@ class FamilyTreeMixin:
                         degrees_removed = {1: "once", 2: "twice", 3: "thrice"}.get(difference, f"{num2words.num2words(difference)} times")
                         suffix = f" {degrees_removed} removed ({'later' if my_distance > other_distance else 'earlier'} generation)"
                     relation_type = {self.RELATION_TYPES[(2, 2, other.gender)].lower().replace(self.FIRST_PREFIX, prefix)} + suffix
+            if is_half:
+                relation_type = f"Half {relation_type}"
             connection["type"] = relation_type
             connection["lowest_common_ancestors"] = lowest_common_ancestor_set
             relatedness_component = 0.5 ** (my_distance + other_distance)
