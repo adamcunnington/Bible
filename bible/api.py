@@ -14,7 +14,7 @@ class _Characters(utils.Filterable):
     def __getitem__(self, key):
         character = (self.number == key).one()
         if character is None:
-            highest_ratio = utils.DEFAULT_THRESHOLD
+            highest_ratio = utils.DEFAULT_THRESHOLD - 1
             most_verses = 0
             for potential_character in self:
                 ratio = utils.safe_partial_ratio(key, potential_character.name)
@@ -647,7 +647,7 @@ class Character(utils.FamilyTreeMixin):
     nationality: typing.Union[utils.Unknown, str] = utils.UNKNOWN
     place_of_death: typing.Union[utils.Unknown, str] = utils.UNKNOWN
     primary_occupation: typing.Union[utils.Unknown, str] = utils.UNKNOWN
-    _children: list = dataclasses.field(default_factory=list)
+    _children: list = dataclasses.field(default_factory=list, hash=False)
 
     def __post_init__(self):
         for parent in self.parents:
