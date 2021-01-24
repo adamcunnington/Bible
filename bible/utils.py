@@ -102,7 +102,7 @@ class FamilyTreeMixin:
 
     @staticmethod
     def _format_relatedness(lower, upper):
-        return f"{lower:.2%}" + (f"-{upper:.2%}" if upper != lower else "")
+        return f"{lower:.3%}" + (f"-{upper:.3%}" if upper != lower else "")
 
     def _lowest_common_ancestors(self, other):
         IRRELEVANT = object()
@@ -110,25 +110,27 @@ class FamilyTreeMixin:
         lowest_common_ancestors = []
         distances = [0, 0]  # [my_distance, other_distance]
         generation_count = 0
-        my_ancestors = {self: (*ancestor_set(**{self.gender.lower(): self}), generation_count)}
-        other_ancestors = {other: (*ancestor_set(**{other.gender.lower(): other}), generation_count)}
+        my_ancestors = {self: iter([(*ancestor_set(**{self.gender.lower(): self}), generation_count)])}
+        other_ancestors = {other: iter([(*ancestor_set(**{other.gender.lower(): other}), generation_count)])}
         my_next_ancestor_sets = [ancestor_set(male=self.father, female=self.mother)] if self.parents else []
         other_next_ancestor_sets = [ancestor_set(male=other.father, female=other.mother)] if other.parents else []
+        default_ancestor_data = [(None, None, None)]
         while my_next_ancestor_sets or other_next_ancestor_sets:
             generation_count += 1
             for ancestors, next_ancestor_sets in ((my_ancestors, my_next_ancestor_sets), (other_ancestors, other_next_ancestor_sets)):
                 for male, female in next_ancestor_sets:
-                    # don't override existing in case of Lot (Genesis 19:30–). This needs to change - need to use next(iter()) instead
+                    ancestor_data = [(male, female, generation_count)]
                     if male and male not in ancestors:
-                        ancestors[male] = (male, female, generation_count)
+                        ancestors[male] = iter(list(ancestors.get(male, ())) + ancestor_data)
                     if female and female not in ancestors:
-                        ancestors[female] = (male, female, generation_count)
+                        ancestors[female] = iter(list(ancestors.get(female, ())) + ancestor_data)
             for opposite_ancestors, next_ancestor_sets, distance_index, opposite_distance_index in ((other_ancestors, my_next_ancestor_sets, 0, 1),
                                                                                                     (my_ancestors, other_next_ancestor_sets, 1, 0)):
                 found = False
                 for index, next_ancestors in enumerate(next_ancestor_sets):
                     male, female = next_ancestors
-                    *opposite_next_ancestors, opposite_distance = opposite_ancestors.get(male, opposite_ancestors.get(female, (None, None, None)))
+                    *opposite_next_ancestors, opposite_distance = next(opposite_ancestors.get(male, opposite_ancestors.get(female,
+                                                                       iter(default_ancestor_data))))
                     opposite_male, opposite_female = opposite_next_ancestors
                     if opposite_distance is None:
                         continue
