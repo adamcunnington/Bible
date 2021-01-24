@@ -118,36 +118,40 @@ class FamilyTreeMixin:
             generation_count += 1
             for ancestors, next_ancestor_sets in ((my_ancestors, my_next_ancestor_sets), (other_ancestors, other_next_ancestor_sets)):
                 for male, female in next_ancestor_sets:
-                    # don't override existing in case of Lot (Genesis 19:30–). This needs to change
+                    # don't override existing in case of Lot (Genesis 19:30–). This needs to change - need to use next(iter()) instead
                     if male and male not in ancestors:
                         ancestors[male] = (male, female, generation_count)
                     if female and female not in ancestors:
                         ancestors[female] = (male, female, generation_count)
             for opposite_ancestors, next_ancestor_sets, distance_index, opposite_distance_index in ((other_ancestors, my_next_ancestor_sets, 0, 1),
                                                                                                     (my_ancestors, other_next_ancestor_sets, 1, 0)):
-                for next_ancestors in next_ancestor_sets:
+                found = False
+                for index, next_ancestors in enumerate(next_ancestor_sets):
                     male, female = next_ancestors
                     *opposite_next_ancestors, opposite_distance = opposite_ancestors.get(male, opposite_ancestors.get(female, (None, None, None)))
+                    opposite_male, opposite_female = opposite_next_ancestors
                     if opposite_distance is None:
                         continue
+                    found = True
+                    common_male = male is opposite_male
+                    common_female = female is opposite_female
                     common_ancestors = set(next_ancestors).intersection(opposite_next_ancestors)
                     distances[distance_index] = generation_count
                     distances[opposite_distance_index] = opposite_distance
-                    if len(common_ancestors) == 2 or IRRELEVANT in opposite_next_ancestors:
+                    if (common_male and common_female) or IRRELEVANT in opposite_next_ancestors:
                         is_half = False
                     elif UNKNOWN in next_ancestors or UNKNOWN in opposite_next_ancestors:
                         is_half = UNKNOWN
                     else:
                         is_half = True
                     lowest_common_ancestors.append((list(common_ancestors), is_half, *distances))
-                if lowest_common_ancestors:
-                    # remove this but need to change above for loop so we only look for the same ancestors
-                    my_next_ancestor_sets = other_next_ancestor_sets = None
+                    # Stop traversing family tree for found common ancestors by updating ancestor set
+                    next_ancestor_sets[index] = ancestor_set(male=None if common_male else male, female=None if common_female else female)
+                if found:  # If we have matched from one side, we don't need to look on the other side
                     break
-            else:
-                for next_ancestor_sets in (my_next_ancestor_sets, other_next_ancestor_sets):
-                    next_ancestor_sets[:] = [ancestor_set(next_ancestor.father, next_ancestor.mother)
-                                             for next_ancestor in itertools.chain(*next_ancestor_sets) if next_ancestor and next_ancestor.parents]
+            for next_ancestor_sets in (my_next_ancestor_sets, other_next_ancestor_sets):
+                next_ancestor_sets[:] = [ancestor_set(next_ancestor.father, next_ancestor.mother)
+                                         for next_ancestor in itertools.chain(*next_ancestor_sets) if next_ancestor and next_ancestor.parents]
         return lowest_common_ancestors
 
     def relation(self, other):
