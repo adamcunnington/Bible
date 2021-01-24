@@ -66,6 +66,7 @@ class _EnumDecoder(json.JSONDecoder):
 
 
 class FamilyTreeMixin:
+    _IRRELEVANT = object()
     FIRST_PREFIX = "(First)"
     RELATION_TYPES = {  # (my_distance, other_distance, gender)
         (1, 1, enums.CharacterGender.MALE.value): "Brother",
@@ -99,60 +100,67 @@ class FamilyTreeMixin:
         (2, 2, enums.CharacterGender.FEMALE.value): f"{FIRST_PREFIX} Cousin (Female)",
         (2, 2, UNKNOWN): f"{FIRST_PREFIX} Cousin"
     }
+    _ancestor_set = collections.namedtuple("AncestorSet", ("male", "female"), defaults=(_IRRELEVANT, _IRRELEVANT))
+
+    @staticmethod
+    def _add_next_ancestors(my_ancestors, my_next_ancestor_sets, other_ancestors, other_next_ancestor_sets, gen):
+        for ancestors, next_ancestor_sets in ((my_ancestors, my_next_ancestor_sets), (other_ancestors, other_next_ancestor_sets)):
+            for male, female in next_ancestor_sets:
+                ancestor_data = [(male, female, gen)]
+                if male:
+                    ancestors[male] = iter(list(ancestors.get(male, ())) + ancestor_data)
+                if female:
+                    ancestors[female] = iter(list(ancestors.get(female, ())) + ancestor_data)
 
     @staticmethod
     def _format_relatedness(lower, upper):
-        return f"{lower:.3%}" + (f"-{upper:.3%}" if upper != lower else "")
+        return f"{lower:.2%}" + (f"-{upper:.2%}" if upper != lower else "")
+
+    @classmethod
+    def _process_next_ancestors(cls, lowest_common_ancestors, my_ancestors, my_next_ancestor_sets, other_ancestors, other_next_ancestor_sets, gen):
+        default_value = [(None, None, None)]
+        for opposite_ancestors, next_ancestor_sets, distance_index, opposite_distance_index in ((other_ancestors, my_next_ancestor_sets, 0, 1),
+                                                                                                (my_ancestors, other_next_ancestor_sets, 1, 0)):
+            found = False
+            for index, next_ancestors in enumerate(next_ancestor_sets):
+                distances = [0, 0]  # [my_distance, other_distance]
+                male, female = next_ancestors
+                *opposite_next_ancestors, opposite_distance = next(opposite_ancestors.get(male, opposite_ancestors.get(female, iter(default_value))))
+                opposite_male, opposite_female = opposite_next_ancestors
+                if opposite_distance is None:
+                    continue
+                found = True
+                common_male = male and male is opposite_male
+                common_female = female and female is opposite_female
+                common_ancestors = set(filter(None, next_ancestors)).intersection(opposite_next_ancestors)
+                distances[distance_index] = gen
+                distances[opposite_distance_index] = opposite_distance
+                if (common_male and common_female) or cls._IRRELEVANT in opposite_next_ancestors:
+                    is_half = False
+                elif UNKNOWN in next_ancestors or UNKNOWN in opposite_next_ancestors:
+                    is_half = UNKNOWN
+                else:
+                    is_half = True
+                lowest_common_ancestors.append((list(common_ancestors), is_half, *distances))
+                # Stop traversing family tree for found common ancestors by updating ancestor set
+                next_ancestor_sets[index] = cls._ancestor_set(male=None if common_male else male, female=None if common_female else female)
+            if found:
+                # If we have matched from one side, we don't need to look on the other side
+                return
 
     def _lowest_common_ancestors(self, other):
-        IRRELEVANT = object()
-        ancestor_set = collections.namedtuple("AncestorSet", ("male", "female"), defaults=(IRRELEVANT, IRRELEVANT))
         lowest_common_ancestors = []
-        distances = [0, 0]  # [my_distance, other_distance]
-        generation_count = 0
-        my_ancestors = {self: iter([(*ancestor_set(**{self.gender.lower(): self}), generation_count)])}
-        other_ancestors = {other: iter([(*ancestor_set(**{other.gender.lower(): other}), generation_count)])}
-        my_next_ancestor_sets = [ancestor_set(male=self.father, female=self.mother)] if self.parents else []
-        other_next_ancestor_sets = [ancestor_set(male=other.father, female=other.mother)] if other.parents else []
-        default_ancestor_data = [(None, None, None)]
+        gen = 0
+        my_ancestors = {self: iter([(*self._ancestor_set(**{self.gender.lower(): self}), gen)])}
+        other_ancestors = {other: iter([(*self._ancestor_set(**{other.gender.lower(): other}), gen)])}
+        my_next_ancestor_sets = [self._ancestor_set(male=self.father, female=self.mother)] if self.parents else []
+        other_next_ancestor_sets = [self._ancestor_set(male=other.father, female=other.mother)] if other.parents else []
         while my_next_ancestor_sets or other_next_ancestor_sets:
-            generation_count += 1
-            for ancestors, next_ancestor_sets in ((my_ancestors, my_next_ancestor_sets), (other_ancestors, other_next_ancestor_sets)):
-                for male, female in next_ancestor_sets:
-                    ancestor_data = [(male, female, generation_count)]
-                    if male and male not in ancestors:
-                        ancestors[male] = iter(list(ancestors.get(male, ())) + ancestor_data)
-                    if female and female not in ancestors:
-                        ancestors[female] = iter(list(ancestors.get(female, ())) + ancestor_data)
-            for opposite_ancestors, next_ancestor_sets, distance_index, opposite_distance_index in ((other_ancestors, my_next_ancestor_sets, 0, 1),
-                                                                                                    (my_ancestors, other_next_ancestor_sets, 1, 0)):
-                found = False
-                for index, next_ancestors in enumerate(next_ancestor_sets):
-                    male, female = next_ancestors
-                    *opposite_next_ancestors, opposite_distance = next(opposite_ancestors.get(male, opposite_ancestors.get(female,
-                                                                       iter(default_ancestor_data))))
-                    opposite_male, opposite_female = opposite_next_ancestors
-                    if opposite_distance is None:
-                        continue
-                    found = True
-                    common_male = male is opposite_male
-                    common_female = female is opposite_female
-                    common_ancestors = set(next_ancestors).intersection(opposite_next_ancestors)
-                    distances[distance_index] = generation_count
-                    distances[opposite_distance_index] = opposite_distance
-                    if (common_male and common_female) or IRRELEVANT in opposite_next_ancestors:
-                        is_half = False
-                    elif UNKNOWN in next_ancestors or UNKNOWN in opposite_next_ancestors:
-                        is_half = UNKNOWN
-                    else:
-                        is_half = True
-                    lowest_common_ancestors.append((list(common_ancestors), is_half, *distances))
-                    # Stop traversing family tree for found common ancestors by updating ancestor set
-                    next_ancestor_sets[index] = ancestor_set(male=None if common_male else male, female=None if common_female else female)
-                if found:  # If we have matched from one side, we don't need to look on the other side
-                    break
+            gen += 1
+            self._add_next_ancestors(my_ancestors, my_next_ancestor_sets, other_ancestors, other_next_ancestor_sets, gen)
+            self._process_next_ancestors(lowest_common_ancestors, my_ancestors, my_next_ancestor_sets, other_ancestors, other_next_ancestor_sets, gen)
             for next_ancestor_sets in (my_next_ancestor_sets, other_next_ancestor_sets):
-                next_ancestor_sets[:] = [ancestor_set(next_ancestor.father, next_ancestor.mother)
+                next_ancestor_sets[:] = [self._ancestor_set(next_ancestor.father, next_ancestor.mother)
                                          for next_ancestor in itertools.chain(*next_ancestor_sets) if next_ancestor and next_ancestor.parents]
         return lowest_common_ancestors
 
