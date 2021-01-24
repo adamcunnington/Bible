@@ -16,7 +16,7 @@ import num2words
 from bible import enums
 
 
-DEFAULT_THRESHOLD = 67
+DEFAULT_THRESHOLD = 60
 
 
 class Unknown:
@@ -289,7 +289,7 @@ class Filterable:
         for i in self:
             field_value = self._getattr(i, self._field)
             for value in values:
-                if safe_partial_ratio(field_value, value) >= threshold:
+                if safe_ratio(field_value, value) >= threshold:
                     yield i
                     break
 
@@ -297,7 +297,7 @@ class Filterable:
         for i in self:
             field_value = self._getattr(i, self._field)
             for value in values:
-                if safe_partial_ratio(field_value, value) >= threshold:
+                if safe_ratio(field_value, value) >= threshold:
                     break
             else:
                 yield i
@@ -405,7 +405,7 @@ class FuzzyDict(dict):
         closest_ratio = 0
         threshold = threshold or self.threshold
         for existing_key in self:
-            ratio = safe_partial_ratio(key, existing_key)
+            ratio = safe_ratio(key, existing_key)
             if ratio > closest_ratio:
                 matched = ratio >= threshold
                 closest_ratio = ratio
@@ -507,10 +507,10 @@ def safe_int(value):
     return int(str_value) if str_value.isdigit() else value
 
 
-def safe_partial_ratio(s1, s2):
+def safe_ratio(s1, s2):
     ratio = 0
     try:
-        ratio = fuzz.partial_ratio(s1, s2)
+        ratio = fuzz.ratio(s1, s2)
     except TypeError:
         pass
     return ratio

@@ -17,7 +17,7 @@ class _Characters(utils.Filterable):
             highest_ratio = utils.DEFAULT_THRESHOLD - 1
             most_verses = 0
             for potential_character in self:
-                ratio = utils.safe_partial_ratio(key, potential_character.name)
+                ratio = utils.safe_ratio(key, potential_character.name)
                 if ratio < highest_ratio:
                     continue
                 total_verses = sum(map(len, potential_character.passages))
@@ -666,6 +666,10 @@ class Character(utils.FamilyTreeMixin):
             next_ancestors.extend(next_ancestor.parents)
 
     @property
+    def brothers(self):
+        return tuple(sibling for sibling in self.siblings if sibling.gender == enums.CharacterGender.MALE.value)
+
+    @property
     def children(self):
         return tuple(self._children)
 
@@ -686,6 +690,10 @@ class Character(utils.FamilyTreeMixin):
         return self.gender == enums.CharacterGender.FEMALE.value
 
     @property
+    def husbands(self):
+        return tuple(spouse for spouse in self.spouses if spouse.gender == enums.CharacterGender.MALE.value)
+
+    @property
     def male(self):
         return self.gender == enums.CharacterGender.MALE.value
 
@@ -702,9 +710,21 @@ class Character(utils.FamilyTreeMixin):
         return tuple(filter(None, (self.mother, self.father)))
 
     @property
+    def siblings(self):
+        return tuple(set(child for parent in self.parents for child in parent.children if child is not self))
+
+    @property
+    def sisters(self):
+        return tuple(sibling for sibling in self.siblings if sibling.gender == enums.CharacterGender.FEMALE.value)
+
+    @property
     def sons(self):
         return tuple(child for child in self.children if child.male)
 
     @property
     def spouses(self):
         return tuple(self.translation._characters[spouse] for spouse in self._spouses)
+
+    @property
+    def wives(self):
+        return tuple(spouse for spouse in self.spouses if spouse.gender == enums.CharacterGender.FEMALE.value)
