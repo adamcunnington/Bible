@@ -198,7 +198,6 @@ class FamilyTreeMixin:
         blood_relations["total_relatedness"] = self._format_relatedness(total_relatedness_lower, total_relatedness_upper)
         return relations_data
         # identical twins
-        # incestuous ancestry (ancest appears twice)
         # add in maternal/paternal
         # in-law - also, don't forget special case of wife!
         # step
