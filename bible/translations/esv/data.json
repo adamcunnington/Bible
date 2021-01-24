@@ -36380,7 +36380,7 @@
             "name": "Lamech"
         },
         "28": {
-            "passages": ["Genesis 5:29", "Genesis 6-9", "Genesis 10:1"],
+            "passages": ["Genesis 5:29", "Genesis 6-9", "Genesis 10"],
             "age": 950,
             "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
             "father": "27",
@@ -36389,7 +36389,8 @@
             "spouses": ["32"]
         },
         "29": {
-            "passages": ["Genesis 5:32", "Genesis 6-9"],
+            "passages": ["Genesis 5:32", "Genesis 6-10"],
+            "age": 600,
             "father": "28",
             "gender": "CharacterGender.MALE",
             "mother": "32",
@@ -36397,7 +36398,7 @@
             "spouses": ["33"]
         },
         "30": {
-            "passages": ["Genesis 5:32", "Genesis 6-9"],
+            "passages": ["Genesis 5:32", "Genesis 6-10"],
             "father": "28",
             "gender": "CharacterGender.MALE",
             "mother": "32",
@@ -36405,7 +36406,7 @@
             "spouses": ["34"]
         },
         "31": {
-            "passages": ["Genesis 5:32", "Genesis 6-9"],
+            "passages": ["Genesis 5:32", "Genesis 6-10"],
             "father": "28",
             "gender": "CharacterGender.MALE",
             "mother": "32",
@@ -36437,7 +36438,7 @@
             "spouses": ["31"]
         },
         "36": {
-            "passages": ["Genesis 9:18-25"],
+            "passages": ["Genesis 9:18-25", "Genesis 10"],
             "father": "30",
             "gender": "CharacterGender.MALE",
             "mother": "34",
@@ -36445,7 +36446,7 @@
             "nationality": "CharacterNationality.CANAAN"
         },
         "37": {
-            "passages": ["Genesis 10:2-"],
+            "passages": ["Genesis 10"],
             "father": "31",
             "gender": "CharacterGender.MALE",
             "mother": "35",
@@ -36453,7 +36454,7 @@
             "nationality": "CharacterNationality.GOMER"
         },
         "38": {
-            "passages": ["Genesis 10:2-"],
+            "passages": ["Genesis 10"],
             "father": "31",
             "gender": "CharacterGender.MALE",
             "mother": "35",
@@ -36699,7 +36700,7 @@
             "nationality": "CharacterNationality.Heth"
         },
         "71": {
-            "passages": ["Gensis 10:22-"],
+            "passages": ["Genesis 10:22-"],
             "father": "29",
             "gender": "CharacterGender.MALE",
             "mother": "33",
@@ -36707,7 +36708,7 @@
             "nationality": "CharacterNationality.Elam"
         },
         "72": {
-            "passages": ["Gensis 10:22-"],
+            "passages": ["Genesis 10:22-"],
             "father": "29",
             "gender": "CharacterGender.MALE",
             "mother": "33",
@@ -36715,7 +36716,8 @@
             "nationality": "CharacterNationality.Asshur"
         },
         "73": {
-            "passages": ["Gensis 10:22-"],
+            "passages": ["Genesis 10:22-"],
+            "age": 438,
             "father": "29",
             "gender": "CharacterGender.MALE",
             "mother": "33",
@@ -36723,7 +36725,7 @@
             "nationality": "CharacterNationality.Arpachshad"
         },
         "74": {
-            "passages": ["Gensis 10:22-"],
+            "passages": ["Genesis 10:22-"],
             "father": "29",
             "gender": "CharacterGender.MALE",
             "mother": "33",
@@ -36731,7 +36733,7 @@
             "nationality": "CharacterNationality.Lud"
         },
         "75": {
-            "passages": ["Gensis 10:22-"],
+            "passages": ["Genesis 10:22-"],
             "father": "29",
             "gender": "CharacterGender.MALE",
             "mother": "33",
@@ -36739,151 +36741,237 @@
             "nationality": "CharacterNationality.Aram"
         },
         "76": {
-            "passages": ["Gensis 10:23-"],
+            "passages": ["Genesis 10:23-"],
             "father": "75",
             "gender": "CharacterGender.MALE",
             "name": "Uz",
             "nationality": "CharacterNationality.Uz"
         },
         "77": {
-            "passages": ["Gensis 10:23-"],
+            "passages": ["Genesis 10:23-"],
             "father": "75",
             "gender": "CharacterGender.MALE",
             "name": "Hul",
             "nationality": "CharacterNationality.Hul"
         },
         "78": {
-            "passages": ["Gensis 10:23-"],
+            "passages": ["Genesis 10:23-"],
             "father": "75",
             "gender": "CharacterGender.MALE",
             "name": "Gether",
             "nationality": "CharacterNationality.Gether"
         },
         "79": {
-            "passages": ["Gensis 10:23-"],
+            "passages": ["Genesis 10:23-"],
             "father": "75",
             "gender": "CharacterGender.MALE",
             "name": "Mash",
             "nationality": "CharacterNationality.Mash"
         },
         "80": {
-            "passages": ["Gensis 10:24-"],
+            "passages": ["Genesis 10:24-"],
+            "age": 433,
             "father": "73",
             "gender": "CharacterGender.MALE",
             "name": "Shelah",
             "nationality": "CharacterNationality.Shelah"
         },
         "81": {
-            "passages": ["Gensis 10:24-"],
+            "passages": ["Genesis 10:24-"],
+            "age": 464,
             "father": "80",
             "gender": "CharacterGender.MALE",
             "name": "Eber",
             "nationality": "CharacterNationality.Eber"
         },
         "82": {
-            "passages": ["Gensis 10:25-"],
+            "passages": ["Genesis 10:25-"],
+            "age": 239,
             "father": "81",
             "gender": "CharacterGender.MALE",
             "name": "Peleg",
             "nationality": "CharacterNationality.Peleg"
         },
         "83": {
-            "passages": ["Gensis 10:25-"],
+            "passages": ["Genesis 10:25-"],
             "father": "81",
             "gender": "CharacterGender.MALE",
             "name": "Joktan",
             "nationality": "CharacterNationality.Joktan"
         },
         "84": {
-            "passages": ["Gensis 10:26-"],
+            "passages": ["Genesis 10:26-"],
             "father": "83",
             "gender": "CharacterGender.MALE",
             "name": "Almodad",
             "nationality": "CharacterNationality.Almodad"
         },
         "85": {
-            "passages": ["Gensis 10:26-"],
+            "passages": ["Genesis 10:26-"],
             "father": "83",
             "gender": "CharacterGender.MALE",
             "name": "Sheleph",
             "nationality": "CharacterNationality.Sheleph"
         },
         "86": {
-            "passages": ["Gensis 10:26-"],
+            "passages": ["Genesis 10:26-"],
             "father": "83",
             "gender": "CharacterGender.MALE",
             "name": "Hazarmaveth",
             "nationality": "CharacterNationality.Hazarmaveth"
         },
         "87": {
-            "passages": ["Gensis 10:26-"],
+            "passages": ["Genesis 10:26-"],
             "father": "83",
             "gender": "CharacterGender.MALE",
             "name": "Jerah",
             "nationality": "CharacterNationality.Jerah"
         },
         "88": {
-            "passages": ["Gensis 10:27-"],
+            "passages": ["Genesis 10:27-"],
             "father": "83",
             "gender": "CharacterGender.MALE",
             "name": "Hadoram",
             "nationality": "CharacterNationality.Hadoram"
         },
         "89": {
-            "passages": ["Gensis 10:27-"],
+            "passages": ["Genesis 10:27-"],
             "father": "83",
             "gender": "CharacterGender.MALE",
             "name": "Uzal",
             "nationality": "CharacterNationality.Uzal"
         },
         "90": {
-            "passages": ["Gensis 10:27-"],
+            "passages": ["Genesis 10:27-"],
             "father": "83",
             "gender": "CharacterGender.MALE",
             "name": "Diklah",
             "nationality": "CharacterNationality.Diklah"
         },
         "91": {
-            "passages": ["Gensis 10:28-"],
+            "passages": ["Genesis 10:28-"],
             "father": "83",
             "gender": "CharacterGender.MALE",
             "name": "Obal",
             "nationality": "CharacterNationality.Obal"
         },
         "92": {
-            "passages": ["Gensis 10:28-"],
+            "passages": ["Genesis 10:28-"],
             "father": "83",
             "gender": "CharacterGender.MALE",
             "name": "Abimael",
             "nationality": "CharacterNationality.Abimael"
         },
         "93": {
-            "passages": ["Gensis 10:28-"],
+            "passages": ["Genesis 10:28-"],
             "father": "83",
             "gender": "CharacterGender.MALE",
             "name": "Sheba",
             "nationality": "CharacterNationality.Sheba"
         },
         "94": {
-            "passages": ["Gensis 10:29-"],
+            "passages": ["Genesis 10:29-"],
             "father": "83",
             "gender": "CharacterGender.MALE",
             "name": "Ophir",
             "nationality": "CharacterNationality.Ophir"
         },
         "95": {
-            "passages": ["Gensis 10:29-"],
+            "passages": ["Genesis 10:29-"],
             "father": "83",
             "gender": "CharacterGender.MALE",
             "name": "Havilah",
             "nationality": "CharacterNationality.Havilah"
         },
         "96": {
-            "passages": ["Gensis 10:29-"],
+            "passages": ["Genesis 10:29-"],
             "father": "83",
             "gender": "CharacterGender.MALE",
             "name": "Jobab",
             "nationality": "CharacterNationality.Jobab"
+        },
+        "97": {
+            "passages": ["Genesis 11:18-21"],
+            "age": 239,
+            "father": "82",
+            "gender": "CharacterGender.MALE",
+            "name": "Reu"
+        },
+        "98": {
+            "passages": ["Genesis 11:20-23"],
+            "age": 230,
+            "father": "97",
+            "gender": "CharacterGender.MALE",
+            "name": "Serug"
+        },
+        "99": {
+            "passages": ["Genesis 11:22-25"],
+            "age": 148,
+            "father": "98",
+            "gender": "CharacterGender.MALE",
+            "name": "Nahor"
+        },
+        "100": {
+            "passages": ["Genesis 11:24-"],
+            "age": 205,
+            "father": "99",
+            "gender": "CharacterGender.MALE",
+            "name": "Terah",
+            "nationality": "CharacterNationality.UR"
+        },
+        "101": {
+            "passages": ["Genesis 11:26-"],
+            "aliases": ["Abraham"],
+            "father": "100",
+            "gender": "CharacterGender.MALE",
+            "name": "Abram",
+            "nationality": "CharacterNationality.UR",
+            "spouses": ["105"]
+        },
+        "102": {
+            "passages": ["Genesis 11:26-29"],
+            "father": "100",
+            "gender": "CharacterGender.MALE",
+            "name": "Nahor",
+            "nationality": "CharacterNationality.UR",
+            "spouses": ["106"]
+        },
+        "103": {
+            "passages": ["Genesis 11:26-28"],
+            "father": "100",
+            "gender": "CharacterGender.MALE",
+            "name": "Haran",
+            "nationality": "CharacterNationality.UR"
+        },
+        "104": {
+            "passages": ["Genesis 11:27-"],
+            "father": "103",
+            "gender": "CharacterGender.MALE",
+            "name": "Lot",
+            "nationality": "CharacterNationality.UR"
+        },
+        "105": {
+            "passages": ["Genesis 11:29-"],
+            "aliases": ["Sarah"],
+            "gender": "CharacterGender.FEMALE",
+            "name": "Sarai",
+            "nationality": "CharacterNationality.UR",
+            "spouses": ["101"]
+        },
+        "106": {
+            "passages": ["Genesis 11:29"],
+            "father": "103",
+            "gender": "CharacterGender.FEMALE",
+            "name": "Milcah",
+            "nationality": "CharacterNationality.UR",
+            "spouses": ["102"]
+        },
+        "107": {
+            "passages": ["Genesis 11:29"],
+            "father": "103",
+            "gender": "CharacterGender.FEMALE",
+            "name": "Iscah",
+            "nationality": "CharacterNationality.UR"
         }
     }
 }

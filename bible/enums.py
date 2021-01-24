@@ -76,6 +76,7 @@ class CharacterNationality(enum.Enum):
     OPHIR = "Ophir"
     HAVILAH_SHEM = "Havilah (Shem)"
     JOBAB = "Jobab"
+    UR = "Ur"
 
 
 class CharacterPlaceOfDeath(enum.Enum):
