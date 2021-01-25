@@ -173,7 +173,7 @@ class FamilyTreeMixin:
                                          if next_ancestor and next_ancestor.parents]
         return lowest_common_ancestors  # [[common_ancestors], is_half, is_maternal_relation, my_distance, other_distance]
 
-    def relation(self, other):
+    def relation(self, other):  # Doesn't support identical twins
         connection_template = {"type": None, "relatedness": None, "lowest_common_ancestors": None}
         connections = []
         blood_relations = {"connections": connections, "total_relatedness": None}
@@ -215,7 +215,6 @@ class FamilyTreeMixin:
             connections.append(connection)
         blood_relations["total_relatedness"] = self._format_relatedness(total_relatedness_lower, total_relatedness_upper)
         return relations_data
-        # identical twins
         # in-law - also, don't forget special case of wife!
         # step
 
