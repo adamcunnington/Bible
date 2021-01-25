@@ -68,45 +68,46 @@ class _EnumDecoder(json.JSONDecoder):
 class FamilyTreeMixin:
     _IRRELEVANT = object()
     FIRST_PREFIX = "(First)"
-    RELATION_TYPES = {  # (my_distance, other_distance, gender)
-        (1, 1, enums.CharacterGender.MALE.value): "Brother",
-        (1, 1, enums.CharacterGender.FEMALE.value): "Sister",
-        (1, 1, UNKNOWN): "Sibling",
-        (1, 0, enums.CharacterGender.MALE.value): "Father",
-        (1, 0, enums.CharacterGender.FEMALE.value): "Mother",
-        (1, 0, UNKNOWN): "Parent",
-        (2, 0, enums.CharacterGender.MALE.value): "Grandfather",
-        (2, 0, enums.CharacterGender.FEMALE.value): "Grandmother",
-        (2, 0, UNKNOWN): "Grandparent",
-        (0, 1, enums.CharacterGender.MALE.value): "Son",
-        (0, 1, enums.CharacterGender.FEMALE.value): "Daughter",
-        (0, 1, UNKNOWN): "Child",
-        (0, 2, enums.CharacterGender.MALE.value): "Grandson",
-        (0, 2, enums.CharacterGender.FEMALE.value): "Granddaughter",
-        (0, 2, UNKNOWN): "Grandchild",
-        (2, 1, enums.CharacterGender.MALE.value): "Uncle",
-        (2, 1, enums.CharacterGender.FEMALE.value): "Aunt",
-        (2, 1, UNKNOWN): "Uncle/Aunt",
-        (3, 1, enums.CharacterGender.MALE.value): "Granduncle",
-        (3, 1, enums.CharacterGender.FEMALE.value): "Grandaunt",
-        (3, 1, UNKNOWN): "Granduncle/Grandaunt",
-        (1, 2, enums.CharacterGender.MALE.value): "Nephew",
-        (1, 2, enums.CharacterGender.FEMALE.value): "Niece",
-        (1, 2, UNKNOWN): "Nephew/Niece",
-        (1, 3, enums.CharacterGender.MALE.value): "Grandnephew",
-        (1, 3, enums.CharacterGender.FEMALE.value): "Grandniece",
-        (1, 3, UNKNOWN): "Grandnephew/Grandniece",
-        (2, 2, enums.CharacterGender.MALE.value): f"{FIRST_PREFIX} Cousin (Male)",
-        (2, 2, enums.CharacterGender.FEMALE.value): f"{FIRST_PREFIX} Cousin (Female)",
-        (2, 2, UNKNOWN): f"{FIRST_PREFIX} Cousin"
+    RELATION_TYPES = {  # (my_distance, other_distance, gender): (relation_type, is_maternal_relevant)
+        (1, 1, enums.CharacterGender.MALE.value): ("Brother", False),
+        (1, 1, enums.CharacterGender.FEMALE.value): ("Sister", False),
+        (1, 1, UNKNOWN): ("Sibling", False),
+        (1, 0, enums.CharacterGender.MALE.value): ("Father", False),
+        (1, 0, enums.CharacterGender.FEMALE.value): ("Mother", False),
+        (1, 0, UNKNOWN): ("Parent", False),
+        (2, 0, enums.CharacterGender.MALE.value): ("Grandfather", True),
+        (2, 0, enums.CharacterGender.FEMALE.value): ("Grandmother", True),
+        (2, 0, UNKNOWN): ("Grandparent", True),
+        (0, 1, enums.CharacterGender.MALE.value): ("Son", False),
+        (0, 1, enums.CharacterGender.FEMALE.value): ("Daughter", False),
+        (0, 1, UNKNOWN): ("Child", False),
+        (0, 2, enums.CharacterGender.MALE.value): ("Grandson", False),
+        (0, 2, enums.CharacterGender.FEMALE.value): ("Granddaughter", False),
+        (0, 2, UNKNOWN): ("Grandchild", False),
+        (2, 1, enums.CharacterGender.MALE.value): ("Uncle", True),
+        (2, 1, enums.CharacterGender.FEMALE.value): ("Aunt", True),
+        (2, 1, UNKNOWN): ("Uncle/Aunt", True),
+        (3, 1, enums.CharacterGender.MALE.value): ("Granduncle", True),
+        (3, 1, enums.CharacterGender.FEMALE.value): ("Grandaunt", True),
+        (3, 1, UNKNOWN): ("Granduncle/Grandaunt", True),
+        (1, 2, enums.CharacterGender.MALE.value): ("Nephew", False),
+        (1, 2, enums.CharacterGender.FEMALE.value): ("Niece", False),
+        (1, 2, UNKNOWN): ("Nephew/Niece", False),
+        (1, 3, enums.CharacterGender.MALE.value): ("Grandnephew", False),
+        (1, 3, enums.CharacterGender.FEMALE.value): ("Grandniece", False),
+        (1, 3, UNKNOWN): ("Grandnephew/Grandniece", False),
+        (2, 2, enums.CharacterGender.MALE.value): (f"{FIRST_PREFIX} Cousin (Male)", True),
+        (2, 2, enums.CharacterGender.FEMALE.value): (f"{FIRST_PREFIX} Cousin (Female)", True),
+        (2, 2, UNKNOWN): (f"{FIRST_PREFIX} Cousin", True)
     }
     _ancestor_set = collections.namedtuple("AncestorSet", ("male", "female"), defaults=(_IRRELEVANT, _IRRELEVANT))
 
     @staticmethod
-    def _add_next_ancestors(my_ancestors, my_next_ancestor_sets, other_ancestors, other_next_ancestor_sets, gen):
-        for ancestors, next_ancestor_sets in ((my_ancestors, my_next_ancestor_sets), (other_ancestors, other_next_ancestor_sets)):
-            for male, female in next_ancestor_sets:
-                ancestor_data = [(male, female, gen)]
+    def _add_next_ancestors(my_ancestors, my_next_ancestors, other_ancestors, other_next_ancestors, gen):
+        for ancestors, next_ancestors in ((my_ancestors, my_next_ancestors), (other_ancestors, other_next_ancestors)):
+            for next_ancestor_set, is_maternal_relevant in next_ancestors:
+                male, female = next_ancestor_set
+                ancestor_data = [(next_ancestor_set, is_maternal_relevant, gen)]
                 if male:
                     ancestors[male] = iter(list(ancestors.get(male, ())) + ancestor_data)
                 if female:
@@ -117,33 +118,37 @@ class FamilyTreeMixin:
         return f"{lower:.2%}" + (f"-{upper:.2%}" if upper != lower else "")
 
     @classmethod
-    def _process_next_ancestors(cls, lowest_common_ancestors, my_ancestors, my_next_ancestor_sets, other_ancestors, other_next_ancestor_sets, gen):
-        default_value = [(None, None, None)]
-        for opposite_ancestors, next_ancestor_sets, distance_index, opposite_distance_index in ((other_ancestors, my_next_ancestor_sets, 0, 1),
-                                                                                                (my_ancestors, other_next_ancestor_sets, 1, 0)):
+    def _process_next_ancestors(cls, lowest_common_ancestors, my_ancestors, my_next_ancestors, other_ancestors, other_next_ancestors, gen):
+        default_value = [((None, None), None, None)]
+        for opposite_ancestors, next_ancestors, distance_index, opposite_distance_index in ((other_ancestors, my_next_ancestors, 0, 1),
+                                                                                                (my_ancestors, other_next_ancestors, 1, 0)):
             found = False
-            for index, next_ancestors in enumerate(next_ancestor_sets):
+            for index, (next_ancestor_set, is_maternal_relation) in enumerate(next_ancestors):
                 distances = [0, 0]  # [my_distance, other_distance]
-                male, female = next_ancestors
-                *opposite_next_ancestors, opposite_distance = next(opposite_ancestors.get(male, opposite_ancestors.get(female, iter(default_value))))
-                opposite_male, opposite_female = opposite_next_ancestors
+                male, female = next_ancestor_set
+                opposite_ancestor_details = opposite_ancestors.get(male, opposite_ancestors.get(female, iter(default_value)))
+                n = next(opposite_ancestor_details)
+                opposite_next_ancestor_set, opposite_is_maternal_relation, opposite_distance = n
+                opposite_male, opposite_female = opposite_next_ancestor_set
                 if opposite_distance is None:
                     continue
                 found = True
+                my_is_maternal_relation = is_maternal_relation if next_ancestors is my_next_ancestors else opposite_is_maternal_relation
                 common_male = male and male is opposite_male
                 common_female = female and female is opposite_female
-                common_ancestors = set(filter(None, next_ancestors)).intersection(opposite_next_ancestors)
+                common_ancestors = set(filter(None, next_ancestor_set)).intersection(opposite_next_ancestor_set)
                 distances[distance_index] = gen
                 distances[opposite_distance_index] = opposite_distance
-                if (common_male and common_female) or cls._IRRELEVANT in opposite_next_ancestors:
+                if (common_male and common_female) or cls._IRRELEVANT in opposite_next_ancestor_set:
                     is_half = False
-                elif UNKNOWN in next_ancestors or UNKNOWN in opposite_next_ancestors:
+                elif UNKNOWN in next_ancestor_set or UNKNOWN in opposite_next_ancestor_set:
                     is_half = UNKNOWN
                 else:
                     is_half = True
-                lowest_common_ancestors.append((list(common_ancestors), is_half, *distances))
+                lowest_common_ancestors.append((list(common_ancestors), is_half, my_is_maternal_relation, *distances))
                 # Stop traversing family tree for found common ancestors by updating ancestor set
-                next_ancestor_sets[index] = cls._ancestor_set(male=None if common_male else male, female=None if common_female else female)
+                next_ancestors[index] = (cls._ancestor_set(male=None if common_male else male, female=None if common_female else female),
+                                         is_maternal_relation)
             if found:
                 # If we have matched from one side, we don't need to look on the other side
                 return
@@ -151,18 +156,22 @@ class FamilyTreeMixin:
     def _lowest_common_ancestors(self, other):
         lowest_common_ancestors = []
         gen = 0
-        my_ancestors = {self: iter([(*self._ancestor_set(**{self.gender.lower(): self}), gen)])}
-        other_ancestors = {other: iter([(*self._ancestor_set(**{other.gender.lower(): other}), gen)])}
-        my_next_ancestor_sets = [self._ancestor_set(male=self.father, female=self.mother)] if self.parents else []
-        other_next_ancestor_sets = [self._ancestor_set(male=other.father, female=other.mother)] if other.parents else []
-        while my_next_ancestor_sets or other_next_ancestor_sets:
+        my_ancestors = {self: iter([(self._ancestor_set(**{self.gender.lower(): self}), self._IRRELEVANT, gen)])}
+        other_ancestors = {other: iter([(self._ancestor_set(**{other.gender.lower(): other}), self._IRRELEVANT, gen)])}
+        my_next_ancestors = [(self._ancestor_set(male=self.father, female=self.mother), self._IRRELEVANT)] if self.parents else []
+        other_next_ancestors = [(self._ancestor_set(male=other.father, female=other.mother), self._IRRELEVANT)] if other.parents else []
+        while my_next_ancestors or other_next_ancestors:
             gen += 1
-            self._add_next_ancestors(my_ancestors, my_next_ancestor_sets, other_ancestors, other_next_ancestor_sets, gen)
-            self._process_next_ancestors(lowest_common_ancestors, my_ancestors, my_next_ancestor_sets, other_ancestors, other_next_ancestor_sets, gen)
-            for next_ancestor_sets in (my_next_ancestor_sets, other_next_ancestor_sets):
-                next_ancestor_sets[:] = [self._ancestor_set(next_ancestor.father, next_ancestor.mother)
-                                         for next_ancestor in itertools.chain(*next_ancestor_sets) if next_ancestor and next_ancestor.parents]
-        return lowest_common_ancestors
+            self._add_next_ancestors(my_ancestors, my_next_ancestors, other_ancestors, other_next_ancestors, gen)
+            self._process_next_ancestors(lowest_common_ancestors, my_ancestors, my_next_ancestors, other_ancestors, other_next_ancestors, gen)
+            for next_ancestors in (my_next_ancestors, other_next_ancestors):
+                next_ancestors[:] = [(self._ancestor_set(next_ancestor.father, next_ancestor.mother),
+                                          next_ancestor.gender == enums.CharacterGender.FEMALE.value if is_maternal_relation is self._IRRELEVANT
+                                          else is_maternal_relation)
+                                         for next_ancestor_set, is_maternal_relation in next_ancestors
+                                         for next_ancestor in next_ancestor_set
+                                         if next_ancestor and next_ancestor.parents]
+        return lowest_common_ancestors  # [[common_ancestors], is_half, is_maternal_relation, my_distance, other_distance]
 
     def relation(self, other):
         connection_template = {"type": None, "relatedness": None, "lowest_common_ancestors": None}
@@ -170,20 +179,20 @@ class FamilyTreeMixin:
         blood_relations = {"connections": connections, "total_relatedness": None}
         relations_data = {"blood": blood_relations, "marital": {"in-law": None, "step": None}}
         total_relatedness_lower = total_relatedness_upper = 0
-        for lowest_common_ancestor_set, is_half, my_distance, other_distance in self._lowest_common_ancestors(other):
+        for lowest_common_ancestor_set, is_half, is_maternal_relation, my_distance, other_distance in self._lowest_common_ancestors(other):
             connection = connection_template.copy()
-            relation_type = self.RELATION_TYPES.get((my_distance, other_distance, other.gender))
+            relation_type, is_maternal_relevant = self.RELATION_TYPES.get((my_distance, other_distance, other.gender), (None, None))
             if relation_type is None:
                 difference = abs(my_distance - other_distance)
                 if min(my_distance, other_distance) <= 1:  # Great Relative
                     if my_distance == 0:  # Grandchild's Descendent
-                        partial_relation_type = self.RELATION_TYPES[(0, 2, other.gender)]
+                        partial_relation_type, is_maternal_relevant = self.RELATION_TYPES[(0, 2, other.gender)]
                     elif other_distance == 0:  # Grandparent's Ancestor
-                        partial_relation_type = self.RELATION_TYPES[(2, 0, other.gender)]
+                        partial_relation_type, is_maternal_relevant = self.RELATION_TYPES[(2, 0, other.gender)]
                     elif my_distance == 1:  # Grandnephew/Grandniece's Descendent
-                        partial_relation_type = self.RELATION_TYPES[(1, 3, other.gender)]
+                        partial_relation_type, is_maternal_relevant = self.RELATION_TYPES[(1, 3, other.gender)]
                     elif other_distance == 1:  # Ancestor's Aunt/Uncle
-                        partial_relation_type = self.RELATION_TYPES[(3, 1, other.gender)]
+                        partial_relation_type, is_maternal_relevant = self.RELATION_TYPES[(3, 1, other.gender)]
                     relation_type = "Great-" + ("great-" * (difference - 3)) + partial_relation_type.lower()
                 else:  # Cousin
                     prefix = num2words.num2words(min(my_distance, other_distance) - 2, to="ordinal").capitalize()
@@ -191,9 +200,10 @@ class FamilyTreeMixin:
                     if difference:
                         degrees_removed = {1: "once", 2: "twice", 3: "thrice"}.get(difference, f"{num2words.num2words(difference)} times")
                         suffix = f" {degrees_removed} removed ({'later' if my_distance > other_distance else 'earlier'} generation)"
-                    relation_type = {self.RELATION_TYPES[(2, 2, other.gender)].lower().replace(self.FIRST_PREFIX, prefix)} + suffix
-            if is_half:
-                relation_type = f"Half {relation_type}"
+                    partial_relation_type, is_maternal_relevant = self.RELATION_TYPES[(2, 2, other.gender)]
+                    relation_type = partial_relation_type.lower().replace(self.FIRST_PREFIX, prefix) + suffix
+            maternal_prefix = "Maternal " if is_maternal_relation else "Paternal "
+            relation_type = f"{maternal_prefix if is_maternal_relevant else ''}{'Half ' if is_half else ''}{relation_type}"
             connection["type"] = relation_type
             connection["lowest_common_ancestors"] = lowest_common_ancestor_set
             relatedness_component = 0.5 ** (my_distance + other_distance)
@@ -206,7 +216,6 @@ class FamilyTreeMixin:
         blood_relations["total_relatedness"] = self._format_relatedness(total_relatedness_lower, total_relatedness_upper)
         return relations_data
         # identical twins
-        # add in maternal/paternal
         # in-law - also, don't forget special case of wife!
         # step
 
