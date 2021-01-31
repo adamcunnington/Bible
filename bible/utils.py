@@ -121,7 +121,7 @@ class FamilyTreeMixin:
     def _process_next_ancestors(cls, lowest_common_ancestors, my_ancestors, my_next_ancestors, other_ancestors, other_next_ancestors, gen):
         default_value = [((None, None), None, None)]
         for opposite_ancestors, next_ancestors, distance_index, opposite_distance_index in ((other_ancestors, my_next_ancestors, 0, 1),
-                                                                                                (my_ancestors, other_next_ancestors, 1, 0)):
+                                                                                            (my_ancestors, other_next_ancestors, 1, 0)):
             found = False
             for index, (next_ancestor_set, is_maternal_relation) in enumerate(next_ancestors):
                 distances = [0, 0]  # [my_distance, other_distance]
@@ -166,11 +166,11 @@ class FamilyTreeMixin:
             self._process_next_ancestors(lowest_common_ancestors, my_ancestors, my_next_ancestors, other_ancestors, other_next_ancestors, gen)
             for next_ancestors in (my_next_ancestors, other_next_ancestors):
                 next_ancestors[:] = [(self._ancestor_set(next_ancestor.father, next_ancestor.mother),
-                                          next_ancestor.gender == enums.CharacterGender.FEMALE.value if is_maternal_relation is self._IRRELEVANT
-                                          else is_maternal_relation)
-                                         for next_ancestor_set, is_maternal_relation in next_ancestors
-                                         for next_ancestor in next_ancestor_set
-                                         if next_ancestor and next_ancestor.parents]
+                                      next_ancestor.gender == enums.CharacterGender.FEMALE.value if is_maternal_relation is self._IRRELEVANT
+                                      else is_maternal_relation)
+                                     for next_ancestor_set, is_maternal_relation in next_ancestors
+                                     for next_ancestor in next_ancestor_set
+                                     if next_ancestor and next_ancestor.parents]
         return lowest_common_ancestors  # [[common_ancestors], is_half, is_maternal_relation, my_distance, other_distance]
 
     def relation(self, other):  # Doesn't support identical twins
