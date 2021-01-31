@@ -96,8 +96,8 @@ class FamilyTreeMixin:
         (1, 3, enums.CharacterGender.MALE.value): ("Grandnephew", False),
         (1, 3, enums.CharacterGender.FEMALE.value): ("Grandniece", False),
         (1, 3, UNKNOWN): ("Grandnephew/Grandniece", False),
-        (2, 2, enums.CharacterGender.MALE.value): (f"{FIRST_PREFIX} Cousin (Male)", True),
-        (2, 2, enums.CharacterGender.FEMALE.value): (f"{FIRST_PREFIX} Cousin (Female)", True),
+        (2, 2, enums.CharacterGender.MALE.value): (f"{FIRST_PREFIX} Cousin (male)", True),
+        (2, 2, enums.CharacterGender.FEMALE.value): (f"{FIRST_PREFIX} Cousin (female)", True),
         (2, 2, UNKNOWN): (f"{FIRST_PREFIX} Cousin", True)
     }
     _ancestor_set = collections.namedtuple("AncestorSet", ("male", "female"), defaults=(_IRRELEVANT, _IRRELEVANT))
@@ -201,7 +201,7 @@ class FamilyTreeMixin:
                         degrees_removed = {1: "once", 2: "twice", 3: "thrice"}.get(difference, f"{num2words.num2words(difference)} times")
                         suffix = f" {degrees_removed} removed ({'later' if my_distance > other_distance else 'earlier'} generation)"
                     partial_relation_type, is_maternal_relevant = self.RELATION_TYPES[(2, 2, other.gender)]
-                    relation_type = partial_relation_type.lower().replace(self.FIRST_PREFIX, prefix) + suffix
+                    relation_type = partial_relation_type.replace(self.FIRST_PREFIX, prefix) + suffix
             maternal_prefix = "Maternal " if is_maternal_relation else "Paternal "
             relation_type = f"{maternal_prefix if is_maternal_relevant else ''}{'Half ' if is_half else ''}{relation_type}"
             connection["type"] = relation_type
