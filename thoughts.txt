@@ -1,4 +1,6 @@
 TO FIX
+    Fix StopIteration for the Lot situation
+
     Get display working for docker container.
 
     It sucks that the metadata must be repeated across translations because of the subtle variations in passages. It would be better to centralise as much of this as possible even if it adds some complexity. Look into this but not until adding second translation.
