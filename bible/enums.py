@@ -8,8 +8,8 @@ class CharacterGender(enum.Enum):
 
 class CharacterCauseOfDeath(enum.Enum):
     MURDERED_BY_CAIN = "Murdered by Cain"
-    OLD_AGE = "Old Age"
     TAKEN_TO_HEAVEN = "Taken to Heaven"
+    TRANSFORMED_INTO_PILAR_OF_SALT = "Transformed into Pilar of Salt"
 
 
 class CharacterNationality(enum.Enum):
@@ -77,11 +77,29 @@ class CharacterNationality(enum.Enum):
     HAVILAH_SHEM = "Havilah (Shem)"
     JOBAB = "Jobab"
     UR = "Ur"
+    SHINAR = "Shinar"
+    ELLASAR = "Ellasar"
+    GOIIM = "Goiim"
+    SODOM = "Sodom"
+    GOMORRAH = "Gomorrah"
+    ADMAH = "Admah"
+    ZEBOIIM = "Zeboiim"
+    BELA = "Bela"
+    AMORITE = "Amorite"
+    SALEM = "Salem"
+    DAMASCUS = "Damascus"
+    HEAVEN = "Heaven"
 
 
 class CharacterPlaceOfDeath(enum.Enum):
-    pass
+    HARAN = "Haran"
+    ZOAR = "Zoar"
 
 
 class CharacterPrimaryOccupation(enum.Enum):
     HUNTER = "Hunter"
+    KING = "King"
+    PRIEST_KING = "Priest King"
+    ABRAM_SERVANT = "Abram's Servant"
+    SARAI_SERVANT = "Sarai's Servant"
+    ANGEL = "Angel"

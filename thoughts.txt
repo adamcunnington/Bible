@@ -6,12 +6,11 @@ TO FIX
 FUNCTIONALITY
     Bind display to docker container (like we do for audio).
 
-    Finessee tree() method.
+    Finessee tree() method. Add different type of line for spouses.
 
     Make text more terminal print friendly.
 
 CHARACTERS
-    Method on character to find out how they are related to x. should return from the character's perspective. e.g. x is my <relation>. Might get very complicated!
     Don't forget to update docs.
 
     Need to map nationalities to modern day equivelants

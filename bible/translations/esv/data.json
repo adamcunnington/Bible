@@ -36172,24 +36172,9 @@
         }
     },
     "characters": {
-        "1": {
-            "passages": ["Genesis 1-"],
-            "aliases": ["LORD"],
-            "father": null,
-            "mother": null,
-            "name": "God"
-        },
-        "2": {
-            "passages": ["Genesis 1:2"],
-            "aliases": ["Spirit of God"],
-            "father": null,
-            "mother": null,
-            "name": "Holy Spirit"
-        },
         "3": {
             "passages": ["Genesis 2-5"],
             "age": 930,
-            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
             "father": null,
             "gender": "CharacterGender.MALE",
             "mother": null,
@@ -36317,7 +36302,6 @@
         "20": {
             "passages": ["Genesis 4:25", "Genesis 5:3-8"],
             "age": 912,
-            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
             "father": "3",
             "gender": "CharacterGender.MALE",
             "mother": "4",
@@ -36326,7 +36310,6 @@
         "21": {
             "passages": ["Genesis 4:26", "Genesis 5:6-11"],
             "age": 905,
-            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
             "father": "20",
             "gender": "CharacterGender.MALE",
             "name": "Enosh"
@@ -36334,7 +36317,6 @@
         "22": {
             "passages": ["Genesis 5:9-14"],
             "age": 910,
-            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
             "father": "21",
             "gender": "CharacterGender.MALE",
             "name": "Kenan"
@@ -36342,7 +36324,6 @@
         "23": {
             "passages": ["Genesis 5:15-17"],
             "age": 895,
-            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
             "father": "22",
             "gender": "CharacterGender.MALE",
             "name": "Mahalalel"
@@ -36350,7 +36331,6 @@
         "24": {
             "passages": ["Genesis 5:15-20"],
             "age": 962,
-            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
             "father": "23",
             "gender": "CharacterGender.MALE",
             "name": "Jared"
@@ -36366,7 +36346,6 @@
         "26": {
             "passages": ["Genesis 5:21-27"],
             "age": 969,
-            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
             "father": "25",
             "gender": "CharacterGender.MALE",
             "name": "Methuselah"
@@ -36374,7 +36353,6 @@
         "27": {
             "passages": ["Genesis 5:25-31"],
             "age": 777,
-            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
             "father": "26",
             "gender": "CharacterGender.MALE",
             "name": "Lamech"
@@ -36382,7 +36360,6 @@
         "28": {
             "passages": ["Genesis 5:29", "Genesis 6-9", "Genesis 10"],
             "age": 950,
-            "cause_of_death": "CharacterCauseOfDeath.OLD_AGE",
             "father": "27",
             "gender": "CharacterGender.MALE",
             "name": "Noah",
@@ -36917,10 +36894,11 @@
             "father": "99",
             "gender": "CharacterGender.MALE",
             "name": "Terah",
-            "nationality": "CharacterNationality.UR"
+            "nationality": "CharacterNationality.UR",
+            "place_of_death": "CharacterPlaceOfDeath.HARAN"
         },
         "101": {
-            "passages": ["Genesis 11:26-"],
+            "passages": ["Genesis 11:26-18:", "Genesis 19:27-29"],
             "aliases": ["Abraham"],
             "father": "100",
             "gender": "CharacterGender.MALE",
@@ -36944,14 +36922,15 @@
             "nationality": "CharacterNationality.UR"
         },
         "104": {
-            "passages": ["Genesis 11:27-"],
+            "passages": ["Genesis 11:27-14:", "Genesis 19"],
             "father": "103",
             "gender": "CharacterGender.MALE",
             "name": "Lot",
-            "nationality": "CharacterNationality.UR"
+            "nationality": "CharacterNationality.UR",
+            "spouses": ["131"]
         },
         "105": {
-            "passages": ["Genesis 11:29-"],
+            "passages": ["Genesis 11:29-13:1", "Genesis 16", "Genesis 17:15-21"],
             "aliases": ["Sarah"],
             "gender": "CharacterGender.FEMALE",
             "name": "Sarai",
@@ -36972,6 +36951,183 @@
             "gender": "CharacterGender.FEMALE",
             "name": "Iscah",
             "nationality": "CharacterNationality.UR"
+        },
+        "108": {
+            "passages": ["Genesis 12:15-"],
+            "gender": "CharacterGender.MALE",
+            "name": "# pharoah - do not forget!"
+        },
+        "109": {
+            "passages": ["Genesis 14:1-"],
+            "gender": "CharacterGender.MALE",
+            "name": "Amraphel",
+            "nationality": "CharacterNationality.SHINAR",
+            "primary_occupation": "CharacterPrimaryOccupation.KING"
+        },
+        "110": {
+            "passages": ["Genesis 14:1-"],
+            "gender": "CharacterGender.MALE",
+            "name": "Arioch",
+            "nationality": "CharacterNationality.ELLASAR",
+            "primary_occupation": "CharacterPrimaryOccupation.KING"
+        },
+        "111": {
+            "passages": ["Genesis 14:1-"],
+            "gender": "CharacterGender.MALE",
+            "name": "Chedorlaomer",
+            "nationality": "CharacterNationality.ELAM",
+            "primary_occupation": "CharacterPrimaryOccupation.KING"
+        },
+        "112": {
+            "passages": ["Genesis 14:1-"],
+            "gender": "CharacterGender.MALE",
+            "name": "Tidal",
+            "nationality": "CharacterNationality.GOIIM",
+            "primary_occupation": "CharacterPrimaryOccupation.KING"
+        },
+        "113": {
+            "passages": ["Genesis 14:2-"],
+            "gender": "CharacterGender.MALE",
+            "name": "Bera",
+            "nationality": "CharacterNationality.SODOM",
+            "primary_occupation": "CharacterPrimaryOccupation.KING"
+        },
+        "114": {
+            "passages": ["Genesis 14:2-"],
+            "gender": "CharacterGender.MALE",
+            "name": "Birsha",
+            "nationality": "CharacterNationality.GOMORRAH",
+            "primary_occupation": "CharacterPrimaryOccupation.KING"
+        },
+        "115": {
+            "passages": ["Genesis 14:2-"],
+            "gender": "CharacterGender.MALE",
+            "name": "Shinab",
+            "nationality": "CharacterNationality.ADMAH",
+            "primary_occupation": "CharacterPrimaryOccupation.KING"
+        },
+        "116": {
+            "passages": ["Genesis 14:2-"],
+            "gender": "CharacterGender.MALE",
+            "name": "Shemeber",
+            "nationality": "CharacterNationality.ZEBOIIM",
+            "primary_occupation": "CharacterPrimaryOccupation.KING"
+        },
+        "117": {
+            "passages": ["Genesis 14:2-"],
+            "gender": "CharacterGender.MALE",
+            "name": "Zoar",
+            "nationality": "CharacterNationality.BELA",
+            "primary_occupation": "CharacterPrimaryOccupation.KING"
+        },
+        "118": {
+            "passages": ["Genesis 14:13"],
+            "gender": "CharacterGender.MALE",
+            "name": "(Mamre's, Eschol's and Aner's Father)"
+        },
+        "119": {
+            "passages": ["Genesis 14:13-"],
+            "father": "118",
+            "gender": "CharacterGender.MALE",
+            "name": "Mamre",
+            "nationality": "CharacterNationality.AMORITE"
+        },
+        "120": {
+            "passages": ["Genesis 14:13-"],
+            "father": "118",
+            "gender": "CharacterGender.MALE",
+            "name": "Eshcol",
+            "nationality": "CharacterNationality.AMORITE"
+        },
+        "121": {
+            "passages": ["Genesis 14:13-"],
+            "father": "118",
+            "gender": "CharacterGender.MALE",
+            "name": "Aner",
+            "nationality": "CharacterNationality.AMORITE"
+        },
+        "122": {
+            "passages": ["Genesis 14:18-20"],
+            "gender": "CharacterGender.MALE",
+            "name": "Melchizedek",
+            "nationality": "CharacterNationality.SALEM",
+            "primary_occupation": "CharacterPrimaryOccupation.PRIEST_KING"
+        },
+        "123": {
+            "passages": ["Genesis 15:2"],
+            "gender": "CharacterGender.MALE",
+            "name": "Eliezer",
+            "nationality": "CharacterNationality.DAMASCUS",
+            "primary_occupation": "CharacterPrimaryOccupation.ABRAM_SERVANT"
+        },
+        "124": {
+            "passages": ["Genesis 16"],
+            "gender": "CharacterGender.FEMALE",
+            "name": "Hagar",
+            "nationality": "CharacterNationality.EGYPT",
+            "primary_occupation": "CharacterPrimaryOccupation.SARAI_SERVANT"
+        },
+        "125": {
+            "passages": ["Genesis 16:11-", "Genesis 17:18-"],
+            "gender": "CharacterGender.MALE",
+            "name": "Ishmael"
+        },
+        "126": {
+            "passages": ["Genesis 17:19-18:21"],
+            "father": "101",
+            "gender": "CharacterGender.MALE",
+            "mother": "105",
+            "name": "Isaac"
+        },
+        "127": {
+            "passages": ["Genesis 18-19"],
+            "father": null,
+            "mother": null,
+            "name": "",
+            "nationality": "CharacterNationality.HEAVEN",
+            "primary_occupation": "CharacterPrimaryOccupation.ANGEL"
+        },
+        "128": {
+            "passages": ["Genesis 18-19"],
+            "father": null,
+            "mother": null,
+            "name": "",
+            "nationality": "CharacterNationality.HEAVEN",
+            "primary_occupation": "CharacterPrimaryOccupation.ANGEL"
+        },
+        "129": {
+            "passages": ["Genesis 19:8-"],
+            "father": "104",
+            "gender": "CharacterGender.FEMALE",
+            "name": "(Daughter 1 of Lot)"
+        },
+        "130": {
+            "passages": ["Genesis 19:8-"],
+            "father": "104",
+            "gender": "CharacterGender.FEMALE",
+            "name": "(Daughter 2 of Lot)"
+        },
+        "131": {
+            "passages": ["Genesis 19:15-26"],
+            "cause_of_death": "TRANSFORMED_INTO_PILAR_OF_SALT",
+            "gender": "CharacterGender.FEMALE",
+            "name": "(Lot's Wife)",
+            "place_of_death": "CharacterPlaceOfDeath.ZOAR",
+            "spouses": ["104"]
+        },
+        "132": {
+            "passages": ["Genesis 19:37"],
+            "father": "104",
+            "gender": "CharacterGender.MALE",
+            "mother": "129",
+            "name": "Moab"
+        },
+        "133": {
+            "passages": ["Genesis 19:38"],
+            "father": "104",
+            "gender": "CharacterGender.MALE",
+            "mother": "130",
+            "name": "Ben-ammi"
         }
     }
 }
