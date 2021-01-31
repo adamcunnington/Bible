@@ -37099,12 +37099,14 @@
             "passages": ["Genesis 19:8-"],
             "father": "104",
             "gender": "CharacterGender.FEMALE",
+            "mother": "131",
             "name": "(Daughter 1 of Lot)"
         },
         "130": {
             "passages": ["Genesis 19:8-"],
             "father": "104",
             "gender": "CharacterGender.FEMALE",
+            "mother": "131",
             "name": "(Daughter 2 of Lot)"
         },
         "131": {
