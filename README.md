@@ -53,7 +53,7 @@ The application can be executed in two ways:
 1. Locally
 2. Via Docker
 
-*Note: If you are running WSL or WSL2, you may additional to install and configure additional dependencies to get audio working. See [here]([https://link](https://git.bortle-host.io/eamondo2/wsl2-pulse-x11-setup)) for more details.*
+*Note: If you are running WSL or WSL2, you may need to install and configure additional dependencies to get audio working. See [here]([https://link](https://git.bortle-host.io/eamondo2/wsl2-pulse-x11-setup)) for more details.*
 
 ### 1. Local Instructions
 The application can be ran locally (in editable mode) which is especially useful if changes are being made to the code. The `make` commands in this section assume an executable called `python3.9`. Alternatively, `PYTHON3=x` can be passed with the make target where `x` is the name of the python3 executable to use, e.g. `PYTHON3=python3.7`. Run `make` to see full details.
